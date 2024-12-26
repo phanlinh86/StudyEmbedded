@@ -3,7 +3,6 @@
 //
 
 #include "BlinkLed.h"
-#include <stdio.h>
 
 static uint32_t u32_ButtonPressCount = 0;
 
@@ -33,7 +32,7 @@ void InitButtonInterrupt(void)
 	// Enable and set input for PA0
 	mcu_SetGpioInput( BUTTON );
 	// Setup interrupt for PA0
-	mcu_SetGpioInterrupt( BUTTON );
+	// mcu_SetGpioInterrupt( BUTTON );
 	// Set EXTI0 interrupt for pin PA0
 	is_SetExtiInterrupt(BUTTON);
 	// Enable EXTI interrupt
@@ -44,7 +43,7 @@ void InitButtonInterrupt(void)
 
 void BlinkLed(void)
 {
-  	static LED eLed; 		// State machine control which LED to toggle
+  	static LED eLed = GREEN; 		// State machine control which LED to toggle
 	if (u32_ButtonPressCount % 2 == 1)
 	{	
 		switch ( eLed ) 
@@ -63,7 +62,7 @@ void BlinkLed(void)
 				break;						
 		}
 		eLed ++;
-		if ( eLed > BLUE )
+		if ( eLed >= NUMBER_SUPPORTED_LED )
 			eLed = GREEN;
 		Delay(200000);
 	}
@@ -72,6 +71,6 @@ void BlinkLed(void)
 void ButtonInterrupt(void)
 {
 	u32_ButtonPressCount++;
-	EXTI->EXTI_PR.PR0 = 1;
+	is_ClearExtiPendingInterrupt(BUTTON);
 	Delay(20000); 		// Small delay to avoid button bouncing
 }

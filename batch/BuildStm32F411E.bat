@@ -16,6 +16,8 @@ if "%PROJECT_NAME%" == "" (
 
 :: Build configuration
 set BOARD=stm32f4discovery
+set BOARD_ID=1
+
 set COMPILER=arm-none-eabi-gcc
 set MPU=cortex-m4
 set LINKER_SCRIPT=STM32F411VETX_FLASH.ld
@@ -30,17 +32,17 @@ if not exist build ( mkdir build )
 
 :: Compile .c to .o
 echo Compiling main.c to main.o
-echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\main.o source\main.c -DPROJECT=%PROJECT%
-%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\main.o source\main.c -DPROJECT=%PROJECT%
+echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\main.o source\main.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
+%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\main.o source\main.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
 echo Compiling startup.c to startup.o
-echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\startup.o board\%BOARD%\%STARTUP_SCRIPT% -DPROJECT=%PROJECT%
-%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\startup.o board\%BOARD%\%STARTUP_SCRIPT% -DPROJECT=%PROJECT%
+echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\startup.o board\%BOARD%\%STARTUP_SCRIPT% -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
+%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\startup.o board\%BOARD%\%STARTUP_SCRIPT% -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
 echo Compiling sysmem.c to sysmem.o
-echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\sysmem.o board\%BOARD%\sysmem.c -DPROJECT=%PROJECT%
-%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\sysmem.o board\%BOARD%\sysmem.c -DPROJECT=%PROJECT%
+echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\sysmem.o board\%BOARD%\sysmem.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
+%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\sysmem.o board\%BOARD%\sysmem.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
 echo Compiling syscalls.c to syscalls.o
-echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\syscalls.o board\%BOARD%\syscalls.c -DPROJECT=%PROJECT%
-%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\syscalls.o board\%BOARD%\syscalls.c -DPROJECT=%PROJECT%
+echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\syscalls.o board\%BOARD%\syscalls.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
+%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -mfloat-abi=hard -std=gnu11 -mfloat-abi=hard --specs=nano.specs -o build\syscalls.o board\%BOARD%\syscalls.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
 
 :: Link all .o files
 echo Linking .o files and create main.elf

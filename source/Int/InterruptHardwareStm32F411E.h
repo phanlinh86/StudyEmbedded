@@ -5,9 +5,6 @@
 #ifndef INTERRUPTHARDWARESTM32F411E_H
 #define INTERRUPTHARDWARESTM32F411E_H
 
-#include "../Mcu/McuHardwareStm32F411E.h"
-
-
 // Timer related function
 void DelayUs( uint32_t u32_TimeInUs );
 void DelayMs( uint32_t u32_TimeInMs );
@@ -54,6 +51,7 @@ static void ( *pfServiceExti15Irq ) (void) ; 		// Pointer to handle interrupt EX
 // 
 static void inline is_EnableExtiInterrupt();
 static void inline is_SetExtiInterrupt(char* pinString);
+static void inline is_ClearExtiPendingInterrupt(char* pinString);
 
 
 #endif //INTERRUPTHARDWARESTM32F411E_H

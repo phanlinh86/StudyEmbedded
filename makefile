@@ -8,8 +8,14 @@
 blink_a: clean
 	batch\BuildStm32F411E BlinkLed
 
+blink_b: clean
+	batch\BuildStm32L0x0 BlinkLed
+
 clean:
 	del /q build
 	
 flash_a:
 	openocd -f board/stm32f4discovery.cfg -c "program build/main.elf verify reset exit"
+
+flash_b:
+	openocd -f interface/stlink.cfg -f target/stm32l0.cfg -c "program build/main.elf verify reset exit"

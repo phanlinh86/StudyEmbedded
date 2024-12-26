@@ -1,5 +1,4 @@
 #include "main.h"
-#include <stdlib.h>
 
 #define FPU 16000000
 

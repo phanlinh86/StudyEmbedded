@@ -3,7 +3,6 @@
 //
 
 #include "InterruptHardwareStm32F411E.h"
-#include <stdio.h>
 
 // #Delay
 void DelayUs( uint32_t u32_TimeInUs )
@@ -96,8 +95,89 @@ static void inline is_SetExtiInterrupt(char* pinString)
 	EXTI->EXTI_RTSR.Register |= ( 1 << exti );
 }
 
+static void inline is_ClearExtiPendingInterrupt(char* pinString)
+{
+    char port; int exti;
+	sscanf(pinString, "%c%d", &port,&exti);
+    EXTI->EXTI_PR.Register |= ( 1 << exti );
+}
 
 void EXTI0_IRQHandler(void)
 {
 	(*pfServiceExti0Irq)();
+}
+
+void EXTI1_IRQHandler(void)
+{
+	(*pfServiceExti1Irq)();
+}
+
+void EXTI2_IRQHandler(void)
+{
+    (*pfServiceExti2Irq)();
+}
+
+void EXTI3_IRQHandler(void)
+{
+    (*pfServiceExti3Irq)();
+}
+
+void EXTI4_IRQHandler(void)
+{
+    (*pfServiceExti4Irq)();
+}
+
+void EXTI5_IRQHandler(void)
+{
+    (*pfServiceExti5Irq)();
+}
+
+void EXTI6_IRQHandler(void)
+{
+    (*pfServiceExti6Irq)();
+}
+
+void EXTI7_IRQHandler(void)
+{
+    (*pfServiceExti7Irq)();
+}
+
+void EXTI8_IRQHandler(void)
+{
+    (*pfServiceExti8Irq)();
+}
+
+void EXTI9_IRQHandler(void)
+{
+    (*pfServiceExti9Irq)();
+}
+
+void EXTI10_IRQHandler(void)
+{
+    (*pfServiceExti10Irq)();
+}
+
+void EXTI11_IRQHandler(void)
+{
+    (*pfServiceExti11Irq)();
+}
+
+void EXTI12_IRQHandler(void)
+{
+    (*pfServiceExti12Irq)();
+}
+
+void EXTI13_IRQHandler(void)
+{
+    (*pfServiceExti13Irq)();
+}
+
+void EXTI14_IRQHandler(void)
+{
+    (*pfServiceExti14Irq)();
+}
+
+void EXTI15_IRQHandler(void)
+{
+    (*pfServiceExti15Irq)();
 }

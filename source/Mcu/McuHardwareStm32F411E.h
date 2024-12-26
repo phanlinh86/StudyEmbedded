@@ -5,8 +5,6 @@
 #ifndef MCUSTM32F411E_H
 #define MCUSTM32F411E_H
 
-#include <stdint.h>
-
 #define FPU 							16000000
 
 #define PERIPH_BASE           			0x40000000U

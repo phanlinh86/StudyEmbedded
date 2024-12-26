@@ -6,26 +6,31 @@
 #define BLINKLED_H
 
 
-	#ifndef headerfiles
-#include <stdint.h>
-#include "../Mcu/McuDriverStm32F411E.c"
-#include "../Int/InterruptServiceStm32F411E.c"
-	#endif // headerfiles
+typedef enum
+{
+	GREEN 	= 0,
+	ORANGE 	= 1,
+	RED		= 2,
+	BLUE	= 3
+} LED;
 
-
+    #if ( BOARD_ID ==  BOARD_ID_STM32F411E )
+#define NUMBER_SUPPORTED_LED    4
 #define LED_GREEN 	"D12"
 #define LED_ORANGE	"D13"
 #define LED_RED 	"D14"
 #define LED_BLUE 	"D15"
 #define BUTTON 		"A0"
+    #elif ( BOARD_ID ==  BOARD_ID_STM32L010RB )
+#define NUMBER_SUPPORTED_LED    1
+#define LED_GREEN 	"A5"
+#define LED_ORANGE	""
+#define LED_RED 	""
+#define LED_BLUE 	""
+#define BUTTON      "C13"
+    #endif // BOARD_ID == ?
 
-typedef enum 
-{
-	GREEN 	= 0,
-	ORANGE 	= 1,
-	RED		= 2,	
-	BLUE	= 3
-} LED;
+
 
 
 void InitLed(void);
