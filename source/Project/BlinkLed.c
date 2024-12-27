@@ -37,8 +37,8 @@ void InitButtonInterrupt(void)
 	is_SetExtiInterrupt(BUTTON);
 	// Enable EXTI interrupt
 	is_EnableExtiInterrupt();
-	// Set EXTO Interrupt Service to ButtonInterrupt
-	pfServiceExti0Irq = ButtonInterrupt;
+    // Set EXTI Interrupt Service to ButtonInterrupt
+    InitIsr( BUTTON, ButtonInterrupt);
 }
 
 void BlinkLed(void)

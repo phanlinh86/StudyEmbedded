@@ -52,6 +52,7 @@ static void ( *pfServiceExti15Irq ) (void) ; 		// Pointer to handle interrupt EX
 static void inline is_EnableExtiInterrupt();
 static void inline is_SetExtiInterrupt(char* pinString);
 static void inline is_ClearExtiPendingInterrupt(char* pinString);
+static void InitIsr(char* pinString, void (*pfServiceFunction)(void));
 
 
 #endif //INTERRUPTHARDWARESTM32F411E_H

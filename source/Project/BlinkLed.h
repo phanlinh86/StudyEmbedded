@@ -20,14 +20,14 @@ typedef enum
 #define LED_ORANGE	"D13"
 #define LED_RED 	"D14"
 #define LED_BLUE 	"D15"
-#define BUTTON 		"A0"
+#define BUTTON 		"C3"
     #elif ( BOARD_ID ==  BOARD_ID_STM32L010RB )
 #define NUMBER_SUPPORTED_LED    1
 #define LED_GREEN 	"A5"
 #define LED_ORANGE	""
 #define LED_RED 	""
 #define LED_BLUE 	""
-#define BUTTON      "C13"
+#define BUTTON      "A2"
     #endif // BOARD_ID == ?
 
 

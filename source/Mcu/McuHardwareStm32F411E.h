@@ -538,5 +538,9 @@ typedef struct
 #define USART6 	((usart_regs*)			USART6_BASE)
 
 #define NVIC_ISER0 ((uint32_t*)			NVIC_ISER0_BASE)
+#define NVIC_ISER1 ((uint32_t*)			NVIC_ISER1_BASE)
+#define NVIC_ISER2 ((uint32_t*)			NVIC_ISER2_BASE)
+#define NVIC_ISER3 ((uint32_t*)			NVIC_ISER3_BASE)
+
 
 #endif //MCUSTM32F411E_H
