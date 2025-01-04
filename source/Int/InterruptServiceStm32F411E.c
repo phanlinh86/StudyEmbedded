@@ -45,63 +45,63 @@ static void inline is_SetExtiInterrupt(char* pinString)
 			break;
 		case 1:
 			SYSCFG->SYSCFG_EXTICR1.EXTI1 = (port - 'A'); 	//  EXTI1
-			*NVIC_ISER0 |= 1 << 7;
+			*(NVIC_ISER0) |= 1 << 7;
 			break;
 		case 2:
 			SYSCFG->SYSCFG_EXTICR1.EXTI2 = (port - 'A'); 	//  EXTI2
-			*NVIC_ISER0 |= 1 << 8;
+			*(NVIC_ISER0) |= 1 << 8;
 			break;
 		case 3:
 			SYSCFG->SYSCFG_EXTICR1.EXTI3 = (port - 'A'); 	//  EXTI3
-			*NVIC_ISER0 |= 1 << 9;
+			*(NVIC_ISER0) |= 1 << 9;
 			break;			
 		case 4:
 			SYSCFG->SYSCFG_EXTICR2.EXTI4 = (port - 'A'); 	//  EXTI4
-			*NVIC_ISER0 |= 1 << 10;
+			*(NVIC_ISER0) |= 1 << 10;
 			break;
 		case 5:
 			SYSCFG->SYSCFG_EXTICR2.EXTI5 = (port - 'A'); 	//  EXTI5
-			*NVIC_ISER0 |= 1 << 23;
+			*(NVIC_ISER0) |= 1 << 23;
 			break;
 		case 6:
 			SYSCFG->SYSCFG_EXTICR2.EXTI6 = (port - 'A'); 	//  EXTI6
-			*NVIC_ISER0 |= 1 << 23;
+			*(NVIC_ISER0) |= 1 << 23;
 			break;			
 		case 7:
 			SYSCFG->SYSCFG_EXTICR2.EXTI7 = (port - 'A'); 	//  EXTI7
-			*NVIC_ISER0 |= 1 << 23;
+			*(NVIC_ISER0) |= 1 << 23;
 			break;
 		case 8:
 			SYSCFG->SYSCFG_EXTICR3.EXTI8 = (port - 'A'); 	//  EXTI8
-			*NVIC_ISER0 |= 1 << 23;
+			*(NVIC_ISER0) |= 1 << 23;
 			break;
 		case 9:
 			SYSCFG->SYSCFG_EXTICR3.EXTI9 = (port - 'A'); 	//  EXTI9
-			*NVIC_ISER0 |= 1 << 23;
+			*(NVIC_ISER0) |= 1 << 23;
 			break;
 		case 10:
 			SYSCFG->SYSCFG_EXTICR3.EXTI10 = (port - 'A'); 	//  EXTI10
-			*NVIC_ISER1 |= 1 << 8;
+			*(NVIC_ISER1) |= 1 << 8;
 			break;
 		case 11:
 			SYSCFG->SYSCFG_EXTICR3.EXTI11 = (port - 'A'); 	//  EXTI11
-			*NVIC_ISER1 |= 1 << 8;
+			*(NVIC_ISER1) |= 1 << 8;
 			break;
 		case 12:
 			SYSCFG->SYSCFG_EXTICR4.EXTI12 = (port - 'A'); 	//  EXTI12
-			*NVIC_ISER1 |= 1 << 8;
+			*(NVIC_ISER1) |= 1 << 8;
 			break;			
 		case 13:
 			SYSCFG->SYSCFG_EXTICR4.EXTI13 = (port - 'A'); 	//  EXTI13
-			*NVIC_ISER1 |= 1 << 8;
+			*(NVIC_ISER1) |= 1 << 8;
 			break;			
 		case 14:
 			SYSCFG->SYSCFG_EXTICR4.EXTI14 = (port - 'A'); 	//  EXTI14
-			*NVIC_ISER1 |= 1 << 8;
+			*(NVIC_ISER1) |= 1 << 8;
 			break;
 		case 15:
 			SYSCFG->SYSCFG_EXTICR4.EXTI15 = (port - 'A'); 	//  EXTI15
-			*NVIC_ISER1 |= 1 << 8;
+			*(NVIC_ISER1) |= 1 << 8;
 			break;
 	} 
 	// Disable EXTI0 Interrupt Masking

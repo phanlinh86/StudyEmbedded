@@ -16,11 +16,11 @@ typedef enum
 
     #if ( BOARD_ID ==  BOARD_ID_STM32F411E )
 #define NUMBER_SUPPORTED_LED    4
-#define LED_GREEN 	"D12"
-#define LED_ORANGE	"D13"
-#define LED_RED 	"D14"
-#define LED_BLUE 	"D15"
-#define BUTTON 		"C3"
+#define LED_GREEN 				"D12"
+#define LED_ORANGE				"D13"
+#define LED_RED 				"D14"
+#define LED_BLUE 				"D15"
+#define BUTTON 					"A0"
     #elif ( BOARD_ID ==  BOARD_ID_STM32L010RB )
 #define NUMBER_SUPPORTED_LED    1
 #define LED_GREEN 	"A5"

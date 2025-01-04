@@ -49,10 +49,10 @@
 #define reg32( r ) unsigned long r
 
 
-/******************************************************************************
-*									STM32 GPIOA_BASE												*
-*									General Purpose I/O											*
-*******************************************************************************/
+/****************************************************************************
+*									STM32 GPIOA_BASE						*
+*									General Purpose I/O						*
+*****************************************************************************/
 // Field map
 typedef volatile union
 {
@@ -215,7 +215,7 @@ typedef volatile struct
 *									System Configuration Controller			*
 *****************************************************************************/
 // Field map
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -228,7 +228,7 @@ typedef union
 	};
 } SYSCFG_EXTICR1_reg;
 
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -241,7 +241,7 @@ typedef union
 	};
 } SYSCFG_EXTICR2_reg;
 
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -254,7 +254,7 @@ typedef union
 	};
 } SYSCFG_EXTICR3_reg;
 
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -286,7 +286,7 @@ typedef struct
 *									External Interrupt 						*
 *****************************************************************************/
 // Field map
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -317,7 +317,7 @@ typedef union
 	};
 } EXTI_IMR_reg;
 
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -349,7 +349,7 @@ typedef union
 } EXTI_TSR_reg;
 
 
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -399,7 +399,7 @@ typedef struct
 // Field map
 
 // Status register
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -419,7 +419,7 @@ typedef union
 } USART_SR_reg;
 
 // Baud Rate register
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -430,7 +430,7 @@ typedef union
 } USART_BRR_reg;
 
 // Control Register1
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -456,7 +456,7 @@ typedef union
 } USART_CR1_reg;
 
 // Control Register2
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -477,7 +477,7 @@ typedef union
 } USART_CR2_reg;
 
 // Control Register3
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -499,7 +499,7 @@ typedef union
 } USART_CR3_reg;
 
 // Guard time and prescaler register
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -531,16 +531,16 @@ typedef struct
 #define GPIOE 		((gpio_regs*) 			GPIOE_BASE)
 #define GPIOH 		((gpio_regs*) 			GPIOH_BASE)
 #define RCC 		((rcc_regs*) 			RCC_BASE)
-#define SYSCFG 	((syscfg_regs*) 		SYSCFG_BASE)
+#define SYSCFG 		((syscfg_regs*) 		SYSCFG_BASE)
 #define EXTI 		((ext_regs*) 			EXTI_BASE)
-#define USART1 	((usart_regs*)			USART1_BASE)
-#define USART2 	((usart_regs*)			USART2_BASE)
-#define USART6 	((usart_regs*)			USART6_BASE)
+#define USART1 		((usart_regs*)			USART1_BASE)
+#define USART2 		((usart_regs*)			USART2_BASE)
+#define USART6 		((usart_regs*)			USART6_BASE)
 
-#define NVIC_ISER0 ((uint32_t*)			NVIC_ISER0_BASE)
-#define NVIC_ISER1 ((uint32_t*)			NVIC_ISER1_BASE)
-#define NVIC_ISER2 ((uint32_t*)			NVIC_ISER2_BASE)
-#define NVIC_ISER3 ((uint32_t*)			NVIC_ISER3_BASE)
+#define NVIC_ISER0 	((uint32_t*)			NVIC_ISER0_BASE)
+#define NVIC_ISER1 	((uint32_t*)			NVIC_ISER1_BASE)
+#define NVIC_ISER2 	((uint32_t*)			NVIC_ISER2_BASE)
+#define NVIC_ISER3 	((uint32_t*)			NVIC_ISER3_BASE)
 
 
 #endif //MCUSTM32F411E_H

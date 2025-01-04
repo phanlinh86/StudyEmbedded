@@ -31,8 +31,6 @@ void InitButtonInterrupt(void)
 {
 	// Enable and set input for PA0
 	mcu_SetGpioInput( BUTTON );
-	// Setup interrupt for PA0
-	// mcu_SetGpioInterrupt( BUTTON );
 	// Set EXTI0 interrupt for pin PA0
 	is_SetExtiInterrupt(BUTTON);
 	// Enable EXTI interrupt
