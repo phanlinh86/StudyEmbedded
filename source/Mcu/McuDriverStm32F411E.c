@@ -3,7 +3,6 @@
 //
 #pragma once
 
-
 typedef enum 
 {
 	USART_NO_STOP_BITS_0p5 	= 0,
@@ -50,7 +49,8 @@ typedef struct
 	usart_config   	USART_Config;		// Struct to store the config
 }usart_handle;
 
-
+static usart_handle usart1_handle;
+static usart_handle usart2_handle;
 
 
 static inline void mcu_SetGpioOutput( char* pinString );
@@ -58,8 +58,15 @@ static inline void mcu_SetGpioInput( char* pinString );
 static inline void mcu_SetGpioHigh( char* pinString );
 static inline void mcu_SetGpioLow( char* pinString );
 static inline void mcu_ToggleGpio( char* pinString );
-static inline void mcu_SetGpioAlternate( char* pinString );
+static inline void mcu_SetGpioAlternate( char* pinString, uint8_t u8_AlternateValue );
 
+// USART2
+static void mcu_InitUsart2();
+static void mcu_Usart2SendData(const char *pTxBuffer);
+// USART1
+static void mcu_InitUsart1();
+static void mcu_Usart1SendData(const char *pTxBuffer);
+// USART6
 static inline void mcu_UsartInit( usart_handle* pUsartHandle ); 		// Enable and initiliaze USART
 static inline void mcu_UsartSetBaudRate( usart_handle *pUSARTHandle );	// Set USART baud rate
 void mcu_UsartSendData(usart_handle *pUSARTHandle, const char *pTxBuffer);
@@ -116,22 +123,19 @@ static inline void mcu_SetGpioLow( char* pinString )
 	GPIO->ODR.Register &= ~( 1 << pin );			// Set GPIO mode to output
 }
 
-static inline void mcu_SetGpioAlternate( char* pinString )
+static inline void mcu_SetGpioAlternate( char* pinString, uint8_t u8_AlternateValue )
 {
 	char port; int pin;
-	uint8_t temp1, temp2;
 	
 	sscanf( pinString, "%c%d", &port, &pin);
 	gpio_regs *GPIO = (gpio_regs*)( GPIOA_BASE + ( port - 'A' ) * 0x400 );
-	RCC->RCC_AHB1ENR.Register |= ( 1 << ( port - 'A' ) ); 	// Enable GPIO clock		
+	RCC->RCC_AHB1ENR.Register |= ( 1 << ( port - 'A' ) ); 		// Enable GPIO clock		
 	BITFIELDMNSET(GPIO->MODER.Register, pin*2+1, pin*2, 2); 	// Set moder to 2 for alternate function
-	temp1 = pin / 8;
-	temp2 = pin % 8;
-	// GPIO->AFR[temp1] &= ~(0xF << ( 4 * temp2 ) ); //clearing
-	// GPIO->AFR[temp2] |= (7 << ( 4 * temp2 ) );
-	GPIO->MODER.MODER2 = 2;
-	GPIO->AFRL.AFRL2 = 7;
-	GPIO->PUPDR.PUPDR2 = 1;
+	BITFIELDMNSET(GPIO->PUPDR.Register, pin*2+1, pin*2, 1);		// Set pull up register for correct start bit	
+	if ( pin < 8 )
+		BITFIELDMNSET(GPIO->AFRL.Register, pin*4+3, pin*4, u8_AlternateValue);	// Set Alternate function
+	else
+		BITFIELDMNSET(GPIO->AFRH.Register, (pin-8)*4+3, (pin-8)*4, u8_AlternateValue);	// Set Alternate function
 }
 
 
@@ -139,6 +143,42 @@ static inline void mcu_SetGpioAlternate( char* pinString )
  * 									STM32 USART_BASE							*
  * 						Universal Synchronous Asynchronous Receiver Transmitter	*
  * ******************************************************************************/
+void mcu_InitUsart1(void)
+{	
+	usart1_handle.pUSARTx 						= USART1;
+	usart1_handle.USART_Config.u32_BaudRate 	= USART_BAUDRATE_115200;
+	usart1_handle.USART_Config.eMode 			= USART_MODE_TXRX;
+	usart1_handle.USART_Config.eNoOfStopBits 	= USART_NO_STOP_BITS_1p0;
+	usart1_handle.USART_Config.u8_WordLength 	= USART_WORDLEN_8BITS;
+	usart1_handle.USART_Config.eParityControl 	= USART_PARITY_DISABLE;
+	mcu_UsartInit(&usart1_handle);
+	mcu_SetGpioAlternate("B6", 7); 	// USART1 TX. Use B6 instead of A9 due to A9 connected to a LED with capacitor
+	mcu_SetGpioAlternate("B7", 7); 	// USART1 RX. Use B6 instead of A9 due to A10 connected to a LED with capacitor
+}
+
+static void mcu_Usart1SendData(const char *pTxBuffer)
+{
+	mcu_UsartSendData( &usart1_handle, pTxBuffer );
+}
+ 
+void mcu_InitUsart2(void)
+{	
+	usart2_handle.pUSARTx 						= USART2;
+	usart2_handle.USART_Config.u32_BaudRate 	= USART_BAUDRATE_115200;
+	usart2_handle.USART_Config.eMode 			= USART_MODE_TXRX;
+	usart2_handle.USART_Config.eNoOfStopBits 	= USART_NO_STOP_BITS_1p0;
+	usart2_handle.USART_Config.u8_WordLength 	= USART_WORDLEN_8BITS;
+	usart2_handle.USART_Config.eParityControl 	= USART_PARITY_DISABLE;
+	mcu_UsartInit(&usart2_handle);
+	mcu_SetGpioAlternate("A2", 7); 	// USART2 TX
+	mcu_SetGpioAlternate("A3", 7); 	// USART3 RX	
+}
+
+static void mcu_Usart2SendData(const char *pTxBuffer)
+{
+	mcu_UsartSendData( &usart2_handle, pTxBuffer );
+}
+ 
 void mcu_UsartInit(usart_handle *pUSARTHandle)
 {
 
@@ -246,64 +286,33 @@ static inline void mcu_UsartSetBaudRate( usart_handle *pUSARTHandle )
 	// USARTDIV 	= u32_ApbClk / ( 8 * (2-OVER8) ) / Tx/Rx baud;
 	USARTDIV = ( u32_ApbClk * 16 ) / ( 8 * (2-OVER8) ) / pUSARTHandle->USART_Config.u32_BaudRate;
 	pUSARTHandle->pUSARTx->USART_BRR.Register = USARTDIV;
-	// pUSARTHandle->pUSARTx->USART_BRR.Register = 1667;
 
 }
 
 void mcu_UsartSendChar(usart_handle *pUSARTHandle, char data)
 {
 	while(!pUSARTHandle->pUSARTx->USART_SR.TXE);
+	
 	if(pUSARTHandle->USART_Config.u8_WordLength == USART_WORDLEN_9BITS)
 		pUSARTHandle->pUSARTx->USART_DR.DR = data & (uint16_t)0x01FF;
 	else
 		pUSARTHandle->pUSARTx->USART_DR.DR = data & (uint8_t)0xFF;
-	
 }
 
 
 void mcu_UsartSendData(usart_handle *pUSARTHandle, const char *pTxBuffer)
 {
-
 	uint16_t index=0;
 
-	//Loop over until "Len" number of bytes are transferred
-	// for(uint32_t i = 0 ; i < Len; i++)
 	while  ( pTxBuffer[index] )
 	{
-		//Implement the code to wait until TXE flag is set in the SR
-		while(!pUSARTHandle->pUSARTx->USART_SR.TXE);
-
-		//Check the USART_WordLength item for 9BIT or 8BIT in a frame
-		if(pUSARTHandle->USART_Config.u8_WordLength == USART_WORDLEN_9BITS)
-		{
-			//if 9BIT load the DR with 2bytes masking  the bits other than first 9 bits
-			pUSARTHandle->pUSARTx->USART_DR.DR = pTxBuffer[index] & (uint16_t)0x01FF;
-
-			//check for USART_ParityControl
-			if(pUSARTHandle->USART_Config.eParityControl == USART_PARITY_DISABLE)
-			{
-				//No parity is used in this transfer , so 9bits of user data will be sent
-				//Implement the code to increment pTxBuffer twice
-				index++;
-				index++;
-			}
-			else
-			{
-				//Parity bit is used in this transfer . so 8bits of user data will be sent
-				//The 9th bit will be replaced by parity bit by the hardware
-				index++;
-			}
-		}
+		mcu_UsartSendChar(pUSARTHandle, pTxBuffer[index]);
+		if ( (pUSARTHandle->USART_Config.u8_WordLength == USART_WORDLEN_9BITS) && 
+			 (pUSARTHandle->USART_Config.eParityControl == USART_PARITY_DISABLE) )
+			index += 2;
 		else
-		{
-			//This is 8bit data transfer
-			pUSARTHandle->pUSARTx->USART_DR.DR = pTxBuffer[index] & (uint8_t)0xFF;
-
-			//Implement the code to increment the buffer address
 			index++;
-		}
 	}
-
 	//Implement the code to wait till TC flag is set in the SR
 	while(!pUSARTHandle->pUSARTx->USART_SR.TC);
 }

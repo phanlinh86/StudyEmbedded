@@ -30,9 +30,6 @@ typedef enum
 #define BUTTON      "A2"
     #endif // BOARD_ID == ?
 
-
-
-void InitUsart2(void);
 void InitLed(void);
 void BlinkLed(void);
 void ButtonInterrupt(void);

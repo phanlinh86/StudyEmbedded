@@ -158,14 +158,14 @@ typedef volatile union
 	uint32_t Register;
 	struct
 	{
-		uint32_t AFRL0:4;
-		uint32_t AFRL1:4;
-		uint32_t AFRL2:4;
-		uint32_t AFRL3:4;
-		uint32_t AFRL4:4;
-		uint32_t AFRL5:4;
-		uint32_t AFRL6:4;
-		uint32_t AFRL7:4;
+		uint32_t AFRL0:4; 		// 3:0
+		uint32_t AFRL1:4;		// 7:4
+		uint32_t AFRL2:4;		// 11:8
+		uint32_t AFRL3:4;		// 15:12
+		uint32_t AFRL4:4;		// 19:16
+		uint32_t AFRL5:4;		// 23:20
+		uint32_t AFRL6:4;		// 27:24
+		uint32_t AFRL7:4;		// 31:28
 	};
 } AFRL_reg;
 
