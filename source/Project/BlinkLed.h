@@ -32,7 +32,7 @@ typedef enum
 
 
 
-
+void InitUsart2(void);
 void InitLed(void);
 void BlinkLed(void);
 void ButtonInterrupt(void);

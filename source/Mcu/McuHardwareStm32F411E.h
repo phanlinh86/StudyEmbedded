@@ -83,6 +83,30 @@ typedef volatile union
 	uint32_t Register;
 	struct
 	{
+		uint32_t PUPDR0:2;
+		uint32_t PUPDR1:2;
+		uint32_t PUPDR2:2;
+		uint32_t PUPDR3:2;
+		uint32_t PUPDR4:2;
+		uint32_t PUPDR5:2;
+		uint32_t PUPDR6:2;
+		uint32_t PUPDR7:2;
+		uint32_t PUPDR8:2;
+		uint32_t PUPDR9:2;
+		uint32_t PUPDR10:2;
+		uint32_t PUPDR11:2;
+		uint32_t PUPDR12:2;
+		uint32_t PUPDR13:2;
+		uint32_t PUPDR14:2;
+		uint32_t PUPDR15:2;
+	};
+} PUPDR_reg;
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
 		uint32_t ODR0:1;
 		uint32_t ODR1:1;
 		uint32_t ODR2:1;
@@ -129,19 +153,52 @@ typedef volatile union
 	};
 } IDR_reg;
 
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t AFRL0:4;
+		uint32_t AFRL1:4;
+		uint32_t AFRL2:4;
+		uint32_t AFRL3:4;
+		uint32_t AFRL4:4;
+		uint32_t AFRL5:4;
+		uint32_t AFRL6:4;
+		uint32_t AFRL7:4;
+	};
+} AFRL_reg;
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t AFRH0:4;
+		uint32_t AFRH1:4;
+		uint32_t AFRH2:4;
+		uint32_t AFRH3:4;
+		uint32_t AFRH4:4;
+		uint32_t AFRH5:4;
+		uint32_t AFRH6:4;
+		uint32_t AFRH7:4;
+	};
+} AFRH_reg;
+
 // Register map
 typedef volatile struct
 {
 	MODER_reg MODER;
 	reg32(OTYPER);
 	reg32(OSPEEDR);
-	reg32(PUPDR);
+	PUPDR_reg PUPDR;
 	IDR_reg IDR;
 	ODR_reg ODR;
 	reg32(BSRR);
 	reg32(LCKR);
-	reg32(AFRL);
-	reg32(AFRH);
+	AFRL_reg AFRL;
+	AFRH_reg AFRH;
+	// reg32(AFR[2]);
 } gpio_regs;
 
 /****************************************************************************
@@ -149,6 +206,27 @@ typedef volatile struct
 *									Register Clock Control 					*
 *****************************************************************************/
 // Field map
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t SW			:	2; 		// 1:0
+		uint32_t SWS		: 	2;		// 3:2
+		uint32_t HPRE		: 	4;		// 7:4
+		uint32_t RVSD		:	2;		// 9:8
+		uint32_t PPRE1		: 	3;		// 12:10
+		uint32_t PPRE2		: 	3;		// 15:13
+		uint32_t RTCPRE		: 	5;		// 20:16
+		uint32_t MC01		: 	2;		// 22:21
+		uint32_t I2SSRC		: 	1;		// 23
+		uint32_t MC01PRE	: 	3;		// 26:24
+		uint32_t MC02PRE	: 	3;		// 29:27
+		uint32_t MC02		: 	2;		// 31:30
+	};
+} RCC_CFGR_reg;
+
+
 typedef volatile union
 {
 	uint32_t Register;
@@ -170,12 +248,66 @@ typedef volatile union
 	};
 } RCC_AHB1ENR_reg;
 
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t TIM2EN		: 	1; 	// 0
+		uint32_t TIM3EN		: 	1;	// 1
+		uint32_t TIM4EN		: 	1;	// 2
+		uint32_t TIM5EN		: 	1;	// 3
+		uint32_t RSVD		: 	7;	// 10:4
+		uint32_t WWDGEN		: 	1;	// 11
+		uint32_t RSVD1		: 	2;	// 13:12
+		uint32_t SPI2EN		: 	1;	// 14
+		uint32_t SPI3EN		: 	1;	// 15
+		uint32_t RSVD2		: 	1;	// 16
+		uint32_t USART2EN	: 	1;	// 17
+		uint32_t RSVD3		: 	3;	// 20:18
+		uint32_t I2C1EN		: 	1;	// 21
+		uint32_t I2C2EN		: 	1;	// 22
+		uint32_t I2C3EN		: 	1;	// 23
+		uint32_t RSVD4		: 	4;	// 27:24
+		uint32_t PWREN		: 	1;	// 28
+		uint32_t RVSD5		: 	3; 	// 31:29
+	};	
+} RCC_APB1ENR_reg;
+
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t TIM1EN		: 	1; 	// 0
+		uint32_t RSVD		: 	3;	// 3:1
+		uint32_t USART1EN	: 	1;	// 4
+		uint32_t USART6EN	: 	1;	// 5		
+		uint32_t RSVD1		: 	2;	// 7:6
+		uint32_t ADC1EN		: 	1;	// 8
+		uint32_t RSVD2		: 	2;	// 10:9
+		uint32_t SDIOEN		: 	1;	// 11
+		uint32_t SPI1EN		: 	1;	// 12
+		uint32_t SPI4EN		: 	1;	// 13
+		uint32_t SYSCFGEN	: 	1;	// 14
+		uint32_t RVSD3		: 	1;	// 15
+		uint32_t TIM9EN		: 	1;	// 16
+		uint32_t TIM10EN	: 	1;	// 17
+		uint32_t TIM11EN	: 	1;	// 18
+		uint32_t RVSD4		: 	1;	// 19
+		uint32_t SPIEN5		: 	1; 	// 20
+		uint32_t RVSD5		: 	11;	// 31:21
+	};	
+} RCC_APB2ENR_reg;
+
+
 // Register map
 typedef volatile struct
 {
 	reg32(RCC_CR);					// 0x00
 	reg32(RCC_PLLCFGR);				// 0x04
-	reg32(RCC_CFGR);				// 0x08
+	RCC_CFGR_reg RCC_CFGR;	
 	reg32(RCC_CIR); 				// 0x0C
 	reg32(RCC_AHB1RSTR); 			// 0x10
 	reg32(RCC_AHB2RSTR);			// 0x14
@@ -189,8 +321,8 @@ typedef volatile struct
 	reg32(RCC_AHB2ENR);				// 0x34
 	reg32(RSVD4);					// 0x38
 	reg32(RSVD5);					// 0x3C
-	reg32(RCC_APB1ENR);				// 0x40
-	reg32(RCC_APB2ENR);				// 0x44
+	RCC_APB1ENR_reg RCC_APB1ENR;	// 0x40
+	RCC_APB2ENR_reg RCC_APB2ENR;	// 0x44
 	reg32(RSVD6);					// 0x48
 	reg32(RSVD7);					// 0x4C
 	reg32(RCC_AHB1LPENR);			// 0x50
@@ -396,7 +528,23 @@ typedef struct
 *									STM32 USART								*
 *	       Universal synchronous asynchronous receiver trasmitter 			*
 *****************************************************************************/
-// Field map
+#define USART_BAUDRATE_9600 9600
+#define USART_BAUDRATE_19200 19200
+#define USART_BAUDRATE_38400 38400
+#define USART_BAUDRATE_57600 57600
+#define USART_BAUDRATE_115200 115200
+#define USART_BAUDRATE_230400 230400
+#define USART_BAUDRATE_460800 460800
+#define USART_BAUDRATE_921600 921600
+#define USART_BAUDRATE_2250000 2000000
+#define USART_BAUDRATE_4500000 3000000
+#define USART_WORDLEN_8BITS  0
+#define USART_WORDLEN_9BITS  1
+#define USART_HW_FLOW_CTRL_NONE    	0
+#define USART_HW_FLOW_CTRL_CTS    	1
+#define USART_HW_FLOW_CTRL_RTS    	2
+#define USART_HW_FLOW_CTRL_CTS_RTS	3
+
 
 // Status register
 typedef volatile union
@@ -450,7 +598,7 @@ typedef volatile union
 		uint32_t M 		: 	1;		// 12
 		uint32_t UE 	: 	1;		// 13
 		uint32_t RVSD 	: 	1;		// 14
-		uint32_t OVERS 	: 	1;		// 15
+		uint32_t OVER8 	: 	1;		// 15
 		uint32_t RVSD1 	: 	16;		// 31:16
 	};
 } USART_CR1_reg;
@@ -510,11 +658,21 @@ typedef volatile union
 	};
 } USART_GTPR_reg;
 
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t DR		:	9;		// 8:0
+		uint32_t RVSD 	:	23;		// 31:6
+	};
+} USART_DR_reg;
+
 // Register map
 typedef struct
 {
 	USART_SR_reg USART_SR;			// 0x00
-	reg32(USART_DR);				// 0x04
+	USART_DR_reg USART_DR;				// 0x04
 	USART_BRR_reg USART_BRR;		// 0x08
 	USART_CR1_reg USART_CR1;		// 0x0C
 	USART_CR2_reg USART_CR2;		// 0x10

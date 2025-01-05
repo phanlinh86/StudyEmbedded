@@ -28,7 +28,7 @@ void Delay( uint32_t u32_DelayLoop )
 static void inline is_EnableExtiInterrupt()
 {
 	// APB2 SYSCFG Clock Enable
-	RCC->RCC_APB2ENR |= 1 << 14;
+	RCC->RCC_APB2ENR.SYSCFGEN = 1;
 
 }
 
