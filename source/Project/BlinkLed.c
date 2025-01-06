@@ -5,6 +5,7 @@
 #include "BlinkLed.h"
 
 static uint32_t u32_ButtonPressCount = 0;
+char uart_buffer[MAX_USART_BUFFER] = "Hello World\n";
 
 void Init(void)
 {	
@@ -61,9 +62,10 @@ void BlinkLed(void)
 		eLed ++;
 		if ( eLed >= NUMBER_SUPPORTED_LED )
 		{
-			ut_SendUart("Hello Phan Linh");
 			eLed = GREEN;
 		}
+		// ut_ReceiveUart(uart_buffer);
+		ut_SendUart(uart_buffer);
 		Delay(200000);
 	}
 }

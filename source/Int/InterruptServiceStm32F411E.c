@@ -32,6 +32,12 @@ static void inline is_EnableExtiInterrupt()
 
 }
 
+static void inline is_SetUsart6Interrupt()
+{
+	// Position: 71
+	*NVIC_ISER2 |=  ( 1 << (71 % 64) );
+}
+
 static void inline is_SetExtiInterrupt(char* pinString)
 {
 	char port; int exti;
@@ -117,6 +123,10 @@ static void inline is_ClearExtiPendingInterrupt(char* pinString)
     EXTI->EXTI_PR.Register |= ( 1 << exti );
 }
 
+static void is_InitUsart6Isr(void (*pfServiceFunction)(void))
+{
+	pfServiceUsart6Irq = pfServiceFunction;
+}
 
 void InitIsr(char* pinString, void (*pfServiceFunction)(void))
 {
@@ -254,4 +264,9 @@ void EXTI14_IRQHandler(void)
 void EXTI15_IRQHandler(void)
 {
     (*pfServiceExti15Irq)();
+}
+
+void USART6_IRQHandler(void)
+{
+	(*pfServiceUsart6Irq)();
 }

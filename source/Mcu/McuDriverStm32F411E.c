@@ -53,6 +53,10 @@ static usart_handle usart1_handle;
 static usart_handle usart2_handle;
 static usart_handle usart6_handle;
 
+static char* usart1_buffer;
+static char* usart2_buffer;
+static char* usart6_buffer;
+static char usart6_buffer_len = 0;
 
 static inline void mcu_SetGpioOutput( char* pinString );
 static inline void mcu_SetGpioInput( char* pinString );
@@ -61,21 +65,30 @@ static inline void mcu_SetGpioLow( char* pinString );
 static inline void mcu_ToggleGpio( char* pinString );
 static inline void mcu_SetGpioAlternate( char* pinString, uint8_t u8_AlternateValue );
 
-// USART2
-static void mcu_InitUsart2();
-static void mcu_Usart2SendData(const char *pTxBuffer);
 // USART1
 static void mcu_InitUsart1();
 static void mcu_Usart1SendData(const char *pTxBuffer);
+static void mcu_Usart1ReceiveData(char *buffer);
+
+// USART2
+static void mcu_InitUsart2();
+static void mcu_Usart2SendData(const char *pTxBuffer);
+static void mcu_Usart2ReceiveData(char *buffer);
+
 // USART6
 static void mcu_InitUsart6();
 static void mcu_Usart6SendData(const char *pTxBuffer);
+static void mcu_Usart6ReceiveData(char *buffer);
+static void mcu_Usart6InitBuffer(char *pBuffer);
+static void mcu_Usart6IrqService(void);
 
 static inline void mcu_UsartInit( usart_handle* pUsartHandle ); 		// Enable and initiliaze USART
 static inline void mcu_UsartSetBaudRate( usart_handle *pUSARTHandle );	// Set USART baud rate
 void mcu_UsartSendData(usart_handle *pUSARTHandle, const char *pTxBuffer);
 void mcu_UsartSendChar(usart_handle *pUSARTHandle, char data);
-void mcu_UsartReceiveData(usart_handle *pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len);
+static char mcu_UsartDataAvailable(usart_handle *pUSARTHandle);
+void mcu_UsartReceiveData(usart_handle *pUSARTHandle, char *str);
+char mcu_UsartGetChar(usart_handle *pUSARTHandle);
 static uint32_t mcu_ReadClkApb1();
 static uint32_t mcu_ReadClkApb2();
 
@@ -165,6 +178,11 @@ static void mcu_Usart1SendData(const char *pTxBuffer)
 	mcu_UsartSendData( &usart1_handle, pTxBuffer );
 }
 
+static void mcu_Usart1ReceiveData( char *buffer )
+{
+	mcu_UsartReceiveData( &usart1_handle, buffer );
+}
+
 void mcu_InitUsart2(void)
 {	
 	usart2_handle.pUSARTx 						= USART2;
@@ -181,6 +199,11 @@ void mcu_InitUsart2(void)
 static void mcu_Usart2SendData(const char *pTxBuffer)
 {
 	mcu_UsartSendData( &usart2_handle, pTxBuffer );
+}
+
+static void mcu_Usart2ReceiveData( char *buffer )
+{
+	mcu_UsartReceiveData( &usart2_handle, buffer );
 }
 
 void mcu_InitUsart6(void)
@@ -201,6 +224,32 @@ static void mcu_Usart6SendData(const char *pTxBuffer)
 	mcu_UsartSendData( &usart6_handle, pTxBuffer );
 }
  
+static void mcu_Usart6ReceiveData( char *buffer )
+{
+	mcu_UsartReceiveData( &usart6_handle, buffer );
+}
+
+
+static void mcu_Usart6InitBuffer(char *pBuffer)
+{
+	usart6_buffer = pBuffer;
+}
+static void mcu_Usart6IrqService(void)
+{
+	*usart6_buffer = mcu_UsartGetChar(&usart6_handle);
+	if ( ( *usart6_buffer == '\0' ) || ( *usart6_buffer == '\r' ) || ( *usart6_buffer == '\n' ) )
+	{
+		usart6_buffer++;
+		*usart6_buffer = '\0';
+		usart6_buffer -= usart6_buffer_len + 1;
+		usart6_buffer_len = 0;
+	}
+	else
+	{
+		usart6_buffer_len++;
+		usart6_buffer++;
+	}
+}
  
 void mcu_UsartInit(usart_handle *pUSARTHandle)
 {
@@ -227,6 +276,7 @@ void mcu_UsartInit(usart_handle *pUSARTHandle)
 	if ( pUSARTHandle->USART_Config.eMode == USART_MODE_ONLY_RX)
 	{
 		pUSARTHandle->pUSARTx->USART_CR1.RE = 1;
+		pUSARTHandle->pUSARTx->USART_CR1.RXNEIE = 1;		// Enable RXNE interrupt
 	}else if (pUSARTHandle->USART_Config.eMode == USART_MODE_ONLY_TX)
 	{
 		//Implement the code to enable the Transmitter bit field 
@@ -237,6 +287,7 @@ void mcu_UsartInit(usart_handle *pUSARTHandle)
 		//Implement the code to enable the both Transmitter and Receiver bit fields 
 		pUSARTHandle->pUSARTx->USART_CR1.TE = 1;
 		pUSARTHandle->pUSARTx->USART_CR1.RE = 1;
+		pUSARTHandle->pUSARTx->USART_CR1.RXNEIE = 1;		// Enable RXNE interrupt
 	}
 
     //Implement the code to configure the Word length configuration item 
@@ -322,6 +373,25 @@ void mcu_UsartSendChar(usart_handle *pUSARTHandle, char data)
 		pUSARTHandle->pUSARTx->USART_DR.DR = data & (uint8_t)0xFF;
 }
 
+char mcu_UsartDataAvailable(usart_handle *pUSARTHandle)
+{
+	return pUSARTHandle->pUSARTx->USART_SR.RXNE;
+}
+
+char mcu_UsartGetChar(usart_handle *pUSARTHandle)
+{
+    // while(!pUSARTHandle->pUSARTx->USART_SR.RXNE); 	// Since this will be handled by interrupt
+    if(pUSARTHandle->USART_Config.u8_WordLength == USART_WORDLEN_9BITS)
+		if(pUSARTHandle->USART_Config.eParityControl == USART_PARITY_DISABLE)
+			return (char)(pUSARTHandle->pUSARTx->USART_DR.DR & (uint16_t)0x01FF);
+		else
+			return (char)(pUSARTHandle->pUSARTx->USART_DR.DR & (uint8_t)0x0FF);
+    else
+		if(pUSARTHandle->USART_Config.eParityControl == USART_PARITY_DISABLE)
+			return (char)(pUSARTHandle->pUSARTx->USART_DR.DR & (uint8_t)0xFF);
+		else
+			return (char)(pUSARTHandle->pUSARTx->USART_DR.DR  & (uint8_t)0x7F);
+}
 
 void mcu_UsartSendData(usart_handle *pUSARTHandle, const char *pTxBuffer)
 {
@@ -340,65 +410,30 @@ void mcu_UsartSendData(usart_handle *pUSARTHandle, const char *pTxBuffer)
 	while(!pUSARTHandle->pUSARTx->USART_SR.TC);
 }
 
-void mcu_UsartReceiveData(usart_handle *pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len)
+
+void mcu_UsartReceiveData(usart_handle *pUSARTHandle, char *str)
 {
-
-   //Loop over until "Len" number of bytes are transferred
-	for(uint32_t i = 0 ; i < Len; i++)
-	{
-		//Implement the code to wait until RXNE flag is set in the SR
-		while(!pUSARTHandle->pUSARTx->USART_SR.RXNE);
-
-		//Check the USART_WordLength to decide whether we are going to receive 9bit of data in a frame or 8 bit
-		if(pUSARTHandle->USART_Config.u8_WordLength == USART_WORDLEN_9BITS)
-		{
-			//We are going to receive 9bit data in a frame
-
-			//Now, check are we using USART_ParityControl control or not
-			if(pUSARTHandle->USART_Config.eParityControl == USART_PARITY_DISABLE)
-			{
-				//No parity is used , so all 9bits will be of user data
-				//read only first 9 bits so mask the DR with 0x01FF
-				*((uint16_t*) pRxBuffer) = (pUSARTHandle->pUSARTx->USART_DR.DR  & (uint16_t)0x01FF);
-
-				//Now increment the pRxBuffer two times
-				pRxBuffer++;
-				pRxBuffer++;
-			}
-			else
-			{
-				//Parity is used, so 8bits will be of user data and 1 bit is parity
-				 *pRxBuffer = (pUSARTHandle->pUSARTx->USART_DR.DR  & (uint8_t)0xFF);
-				 pRxBuffer++;
-			}
-		}
+    unsigned char data;
+	int index;
+	
+	if ( mcu_UsartDataAvailable(pUSARTHandle) == 0 )
+		return;
+		
+    do
+    {
+        data = mcu_UsartGetChar(pUSARTHandle);
+		*str = data;
+		if ( (pUSARTHandle->USART_Config.u8_WordLength == USART_WORDLEN_9BITS) && 
+			 (pUSARTHandle->USART_Config.eParityControl == USART_PARITY_DISABLE) )
+			str += 2;
 		else
-		{
-			//We are going to receive 8bit data in a frame
-
-			//Now, check are we using USART_ParityControl control or not
-			if(pUSARTHandle->USART_Config.eParityControl == USART_PARITY_DISABLE)
-			{
-				//No parity is used , so all 8bits will be of user data
-				//read 8 bits from DR
-				 *pRxBuffer = (uint8_t) (pUSARTHandle->pUSARTx->USART_DR.DR  & (uint8_t)0xFF);
-			}
-
-			else
-			{
-				//Parity is used, so , 7 bits will be of user data and 1 bit is parity
-				//read only 7 bits , hence mask the DR with 0X7F
-				 *pRxBuffer = (uint8_t) (pUSARTHandle->pUSARTx->USART_DR.DR  & (uint8_t)0x7F);
-			}
-
-			//Now , increment the pRxBuffer
-			pRxBuffer++;
-		}
-	}
-
+			str++;
+		index++;
+		if ( index == 4 )
+			break;
+		
+    } while (data != '\0');
 }
-
-
 
 /********************************************************************************
  * 									STM32 RCC									*

@@ -6,6 +6,8 @@
 #define 	DEFAULT_UART		1
 	#endif // BOARD_ID == ?
 	
+#define MAX_USART_BUFFER 		100
+
 
 typedef enum 
 {
@@ -18,12 +20,14 @@ typedef enum
 } use_uart;
 
 static use_uart eUart = DEFAULT_UART;
+extern char uart_buffer[MAX_USART_BUFFER];
 
 
 static void ut_Init();
 
 static void ut_InitUart();
 static void ut_SendUart();
+static void ut_ReceiveUart();
 
 
 static void ut_InitUart()
@@ -43,6 +47,9 @@ static void ut_InitUart()
 			break;
 		case USE_UART6:
 			mcu_InitUsart6();
+			is_SetUsart6Interrupt();
+			mcu_Usart6InitBuffer(uart_buffer);
+			is_InitUsart6Isr(mcu_Usart6IrqService);
 			break;
 	}
 }
@@ -69,6 +76,10 @@ static void ut_SendUart(const char *pTxBuffer)
 	}
 }
 
+static void ut_SetUartInterrupt()
+{
+	is_InitUsart6Isr(mcu_Usart6IrqService);
+}
 
 static void ut_Init()
 {

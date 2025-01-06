@@ -28,6 +28,7 @@ void EXTI12_IRQHandler( void);
 void EXTI13_IRQHandler( void);
 void EXTI14_IRQHandler( void);
 void EXTI15_IRQHandler( void);
+void USART6_IRQHandler( void);
 
 // Function pointer for external interrupt handling
 static void ( *pfServiceExti0Irq ) (void) ; 		// Pointer to handle interrupt EXTI0
@@ -46,6 +47,7 @@ static void ( *pfServiceExti12Irq ) (void) ; 		// Pointer to handle interrupt EX
 static void ( *pfServiceExti13Irq ) (void) ; 		// Pointer to handle interrupt EXTI13
 static void ( *pfServiceExti14Irq ) (void) ; 		// Pointer to handle interrupt EXTI14
 static void ( *pfServiceExti15Irq ) (void) ; 		// Pointer to handle interrupt EXTI15
+static void ( *pfServiceUsart6Irq ) (void) ; 		// Pointer to handle interrupt USART6 
 
 
 // 
@@ -53,6 +55,8 @@ static void inline is_EnableExtiInterrupt();
 static void inline is_SetExtiInterrupt(char* pinString);
 static void inline is_ClearExtiPendingInterrupt(char* pinString);
 static void InitIsr(char* pinString, void (*pfServiceFunction)(void));
+static void is_SetUsart6Interrupt(void);
+static void is_InitUsart6Isr(void (*pfServiceFunction)(void));
 
 
 #endif //INTERRUPTHARDWARESTM32F411E_H
