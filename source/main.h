@@ -30,6 +30,10 @@
 #include "Mcu/McuDriverStm32L0R0B.c"
 #include "Int/InterruptServiceStm32L0R0B.c"
     #endif // BOARD_ID == ?
+	
+// Utility
+#include "Utility/io.c"
+	
 
 	#if ( PROJECT == PROJECT_BLINK_LED )
 #include "Project/BlinkLed.c"

@@ -51,6 +51,7 @@ typedef struct
 
 static usart_handle usart1_handle;
 static usart_handle usart2_handle;
+static usart_handle usart6_handle;
 
 
 static inline void mcu_SetGpioOutput( char* pinString );
@@ -67,6 +68,9 @@ static void mcu_Usart2SendData(const char *pTxBuffer);
 static void mcu_InitUsart1();
 static void mcu_Usart1SendData(const char *pTxBuffer);
 // USART6
+static void mcu_InitUsart6();
+static void mcu_Usart6SendData(const char *pTxBuffer);
+
 static inline void mcu_UsartInit( usart_handle* pUsartHandle ); 		// Enable and initiliaze USART
 static inline void mcu_UsartSetBaudRate( usart_handle *pUSARTHandle );	// Set USART baud rate
 void mcu_UsartSendData(usart_handle *pUSARTHandle, const char *pTxBuffer);
@@ -160,7 +164,7 @@ static void mcu_Usart1SendData(const char *pTxBuffer)
 {
 	mcu_UsartSendData( &usart1_handle, pTxBuffer );
 }
- 
+
 void mcu_InitUsart2(void)
 {	
 	usart2_handle.pUSARTx 						= USART2;
@@ -178,6 +182,25 @@ static void mcu_Usart2SendData(const char *pTxBuffer)
 {
 	mcu_UsartSendData( &usart2_handle, pTxBuffer );
 }
+
+void mcu_InitUsart6(void)
+{	
+	usart6_handle.pUSARTx 						= USART6;
+	usart6_handle.USART_Config.u32_BaudRate 	= USART_BAUDRATE_115200;
+	usart6_handle.USART_Config.eMode 			= USART_MODE_TXRX;
+	usart6_handle.USART_Config.eNoOfStopBits 	= USART_NO_STOP_BITS_1p0;
+	usart6_handle.USART_Config.u8_WordLength 	= USART_WORDLEN_8BITS;
+	usart6_handle.USART_Config.eParityControl 	= USART_PARITY_DISABLE;
+	mcu_UsartInit(&usart6_handle);
+	mcu_SetGpioAlternate("C6", 8); 	// USART6 TX.
+	mcu_SetGpioAlternate("C7", 8); 	// USART7 RX.
+}
+
+static void mcu_Usart6SendData(const char *pTxBuffer)
+{
+	mcu_UsartSendData( &usart6_handle, pTxBuffer );
+}
+ 
  
 void mcu_UsartInit(usart_handle *pUSARTHandle)
 {

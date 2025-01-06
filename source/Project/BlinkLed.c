@@ -7,9 +7,7 @@
 static uint32_t u32_ButtonPressCount = 0;
 
 void Init(void)
-{
-	mcu_InitUsart2();
-	mcu_InitUsart1();
+{	
     InitLed();
     InitButtonInterrupt();
 }
@@ -63,9 +61,7 @@ void BlinkLed(void)
 		eLed ++;
 		if ( eLed >= NUMBER_SUPPORTED_LED )
 		{
-			// mcu_Usart2SendData("Hello2");
-			mcu_Usart1SendData("Hello1");
-			mcu_Usart2SendData( "Hello2" );
+			ut_SendUart("Hello Phan Linh");
 			eLed = GREEN;
 		}
 		Delay(200000);
