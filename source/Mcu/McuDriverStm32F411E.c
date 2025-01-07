@@ -56,6 +56,8 @@ static usart_handle usart6_handle;
 static char* usart1_buffer;
 static char* usart2_buffer;
 static char* usart6_buffer;
+static char usart1_buffer_len = 0;
+static char usart2_buffer_len = 0;
 static char usart6_buffer_len = 0;
 
 static inline void mcu_SetGpioOutput( char* pinString );
@@ -68,17 +70,18 @@ static inline void mcu_SetGpioAlternate( char* pinString, uint8_t u8_AlternateVa
 // USART1
 static void mcu_InitUsart1();
 static void mcu_Usart1SendData(const char *pTxBuffer);
-static void mcu_Usart1ReceiveData(char *buffer);
+static void mcu_Usart1InitBuffer(char *pBuffer);
+static void mcu_Usart1IrqService(void);
 
 // USART2
 static void mcu_InitUsart2();
 static void mcu_Usart2SendData(const char *pTxBuffer);
-static void mcu_Usart2ReceiveData(char *buffer);
+static void mcu_Usart2InitBuffer(char *pBuffer);
+static void mcu_Usart1IrqService(void);
 
 // USART6
 static void mcu_InitUsart6();
 static void mcu_Usart6SendData(const char *pTxBuffer);
-static void mcu_Usart6ReceiveData(char *buffer);
 static void mcu_Usart6InitBuffer(char *pBuffer);
 static void mcu_Usart6IrqService(void);
 
@@ -178,10 +181,28 @@ static void mcu_Usart1SendData(const char *pTxBuffer)
 	mcu_UsartSendData( &usart1_handle, pTxBuffer );
 }
 
-static void mcu_Usart1ReceiveData( char *buffer )
+static void mcu_Usart1InitBuffer(char *pBuffer)
 {
-	mcu_UsartReceiveData( &usart1_handle, buffer );
+	usart1_buffer = pBuffer;
 }
+
+static void mcu_Usart1IrqService(void)
+{
+	*usart1_buffer = mcu_UsartGetChar(&usart1_handle);
+	if ( ( *usart1_buffer == '\0' ) || ( *usart1_buffer == '\r' ) || ( *usart1_buffer == '\n' ) )
+	{
+		usart1_buffer++;
+		*usart1_buffer = '\0';
+		usart1_buffer -= usart1_buffer_len + 1;
+		usart1_buffer_len = 0;
+	}
+	else
+	{
+		usart1_buffer_len++;
+		usart1_buffer++;
+	}
+}
+
 
 void mcu_InitUsart2(void)
 {	
@@ -201,9 +222,26 @@ static void mcu_Usart2SendData(const char *pTxBuffer)
 	mcu_UsartSendData( &usart2_handle, pTxBuffer );
 }
 
-static void mcu_Usart2ReceiveData( char *buffer )
+static void mcu_Usart2InitBuffer(char *pBuffer)
 {
-	mcu_UsartReceiveData( &usart2_handle, buffer );
+	usart2_buffer = pBuffer;
+}
+
+static void mcu_Usart2IrqService(void)
+{
+	*usart2_buffer = mcu_UsartGetChar(&usart2_handle);
+	if ( ( *usart2_buffer == '\0' ) || ( *usart2_buffer == '\r' ) || ( *usart2_buffer == '\n' ) )
+	{
+		usart2_buffer++;
+		*usart2_buffer = '\0';
+		usart2_buffer -= usart2_buffer_len + 1;
+		usart2_buffer_len = 0;
+	}
+	else
+	{
+		usart2_buffer_len++;
+		usart2_buffer++;
+	}
 }
 
 void mcu_InitUsart6(void)
@@ -223,17 +261,12 @@ static void mcu_Usart6SendData(const char *pTxBuffer)
 {
 	mcu_UsartSendData( &usart6_handle, pTxBuffer );
 }
- 
-static void mcu_Usart6ReceiveData( char *buffer )
-{
-	mcu_UsartReceiveData( &usart6_handle, buffer );
-}
-
 
 static void mcu_Usart6InitBuffer(char *pBuffer)
 {
 	usart6_buffer = pBuffer;
 }
+
 static void mcu_Usart6IrqService(void)
 {
 	*usart6_buffer = mcu_UsartGetChar(&usart6_handle);

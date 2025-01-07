@@ -1,5 +1,5 @@
 	#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
-#define 	DEFAULT_UART		6
+#define 	DEFAULT_UART		1
 	#elif BOARD_ID ==  BOARD_ID_STM32F411E
 #define 	DEFAULT_UART 		1
 	#else // BOARD_ID == ?
@@ -36,9 +36,15 @@ static void ut_InitUart()
 	{
 		case USE_UART1:
 			mcu_InitUsart1();
+			is_SetUsart1Interrupt();
+			mcu_Usart1InitBuffer(uart_buffer);
+			is_InitUsart1Isr(mcu_Usart1IrqService);
 			break;
 		case USE_UART2:
 			mcu_InitUsart2();
+			is_SetUsart2Interrupt();
+			mcu_Usart2InitBuffer(uart_buffer);
+			is_InitUsart2Isr(mcu_Usart2IrqService);
 			break;
 		case USE_UART3:
 		case USE_UART4:
@@ -74,11 +80,6 @@ static void ut_SendUart(const char *pTxBuffer)
 			mcu_Usart6SendData(pTxBuffer);
 			break;
 	}
-}
-
-static void ut_SetUartInterrupt()
-{
-	is_InitUsart6Isr(mcu_Usart6IrqService);
 }
 
 static void ut_Init()
