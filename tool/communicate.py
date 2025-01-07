@@ -29,9 +29,9 @@ class Uart(object):
 if __name__ == '__main__':
     # Case1. Test USART
     uart = Uart('COM8')
-    for i in range(20):
-        print("Sending string: ", f"Hello Nguyen Phan Linh 12234125 {i}")
-        uart.send(f"Hello Nguyen Phan Linh 12234125 {i}\n".encode('utf-8'))
+    while True:
+        #print("Sending string: ", f"Hello Nguyen Phan Linh 12234125 {i}")
+        #uart.send(f"Hello Nguyen Phan Linh 12234125 {i}\n".encode('utf-8'))
         data = uart.ser.readline().decode('utf-8')
         if data:
             print("String receiver: ", data, end="")

@@ -7,6 +7,7 @@
 	#endif // BOARD_ID == ?
 	
 #define MAX_USART_BUFFER 		100
+#define SYS_TICK_PERIOD_IN_MS	1
 
 
 typedef enum 
@@ -28,6 +29,8 @@ static void ut_Init();
 static void ut_InitUart();
 static void ut_SendUart();
 static void ut_ReceiveUart();
+
+static void ut_InitSysTick();
 
 
 static void ut_InitUart()
@@ -82,7 +85,13 @@ static void ut_SendUart(const char *pTxBuffer)
 	}
 }
 
+static void ut_InitSysTick()
+{
+	mcu_ConfigSysTick(SYS_TICK_PERIOD_IN_MS);
+}
+
 static void ut_Init()
 {
-	ut_InitUart();
+	ut_InitUart(); 		// Initialize UART
+	ut_InitSysTick();	// Initialize SysTick
 }

@@ -4,7 +4,7 @@
 
 int main(void)
 {
-	ut_Init();		// Initialize utility such as UART
+	ut_Init();		// Initialize utility such as UART, SysTick
 	
 	Init(); 		// Initialize project such as interrupts, clock, peripherals, etc.
 

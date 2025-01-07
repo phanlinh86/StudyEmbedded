@@ -31,6 +31,7 @@ void EXTI15_IRQHandler( void );
 void USART1_IRQHandler( void );
 void USART2_IRQHandler( void );
 void USART6_IRQHandler( void );
+void SysTick_Handler(void);
 
 // Function pointer for external interrupt handling
 static void ( *pfServiceExti0Irq ) (void) ; 		// Pointer to handle interrupt EXTI0
@@ -68,5 +69,7 @@ static void is_InitUsart2Isr(void (*pfServiceFunction)(void));
 static void is_SetUsart6Interrupt(void);
 static void is_InitUsart6Isr(void (*pfServiceFunction)(void));
 
+static uint32_t is_ReadSysTickCounter();
+static void is_SetSysTickCounter( uint32_t val);
 
 #endif //INTERRUPTHARDWARESTM32F411E_H

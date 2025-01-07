@@ -20,6 +20,7 @@ void Delay( uint32_t u32_DelayLoop )
 	for (uint32_t i = 0; i < u32_DelayLoop; i++);
 }
 
+static uint32_t u32_SysTickCounter = 0; 		// For SysTick
 
 /****************************************************************************
 *									STM32 EXTI								*
@@ -304,3 +305,23 @@ void USART6_IRQHandler(void)
 {
 	(*pfServiceUsart6Irq)();
 }
+
+/********************************************************************************
+ * 									ARM SYS TICK								*
+ * 								System Tick Timer								*
+ * ******************************************************************************/
+void SysTick_Handler(void)
+{
+	u32_SysTickCounter++;
+}
+
+static uint32_t is_ReadSysTickCounter()
+{
+	return u32_SysTickCounter;
+}
+
+static void is_SetSysTickCounter( uint32_t val)
+{
+	u32_SysTickCounter = val;
+}
+

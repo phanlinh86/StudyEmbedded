@@ -1,3 +1,9 @@
+typedef enum
+{
+    FALSE   =   0,
+    TRUE    =   1,
+} bool;
+
 #define BIT(N)                      (1UL<<(N))
 // Bit manipulation using masks
 #define BITSET(V,M)                 (V)|=(M)

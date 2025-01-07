@@ -92,8 +92,21 @@ void mcu_UsartSendChar(usart_handle *pUSARTHandle, char data);
 static char mcu_UsartDataAvailable(usart_handle *pUSARTHandle);
 void mcu_UsartReceiveData(usart_handle *pUSARTHandle, char *str);
 char mcu_UsartGetChar(usart_handle *pUSARTHandle);
+
+static uint32_t mcu_ReadSysClk();
+static uint32_t mcu_ReadAhbClk();
 static uint32_t mcu_ReadClkApb1();
 static uint32_t mcu_ReadClkApb2();
+
+static uint32_t mcu_ReadSysTickClk();
+static uint32_t mcu_ReadStkVal();
+static void mcu_SetStkVal( uint32_t val);
+static uint32_t mcu_ReadStkReload();
+static void mcu_SetStkReload( uint32_t val);
+static void mcu_SetStkInterrupt( bool bEnable );
+static void mcu_SetStkCounter( bool bEnable );
+static void mcu_SetStkCalib( uint32_t val );
+static void mcu_ConfigSysTick( uint32_t u32_TickInMs );
 
 
 /********************************************************************************
@@ -472,70 +485,126 @@ void mcu_UsartReceiveData(usart_handle *pUSARTHandle, char *str)
  * 									STM32 RCC									*
  * 						Reset and Clock Control									*
  * ******************************************************************************/
- 
-static uint32_t mcu_ReadClkApb1()
+static uint32_t mcu_ReadSysClk()
 {
-	unsigned u16_Apb1PreScale;
-	unsigned u16_AhbPreScale;
-	uint32_t u32_SysClk;
-	rcc_clk_src eRccClkSrc; 
-	eRccClkSrc = RCC->RCC_CFGR.SWS;
+	rcc_clk_src eRccClkSrc = RCC->RCC_CFGR.SWS; 
+	
 	switch (eRccClkSrc)
 	{
 		case RCC_CLK_SRC_HSI:
-			u32_SysClk = 16000000; 	// HSI using 16Mhz clock
-			break;
+			return 16000000; 	// HSI using 16Mhz clock
 		case RCC_CLK_SRC_HSE:
-			u32_SysClk = 16000000; 	// HSI using 16Mhz clock
-			break;
+			return 16000000; 	// HSI using 16Mhz clock
 		case RCC_CLK_SRC_PLL:
-			u32_SysClk = 48000000; 	// PLL using 48Mhz clock
-			break;
+			return 48000000; 	// PLL using 48Mhz clock
 	}
-	u16_AhbPreScale = RCC->RCC_CFGR.HPRE;
+}
+
+static uint32_t mcu_ReadAhbClk()
+{
+	uint32_t u32_SysClk = mcu_ReadSysClk();
+	unsigned u16_AhbPreScale = RCC->RCC_CFGR.HPRE;
+	
 	if ( u16_AhbPreScale > 4 )
 		u16_AhbPreScale = 1 << (u16_AhbPreScale - 3);
 	else
 		u16_AhbPreScale = 1;
 	
-	u16_Apb1PreScale = RCC->RCC_CFGR.PPRE1;
+	return u32_SysClk / u16_AhbPreScale;
+}
+
+static uint32_t mcu_ReadClkApb1()
+{
+	unsigned u16_Apb1PreScale = RCC->RCC_CFGR.PPRE1;
+	uint32_t u32_AhbClk = mcu_ReadAhbClk();
+
 	if ( u16_Apb1PreScale > 4 )
 		u16_Apb1PreScale = 1 << (u16_Apb1PreScale - 3);
 	else
 		u16_Apb1PreScale = 1;
-	return (u32_SysClk / u16_AhbPreScale)  / u16_Apb1PreScale;
+	
+	return u32_AhbClk  / u16_Apb1PreScale;
 	
 }
 
 static uint32_t mcu_ReadClkApb2()
 {
-	unsigned u16_Apb2PreScale;
-	unsigned u16_AhbPreScale;
-	uint32_t u32_SysClk;
-	rcc_clk_src eRccClkSrc; 
-	eRccClkSrc = RCC->RCC_CFGR.SWS;
-	switch (eRccClkSrc)
-	{
-		case RCC_CLK_SRC_HSI:
-			u32_SysClk = 16000000; 	// HSI using 16Mhz clock
-			break;
-		case RCC_CLK_SRC_HSE:
-			u32_SysClk = 16000000; 	// HSI using 16Mhz clock
-			break;
-		case RCC_CLK_SRC_PLL:
-			u32_SysClk = 48000000; 	// PLL using 48Mhz clock
-			break;
-	}
-	u16_AhbPreScale = RCC->RCC_CFGR.HPRE;
-	if ( u16_AhbPreScale > 4 )
-		u16_AhbPreScale = 1 << (u16_AhbPreScale - 3);
-	else
-		u16_AhbPreScale = 1;
-	u16_Apb2PreScale = RCC->RCC_CFGR.PPRE2;
+	unsigned u16_Apb2PreScale = RCC->RCC_CFGR.PPRE2;
+	uint32_t u32_AhbClk = mcu_ReadAhbClk();
+
 	if ( u16_Apb2PreScale > 4 )
 		u16_Apb2PreScale = 1 << (u16_Apb2PreScale - 3);
 	else
 		u16_Apb2PreScale = 1;
-	return (u32_SysClk / u16_AhbPreScale)  / u16_Apb2PreScale;
+
+	return u32_AhbClk  / u16_Apb2PreScale;
 	
+}
+
+/********************************************************************************
+ * 									ARM SYS TICK								*
+ * 								System Tick Timer								*
+ * ******************************************************************************/
+ 
+static uint32_t mcu_ReadSysTickClk()
+{
+	uint32_t u32_AhbClk = mcu_ReadAhbClk();
+	
+	if ( SYSTICK->STK_CTRL.CLKSOURCE )
+		return u32_AhbClk;
+	else
+		return u32_AhbClk / 8;
+}
+
+static void mcu_SetStkClkSrc( uint8_t clkSrc )
+{
+	SYSTICK->STK_CTRL.CLKSOURCE = clkSrc;
+}
+
+static uint32_t mcu_ReadStkVal()
+{
+	return SYSTICK->STK_VAL.CURRENT;
+}
+
+static void mcu_SetStkVal( uint32_t val)
+{
+	SYSTICK->STK_VAL.CURRENT = val;
+}
+
+static uint32_t mcu_ReadStkReload()
+{
+	return SYSTICK->STK_LOAD.RELOAD;
+}
+
+static void mcu_SetStkReload( uint32_t val)
+{
+	SYSTICK->STK_LOAD.RELOAD = val;
+}
+
+static void mcu_SetStkInterrupt( bool bEnable )
+{
+	SYSTICK->STK_CTRL.TICKINT = bEnable;
+}
+
+static void mcu_SetStkEnable( bool bEnable )
+{
+	SYSTICK->STK_CTRL.ENABLE = bEnable;
+}
+
+static void mcu_SetStkCalib( uint32_t val )
+{
+	SYSTICK->STK_CALIB.TENMS = val;
+}
+
+static void mcu_ConfigSysTick( uint32_t u32_TickInMs )
+{
+	uint32_t u32_SysTickClk; 
+	
+	mcu_SetStkEnable(FALSE); 										// Temporary disable SysTick 
+	mcu_SetStkClkSrc(1); 											// Set Clock to AHB
+	u32_SysTickClk = mcu_ReadSysTickClk(); 							// Current SysTick clock
+	mcu_SetStkInterrupt(TRUE); 										// Enable interrupt 
+	mcu_SetStkReload( u32_SysTickClk / 1000 * u32_TickInMs - 1 );	// Set value for Tick In Ms
+	mcu_SetStkVal(0);												// Clear the current counter
+	mcu_SetStkEnable(TRUE); 										// Temporary disable SysTick 
 }
