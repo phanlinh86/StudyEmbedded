@@ -25,7 +25,7 @@ set STARTUP_SCRIPT=startup_stm32f411vetx.s
 set PROGRAMMER=openocd
 set OPTIMIZATION=O0
 set OBJDUMP=arm-none-eabi-objcopy
-
+set READELF=arm-none-eabi-readelf
 
 :: If build folder not existed, create one
 if not exist build ( mkdir build )
@@ -53,4 +53,9 @@ echo %COMPILER% -mcpu=%MPU% -T board\%BOARD%\%LINKER_SCRIPT% -Wl,-Map=build\main
 echo Convert main.elf to main.hex and main.bin
 echo %OBJDUMP% -O ihex build\main.elf build\main.hex
 %OBJDUMP% -O ihex build\main.elf build\main.hex
+
+:: Store symbol files
+echo Store symbol files
+echo %READELF% -s build\main.elf > build\main.sym
+%READELF% -s build\main.elf > build\main.sym
 
