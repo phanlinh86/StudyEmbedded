@@ -20,6 +20,7 @@
 // Board ID
 #define BOARD_ID_STM32F411E         0x01
 #define BOARD_ID_STM32L010RB        0x02
+#define BOARD_ID_ATMEGA328P        	0x03
 
     #if ( BOARD_ID ==  BOARD_ID_STM32F411E )
 #include "Mcu/McuHardwareStm32F411E.h"
@@ -32,7 +33,10 @@
     #endif // BOARD_ID == ?
 	
 // Utility
+	#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
 #include "Utility/io.c"
+#include "Utility/cmd.c"
+	#endif // BOARD_ID ==  BOARD_ID_STM32F411E
 	
 
 	#if ( PROJECT == PROJECT_BLINK_LED )

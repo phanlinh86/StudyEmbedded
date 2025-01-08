@@ -5,7 +5,9 @@
 #include "BlinkLed.h"
 
 static uint32_t u32_ButtonPressCount = 0;
+	#if ( BOARD_ID ==  BOARD_ID_STM32F411E ) 
 char uart_buffer[MAX_USART_BUFFER] = "Hello World\n";
+	#endif // BOARD_ID ==  BOARD_ID_STM32F411E 
 static uint32_t u32_LedPeriodInMs = 500; 	// Switch led every 0.5s 
 
 void Init(void)
@@ -46,7 +48,9 @@ void BlinkLed(void)
 	char buffer[30];
 	if (u32_ButtonPressCount % 2 == 1)
 	{	
+			#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
 		if ( is_ReadSysTickCounter() >= u32_LedPeriodInMs )
+			#endif // BOARD_ID ==  BOARD_ID_STM32F411E
 		{
 			switch ( eLed ) 
 			{
@@ -64,15 +68,19 @@ void BlinkLed(void)
 					break;						
 			}
 			eLed ++;
-			is_SetSysTickCounter(0);
+			
 			if ( eLed >= NUMBER_SUPPORTED_LED )
 			{
 				eLed = GREEN;
 			}
+				#if ( BOARD_ID ==  BOARD_ID_STM32F411E ) 
+			is_SetSysTickCounter(0);
 			// ut_ReceiveUart(uart_buffer);
 			sprintf(uart_buffer, "SysTick:%u\n", is_ReadSysTickCounter());
 			ut_SendUart(uart_buffer);
-			// Delay(200000);
+				#else // BOARD_ID !=  BOARD_ID_STM32F411E 
+			Delay(200000);
+				#endif // BOARD_ID ==  ?
 		}
 	}
 }

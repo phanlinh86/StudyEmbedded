@@ -57,6 +57,3 @@ static inline void mcu_SetGpioLow( char* pinString )
 	gpio_regs *GPIO = (gpio_regs*)( GPIOA_BASE + ( port - 'A' ) * 0x400 );
 	GPIO->ODR.Register &= ~( 1 << pin );			// Set GPIO mode to output
 }
-
-
-/********************************************************************************

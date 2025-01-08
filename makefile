@@ -7,9 +7,12 @@
 
 blink_a: clean
 	batch\BuildStm32F411E BlinkLed
-
+	
 blink_b: clean
 	batch\BuildStm32L0x0 BlinkLed
+	
+blink_c: clean
+	batch\BuildAtmega328P BlinkLed
 
 clean:
 	del /q build
@@ -19,3 +22,6 @@ flash_a:
 
 flash_b:
 	openocd -f interface/stlink.cfg -f target/stm32l0.cfg -c "program build/main.elf verify reset exit"
+	
+flash_c:
+	avrdude -p atmega328p -c arduino -p COM7 -b 115200 -U flash:w:build\main.hex
