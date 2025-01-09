@@ -30,6 +30,10 @@
 #include "Mcu/McuHardwareStm32L0R0B.h"
 #include "Mcu/McuDriverStm32L0R0B.c"
 #include "Int/InterruptServiceStm32L0R0B.c"
+    #elif ( BOARD_ID ==  BOARD_ID_ATMEGA328P )
+#include "Mcu/McuHardwareAtmega328P.h"
+#include "Mcu/McuDriverAtmega328P.c"
+#include "Int/InterruptServiceAtmega328P.c"
     #endif // BOARD_ID == ?
 	
 // Utility

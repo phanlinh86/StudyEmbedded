@@ -28,12 +28,22 @@ typedef enum
 #define LED_RED 	""
 #define LED_BLUE 	""
 #define BUTTON      "A2"
+    #elif ( BOARD_ID == BOARD_ID_ATMEGA328P )
+#define NUMBER_SUPPORTED_LED    1
+#define LED_GREEN 	"B5"                // SCLK in Schematic which connect to YELLOW led
+#define LED_ORANGE	""
+#define LED_RED 	""
+#define LED_BLUE 	""
+#define BUTTON      "B0"
     #endif // BOARD_ID == ?
 
 void InitLed(void);
 void BlinkLed(void);
+
+    #if ( BOARD_ID != BOARD_ID_ATMEGA328P )
 void ButtonInterrupt(void);
 void InitButtonInterrupt(void);
+    #endif // BOARD_ID != BOARD_ID_ATMEGA328P
 void Init(void);
 void Loop(void);
 

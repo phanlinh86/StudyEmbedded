@@ -43,8 +43,8 @@ if not exist build (
 
 :: Compile main.c to main.o
 echo Compile main.c to main.o
-echo %COMPILER% -c source\main.c -o build\main.o -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT_NAME=%PROJECT_NAME% -DBOARD_ID=%BOARD_ID%
-%COMPILER% -c source\main.c -o build\main.o -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT_NAME=%PROJECT_NAME% -DBOARD_ID=%BOARD_ID%
+echo %COMPILER% -c source\main.c -o build\main.o -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
+%COMPILER% -c source\main.c -o build\main.o -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
 
 :: Link main.o to main.elf
 echo Link main.o to main.elf

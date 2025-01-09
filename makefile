@@ -24,4 +24,4 @@ flash_b:
 	openocd -f interface/stlink.cfg -f target/stm32l0.cfg -c "program build/main.elf verify reset exit"
 	
 flash_c:
-	avrdude -p atmega328p -c arduino -p COM7 -b 115200 -U flash:w:build\main.hex
+	avrdude -p atmega328p -c arduino -P "COM7" -b 115200 -U flash:w:build\main.hex

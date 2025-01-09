@@ -93,15 +93,15 @@ static char mcu_UsartDataAvailable(usart_handle *pUSARTHandle);
 void mcu_UsartReceiveData(usart_handle *pUSARTHandle, char *str);
 char mcu_UsartGetChar(usart_handle *pUSARTHandle);
 
-static uint32_t mcu_ReadSysClk();
-static uint32_t mcu_ReadAhbClk();
-static uint32_t mcu_ReadClkApb1();
-static uint32_t mcu_ReadClkApb2();
+static uint32_t mcu_u32_ReadSysClk();
+static uint32_t mcu_u32_ReadAhbClk();
+static uint32_t mcu_u32_ReadClkApb1();
+static uint32_t mcu_u32_ReadClkApb2();
 
-static uint32_t mcu_ReadSysTickClk();
-static uint32_t mcu_ReadStkVal();
+static uint32_t mcu_u32_ReadSysTickClk();
+static uint32_t mcu_u32_ReadStkVal();
 static void mcu_SetStkVal( uint32_t val);
-static uint32_t mcu_ReadStkReload();
+static uint32_t mcu_u32_ReadStkReload();
 static void mcu_SetStkReload( uint32_t val);
 static void mcu_SetStkInterrupt( bool bEnable );
 static void mcu_SetStkCounter( bool bEnable );
@@ -394,11 +394,11 @@ static inline void mcu_UsartSetBaudRate( usart_handle *pUSARTHandle )
 	uint32_t M_part,F_part;
 	if ( (pUSARTHandle->pUSARTx == USART1) || (pUSARTHandle->pUSARTx == USART6) )
 	{
-		u32_ApbClk = mcu_ReadClkApb2();
+		u32_ApbClk = mcu_u32_ReadClkApb2();
 	}
 	else if (pUSARTHandle->pUSARTx == USART2)
 	{
-		u32_ApbClk = mcu_ReadClkApb1();
+		u32_ApbClk = mcu_u32_ReadClkApb1();
 	}
 	OVER8 = pUSARTHandle->pUSARTx->USART_CR1.OVER8;
 	// Formula from the specs
@@ -485,7 +485,7 @@ void mcu_UsartReceiveData(usart_handle *pUSARTHandle, char *str)
  * 									STM32 RCC									*
  * 						Reset and Clock Control									*
  * ******************************************************************************/
-static uint32_t mcu_ReadSysClk()
+static uint32_t mcu_u32_ReadSysClk()
 {
 	rcc_clk_src eRccClkSrc = RCC->RCC_CFGR.SWS; 
 	
@@ -500,9 +500,9 @@ static uint32_t mcu_ReadSysClk()
 	}
 }
 
-static uint32_t mcu_ReadAhbClk()
+static uint32_t mcu_u32_ReadAhbClk()
 {
-	uint32_t u32_SysClk = mcu_ReadSysClk();
+	uint32_t u32_SysClk = mcu_u32_ReadSysClk();
 	unsigned u16_AhbPreScale = RCC->RCC_CFGR.HPRE;
 	
 	if ( u16_AhbPreScale > 4 )
@@ -513,10 +513,10 @@ static uint32_t mcu_ReadAhbClk()
 	return u32_SysClk / u16_AhbPreScale;
 }
 
-static uint32_t mcu_ReadClkApb1()
+static uint32_t mcu_u32_ReadClkApb1()
 {
 	unsigned u16_Apb1PreScale = RCC->RCC_CFGR.PPRE1;
-	uint32_t u32_AhbClk = mcu_ReadAhbClk();
+	uint32_t u32_AhbClk = mcu_u32_ReadAhbClk();
 
 	if ( u16_Apb1PreScale > 4 )
 		u16_Apb1PreScale = 1 << (u16_Apb1PreScale - 3);
@@ -527,10 +527,10 @@ static uint32_t mcu_ReadClkApb1()
 	
 }
 
-static uint32_t mcu_ReadClkApb2()
+static uint32_t mcu_u32_ReadClkApb2()
 {
 	unsigned u16_Apb2PreScale = RCC->RCC_CFGR.PPRE2;
-	uint32_t u32_AhbClk = mcu_ReadAhbClk();
+	uint32_t u32_AhbClk = mcu_u32_ReadAhbClk();
 
 	if ( u16_Apb2PreScale > 4 )
 		u16_Apb2PreScale = 1 << (u16_Apb2PreScale - 3);
@@ -546,9 +546,9 @@ static uint32_t mcu_ReadClkApb2()
  * 								System Tick Timer								*
  * ******************************************************************************/
  
-static uint32_t mcu_ReadSysTickClk()
+static uint32_t mcu_u32_ReadSysTickClk()
 {
-	uint32_t u32_AhbClk = mcu_ReadAhbClk();
+	uint32_t u32_AhbClk = mcu_u32_ReadAhbClk();
 	
 	if ( SYSTICK->STK_CTRL.CLKSOURCE )
 		return u32_AhbClk;
@@ -561,7 +561,7 @@ static void mcu_SetStkClkSrc( uint8_t clkSrc )
 	SYSTICK->STK_CTRL.CLKSOURCE = clkSrc;
 }
 
-static uint32_t mcu_ReadStkVal()
+static uint32_t mcu_u32_ReadStkVal()
 {
 	return SYSTICK->STK_VAL.CURRENT;
 }
@@ -571,7 +571,7 @@ static void mcu_SetStkVal( uint32_t val)
 	SYSTICK->STK_VAL.CURRENT = val;
 }
 
-static uint32_t mcu_ReadStkReload()
+static uint32_t mcu_u32_ReadStkReload()
 {
 	return SYSTICK->STK_LOAD.RELOAD;
 }
@@ -602,7 +602,7 @@ static void mcu_ConfigSysTick( uint32_t u32_TickInMs )
 	
 	mcu_SetStkEnable(FALSE); 										// Temporary disable SysTick 
 	mcu_SetStkClkSrc(1); 											// Set Clock to AHB
-	u32_SysTickClk = mcu_ReadSysTickClk(); 							// Current SysTick clock
+	u32_SysTickClk = mcu_u32_ReadSysTickClk(); 							// Current SysTick clock
 	mcu_SetStkInterrupt(TRUE); 										// Enable interrupt 
 	mcu_SetStkReload( u32_SysTickClk / 1000 * u32_TickInMs - 1 );	// Set value for Tick In Ms
 	mcu_SetStkVal(0);												// Clear the current counter

@@ -7,13 +7,18 @@
 static uint32_t u32_ButtonPressCount = 0;
 	#if ( BOARD_ID ==  BOARD_ID_STM32F411E ) 
 char uart_buffer[MAX_USART_BUFFER] = "Hello World\n";
-	#endif // BOARD_ID ==  BOARD_ID_STM32F411E 
-static uint32_t u32_LedPeriodInMs = 500; 	// Switch led every 0.5s 
+	#endif // BOARD_ID ==  BOARD_ID_STM32F411E
+
+	#if ( BOARD_ID != BOARD_ID_ATMEGA328P)
+static uint32_t u32_LedPeriodInMs = 500; 	// Switch led every 0.5s
+	#endif // BOARD_ID != BOARD_ID_ATMEGA328P
 
 void Init(void)
 {	
     InitLed();
+		#if ( BOARD_ID != BOARD_ID_ATMEGA328P )
     InitButtonInterrupt();
+		#endif // BOARD_ID != BOARD_ID_ATMEGA328P
 }
 
 void Loop(void)
@@ -30,6 +35,7 @@ void InitLed(void)
 	mcu_SetGpioOutput( LED_BLUE );
 }
 
+	#if ( BOARD_ID != BOARD_ID_ATMEGA328P )
 void InitButtonInterrupt(void)
 {
 	// Enable and set input for PA0
@@ -41,12 +47,13 @@ void InitButtonInterrupt(void)
     // Set EXTI Interrupt Service to ButtonInterrupt
     InitIsr( BUTTON, ButtonInterrupt);
 }
+	#endif // BOARD_ID != BOARD_ID_ATMEGA328P
 
 void BlinkLed(void)
 {
   	static LED eLed = GREEN; 		// State machine control which LED to toggle
-	char buffer[30];
-	if (u32_ButtonPressCount % 2 == 1)
+	// char buffer[30];
+	if (u32_ButtonPressCount % 2 == 0)
 	{	
 			#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
 		if ( is_ReadSysTickCounter() >= u32_LedPeriodInMs )
@@ -85,9 +92,11 @@ void BlinkLed(void)
 	}
 }
 
+	#if ( BOARD_ID != BOARD_ID_ATMEGA328P )
 void ButtonInterrupt(void)
 {
 	u32_ButtonPressCount++;
 	is_ClearExtiPendingInterrupt(BUTTON);
 	Delay(20000); 		// Small delay to avoid button bouncing
 }
+	#endif // BOARD_ID != BOARD_ID_ATMEGA328P
