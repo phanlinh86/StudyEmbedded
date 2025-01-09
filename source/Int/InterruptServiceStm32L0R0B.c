@@ -17,7 +17,7 @@ void DelayMs( uint32_t u32_TimeInMs )
 
 void Delay( uint32_t u32_DelayLoop )
 {
-	for (uint32_t i = 0; i < u32_DelayLoop; i++);
+	for (uint32_t volatile i = 0; i < u32_DelayLoop; i++);
 }
 
 
