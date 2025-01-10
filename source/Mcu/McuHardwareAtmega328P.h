@@ -13,6 +13,8 @@
 #define reg8( r ) unsigned char r
 
 
+#define TIMER1_RESOLUTION 65536   // Timer1 is 16 bit
+
 /****************************************************************************
 *									STM32 GPIOA_BASE						*
 *									General Purpose I/O						*
@@ -68,7 +70,7 @@ typedef volatile union
 
 typedef volatile union
 {
-	uint32_t Register;
+	uint8_t Register;
 	struct {
 		uint8_t TOV:1;
 		uint8_t OCFA:1;
@@ -79,7 +81,7 @@ typedef volatile union
 
 typedef volatile union
 {
-	uint32_t Register;
+	uint8_t Register;
 	struct {
 		uint8_t PCIF0:1;
 		uint8_t PCIF1:1;
@@ -90,7 +92,7 @@ typedef volatile union
 
 typedef volatile union
 {
-	uint32_t Register;
+	uint8_t Register;
 	struct {
 		uint8_t INTF0:1;
 		uint8_t INTF1:1;
@@ -100,20 +102,83 @@ typedef volatile union
 
 typedef volatile union
 {
-	uint32_t Register;
+	uint8_t Register;
 	struct {
 		uint8_t INT0:1;
 		uint8_t INT1:1;
 		uint8_t RVSD:6;
 	};
-} EIMSK_reg; 
+} EIMSK_reg;
+
+typedef volatile union
+{
+	uint8_t Register;
+	struct {
+		uint8_t TOIE:1;
+		uint8_t OCIEA:1;
+		uint8_t OCIEB:1;
+		uint8_t RVSD:5;
+	};
+} TIMMSK_reg;
+
+typedef volatile union
+{
+	uint8_t Register;
+	struct {
+		uint8_t CLKPS0:1;
+		uint8_t CLKPS1:1;
+		uint8_t CLKPS2:1;
+		uint8_t CLKPS3:1;		
+		uint8_t RVSD:3;
+		uint8_t CLKPCE:1;
+	};
+} CLKPR_reg;
+
+typedef volatile union
+{
+	uint8_t Register;
+	struct {
+		uint8_t WGM10	:	1;
+		uint8_t WGM11	:	1;
+		uint8_t RVSD	:	2;
+		uint8_t COM1B0	:	1;
+		uint8_t COM1B1	:	1;		
+		uint8_t COM1A0	:	1;
+		uint8_t COM1A1	:	1;
+	};
+} TCCR1A_reg;
+
+typedef volatile union
+{
+	uint8_t Register;
+	struct {
+		uint8_t CS10	:	1;
+		uint8_t CS11	:	1;
+		uint8_t CS12	:	2;
+		uint8_t WGM12	:	1;
+		uint8_t WGM13	:	1;		
+		uint8_t RVSD	:	1;
+		uint8_t ICES1	:	1;
+		uint8_t ICNC1	:	1;
+	};
+} TCCR1B_reg;
+
+
+typedef volatile union
+{
+	uint16_t Register;
+	struct {
+		uint16_t TCNT1L	:	8;
+		uint16_t TCNT1H	:	8;
+	};
+} TCNT1_reg;
 
 // Whole Register map
 typedef volatile struct
 {
-    reg8(RSVD0);        // 0x00
-    reg8(RSVD1);        // 0x01
-    reg8(RSVD2);        // 0x02
+    reg8(RSVD0);        // 0x00 	|  	0x20
+    reg8(RSVD1);        // 0x01		|	0x21
+    reg8(RSVD2);        // 0x02		|	0x22	 	
     reg8(PINB);         // 0x03
     reg8(DDRB);         // 0x04
     reg8(PORTB);        // 0x05
@@ -149,7 +214,7 @@ typedef volatile struct
     reg8(GTCCR);        // 0x23
     reg8(TCCR0A);       // 0x24
     reg8(TCCR0B);       // 0x25
-    reg8(TCNT0);        // 0x26
+    reg8( TCNT0 );      // 0x26
     reg8(OCR0A);        // 0x27
     reg8(OCR0B);        // 0x28
     reg8(RSVD29);       // 0x29
@@ -175,10 +240,10 @@ typedef volatile struct
     reg8(RSVD3D);   // 0x3D
     reg8(RSVD3E);   // 0x3E
     reg8(RSVD3F);   // 0x3F
-    reg8(RSVD40);   // 0x40
-    reg8(RSVD41);   // 0x41
-    reg8(RSVD42);   // 0x42
-    reg8(RSVD43);   // 0x43
+    reg8(RSVD40);   	// 0x40		| 	0x60
+    CLKPR_reg CLKPR;   	// 0x41		|	0x61
+    reg8(RSVD42);   	// 0x42		|	0x62
+    reg8(RSVD43);   	// 0x43		|	0x63
     reg8(RSVD44);   // 0x44
     reg8(RSVD45);   // 0x45
     reg8(RSVD46);   // 0x46
@@ -189,9 +254,9 @@ typedef volatile struct
     reg8(RSVD4B);   // 0x4B
     reg8(RSVD4C);   // 0x4C
     reg8(RSVD4D);   // 0x4D
-    reg8(RSVD4E);   // 0x4E
-    reg8(RSVD4F);   // 0x4F
-    reg8(RSVD50);   // 0x50
+    TIMMSK_reg TIMSK0;   // 0x4E 	| 	0x6E
+    TIMMSK_reg TIMSK1;   // 0x4F	|	0x6F
+	reg8(RSVD50);   // 0x50
     reg8(RSVD51);   // 0x51
     reg8(RSVD52);   // 0x52
     reg8(RSVD53);   // 0x53
@@ -207,13 +272,12 @@ typedef volatile struct
     reg8(RSVD5D);   // 0x5D
     reg8(RSVD5E);   // 0x5E
     reg8(RSVD5F);   // 0x5F
-    reg8(RSVD60);   // 0x60
-    reg8(RSVD61);   // 0x61
+    TCCR1A_reg TCCR1A; 	// 0x60		| 	0x80
+    TCCR1B_reg TCCR1B; 	// 0x61		| 	0x81
     reg8(RSVD62);   // 0x62
     reg8(RSVD63);   // 0x63
-    reg8(RSVD64);   // 0x64
-    reg8(RSVD65);   // 0x65
-    reg8(RSVD66);   // 0x66
+    TCNT1_reg TCNT1;   // 0x64:0X65	|	0X84:0X85
+	reg8(RSVD66);   // 0x66
     reg8(RSVD67);   // 0x67
     reg8(RSVD68);   // 0x68
     reg8(RSVD69);   // 0x69
