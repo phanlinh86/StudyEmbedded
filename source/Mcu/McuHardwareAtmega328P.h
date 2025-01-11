@@ -154,7 +154,7 @@ typedef volatile union
 	struct {
 		uint8_t CS10	:	1;
 		uint8_t CS11	:	1;
-		uint8_t CS12	:	2;
+		uint8_t CS12	:	1;
 		uint8_t WGM12	:	1;
 		uint8_t WGM13	:	1;		
 		uint8_t RVSD	:	1;
@@ -162,7 +162,6 @@ typedef volatile union
 		uint8_t ICNC1	:	1;
 	};
 } TCCR1B_reg;
-
 
 typedef volatile union
 {
@@ -172,6 +171,60 @@ typedef volatile union
 		uint16_t TCNT1H	:	8;
 	};
 } TCNT1_reg;
+
+typedef volatile union
+{
+	uint8_t Register;
+	struct {
+		uint8_t MPCM0	:	1;
+		uint8_t U2X0	:	1;
+		uint8_t UPE0	:	1;
+		uint8_t DOR0	:	1;
+		uint8_t FE0		:	1;
+		uint8_t UDRE0	:	1;
+		uint8_t TXC0	:	1;
+		uint8_t RXC0	:	1;		
+	};
+} UCSR0A_reg;
+
+typedef volatile union
+{
+	uint8_t Register;
+	struct {
+		uint8_t TXB80	:	1;	
+		uint8_t RXB80	:	1;
+		uint8_t UCSZ02	:	1;
+		uint8_t TXEN0	:	1;
+		uint8_t RXEN0	:	1;
+		uint8_t UDRIE0	:	1;		
+		uint8_t TXCIE0	:	1;
+		uint8_t RXCIE0	:	1;
+	};
+} UCSR0B_reg;
+
+typedef volatile union
+{
+	uint8_t Register;
+	struct {
+		uint8_t UCPOL0	:	1;
+		uint8_t UCSZ00	:	1;
+		uint8_t UCSZ01	:	1;
+		uint8_t USBS0	:	1;
+		uint8_t UPM00	:	1;
+		uint8_t UPM01	:	1;
+		uint8_t UMSEL00	:	1;
+		uint8_t UMSEL01	:	1;	
+	};
+} UCSR0C_reg;
+
+typedef volatile union
+{
+	uint16_t Register;
+	struct {
+		uint16_t USART_BAUD	:	12;
+		uint16_t RVSD 		:	4;			
+	};
+} UBRR0_reg;
 
 // Whole Register map
 typedef volatile struct
@@ -277,7 +330,7 @@ typedef volatile struct
     reg8(RSVD62);   // 0x62
     reg8(RSVD63);   // 0x63
     TCNT1_reg TCNT1;   // 0x64:0X65	|	0X84:0X85
-	reg8(RSVD66);   // 0x66
+	reg8(RSVD66);   // 0x66		|	0x86
     reg8(RSVD67);   // 0x67
     reg8(RSVD68);   // 0x68
     reg8(RSVD69);   // 0x69
@@ -287,7 +340,7 @@ typedef volatile struct
     reg8(RSVD6D);   // 0x6D
     reg8(RSVD6E);   // 0x6E
     reg8(RSVD6F);   // 0x6F
-    reg8(RSVD70);   // 0x70
+    reg8(RSVD70);   // 0x70		| 	0x90
     reg8(RSVD71);   // 0x71
     reg8(RSVD72);   // 0x72
     reg8(RSVD73);   // 0x73
@@ -303,7 +356,7 @@ typedef volatile struct
     reg8(RSVD7D);   // 0x7D
     reg8(RSVD7E);   // 0x7E
     reg8(RSVD7F);   // 0x7F
-    reg8(RSVD80);   // 0x80
+    reg8(RSVD80);   // 0x80		| 	0xA0
     reg8(RSVD81);   // 0x81
     reg8(RSVD82);   // 0x82
     reg8(RSVD83);   // 0x83
@@ -319,7 +372,7 @@ typedef volatile struct
     reg8(RSVD8D);   // 0x8D
     reg8(RSVD8E);   // 0x8E
     reg8(RSVD8F);   // 0x8F
-    reg8(RSVD90);   // 0x90
+    reg8(RSVD90);   // 0x90		|	0xB0
     reg8(RSVD91);   // 0x91
     reg8(RSVD92);   // 0x92
     reg8(RSVD93);   // 0x93
@@ -335,13 +388,12 @@ typedef volatile struct
     reg8(RSVD9D);   // 0x9D
     reg8(RSVD9E);   // 0x9E
     reg8(RSVD9F);   // 0x9F
-    reg8(RSVDA0);   // 0xA0
-    reg8(RSVDA1);   // 0xA1
-    reg8(RSVDA2);   // 0xA2
+    UCSR0A_reg UCSR0A;  // 0xA0		| 	0xC0
+    UCSR0B_reg UCSR0B;  // 0xA1		| 	0xC1
+    UCSR0C_reg UCSR0C;  // 0xA2		| 	0xC2
     reg8(RSVDA3);   // 0xA3
-    reg8(RSVDA4);   // 0xA4
-    reg8(RSVDA5);   // 0xA5
-    reg8(RSVDA6);   // 0xA6
+    UBRR0_reg UBRR0;   	// 0xA4		| 	0xC4
+    reg8(UDR0);   		// 0xA6		|	0xC6
     reg8(RSVDA7);   // 0xA7
     reg8(RSVDA8);   // 0xA8
     reg8(RSVDA9);   // 0xA9

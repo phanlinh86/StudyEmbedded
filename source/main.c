@@ -4,7 +4,7 @@
 
 int main(void)
 {
-		#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
+		#if ( ( BOARD_ID ==  BOARD_ID_STM32F411E ) || ( BOARD_ID ==  BOARD_ID_ATMEGA328P ) )
 	ut_Init();		// Initialize utility such as UART, SysTick
 		#endif // BOARD_ID ==  BOARD_ID_STM32F411
 

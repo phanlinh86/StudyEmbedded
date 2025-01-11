@@ -5,7 +5,7 @@
 #include "BlinkLed.h"
 
 static uint32_t u32_ButtonPressCount = 0;
-	#if ( BOARD_ID ==  BOARD_ID_STM32F411E ) 
+	#if ( ( BOARD_ID ==  BOARD_ID_STM32F411E ) || ( BOARD_ID ==  BOARD_ID_ATMEGA328P ) )
 char uart_buffer[MAX_USART_BUFFER] = "Hello World\n";
 	#endif // BOARD_ID ==  BOARD_ID_STM32F411E
 
@@ -17,8 +17,6 @@ void Init(void)
     InitLed();
 		#if ( BOARD_ID != BOARD_ID_ATMEGA328P )
     InitButtonInterrupt();
-        #else // BOARD_ID != BOARD_ID_ATMEGA328P
-    is_InitTimer1();
 		#endif // BOARD_ID != BOARD_ID_ATMEGA328P
 }
 
@@ -86,11 +84,13 @@ void BlinkLed(void)
 				#if ( BOARD_ID ==  BOARD_ID_STM32F411E ) 
 			is_SetSysTickCounter(0);        // Use SysTick to control LED blink
 			// ut_ReceiveUart(uart_buffer);
-			sprintf(uart_buffer, "SysTick:%u\n", is_ReadSysTickCounter());
+			sprintf(uart_buffer, "SysTick:%lu\n", is_ReadSysTickCounter());
 			ut_SendUart(uart_buffer);
 				#elif ( BOARD_ID ==  BOARD_ID_STM32L010RB )
 			Delay(200000);                  // Use Timer0 to control LED blink
 			    #elif ( BOARD_ID == BOARD_ID_ATMEGA328P )
+			sprintf(uart_buffer, "Timer1:%lu\n", is_u32_ReadTimer1Counter());
+			ut_SendUart(uart_buffer);
 			is_SetTimer1Counter(0);        // Use Timer0 to control LED blink
 				#endif // BOARD_ID ==  ?
 		}

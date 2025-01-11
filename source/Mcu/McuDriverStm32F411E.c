@@ -77,7 +77,7 @@ static void mcu_Usart1IrqService(void);
 static void mcu_InitUsart2();
 static void mcu_Usart2SendData(const char *pTxBuffer);
 static void mcu_Usart2InitBuffer(char *pBuffer);
-static void mcu_Usart1IrqService(void);
+static void mcu_Usart2IrqService(void);
 
 // USART6
 static void mcu_InitUsart6();
@@ -602,7 +602,7 @@ static void mcu_ConfigSysTick( uint32_t u32_TickInMs )
 	
 	mcu_SetStkEnable(FALSE); 										// Temporary disable SysTick 
 	mcu_SetStkClkSrc(1); 											// Set Clock to AHB
-	u32_SysTickClk = mcu_u32_ReadSysTickClk(); 							// Current SysTick clock
+	u32_SysTickClk = mcu_u32_ReadSysTickClk(); 						// Current SysTick clock
 	mcu_SetStkInterrupt(TRUE); 										// Enable interrupt 
 	mcu_SetStkReload( u32_SysTickClk / 1000 * u32_TickInMs - 1 );	// Set value for Tick In Ms
 	mcu_SetStkVal(0);												// Clear the current counter
