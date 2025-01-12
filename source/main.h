@@ -39,7 +39,7 @@
 // Utility
 	#if ( BOARD_ID !=  BOARD_ID_STM32L010RB )
 #include "Utility/io.c"
-// #include "Utility/cmd.c"
+#include "Utility/cmd.c"
 	#endif // BOARD_ID ==  BOARD_ID_STM32F411E
 	
 

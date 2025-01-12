@@ -7,6 +7,7 @@
 #define USART_BAUDRATE_115200 115200
 #define USART_BAUDRATE_230400 230400
 #define USART_BAUDRATE_460800 460800
+#define USART_BAUDRATE_500000 500000
 #define USART_BAUDRATE_921600 921600
 #define USART_BAUDRATE_2250000 2000000
 #define USART_BAUDRATE_4500000 3000000
@@ -74,7 +75,6 @@ static void mcu_UsartTransmit(char data);
 static uint8_t mcu_u8_UsartReceive(void);
 static uint8_t mcu_u8_UsartDataAvailable ( void );
 static void mcu_UsartTransmitString(const char *str);
-// static void mcu_UsartReceiveString(char *str);
 static void mcu_UsartInit(usart_config usartx_config);
 static inline void mcu_UsartSetBaudRate( uint32_t u32_UartBaudRate);
 
@@ -197,7 +197,7 @@ static inline uint32_t mcu_u32_ReadSystemClk()
 		u16_SystemPreScaler = 1;	// Invalid setting. Set to 0.
 		
 	u16_SystemPreScaler = 1 << u16_SystemPreScaler;
-	return mcu_u32_ReadSrcClk() / u16_SystemPreScaler;			
+	return mcu_u32_ReadSrcClk() / u16_SystemPreScaler;
 }
 
 static uint32_t mcu_SetTimer1Clk(uint32_t u32_Timer1PeriodInUs)
@@ -281,7 +281,7 @@ static void mcu_EnableTimer1Interrupt(void)
 *********************************************************************************/
 static void mcu_InitUsart0(void)
 {
-	usart0_config.u32_BaudRate 		= USART_BAUDRATE_9600;
+	usart0_config.u32_BaudRate 		= USART_BAUDRATE_500000;
 	usart0_config.eMode 			= USART_MODE_TXRX;
 	usart0_config.eNoOfStopBits 	= USART_NO_STOP_BITS_1p0;
 	usart0_config.u8_WordLength 	= USART_WORDLEN_8BITS;
@@ -367,7 +367,7 @@ static void mcu_UsartInit(usart_config usartx_config)
 		case USART_MODE_TXRX:
 			REG->UCSR0B.RXEN0 = 1;
 			REG->UCSR0B.TXEN0 = 1;
-			REG->UCSR0B.RXCIE0 = 0;			// Enable receiver interrupt
+			REG->UCSR0B.RXCIE0 = 1;			// Enable receiver interrupt
 			break;
 	}
 }
@@ -375,8 +375,9 @@ static void mcu_UsartInit(usart_config usartx_config)
 
 static inline void mcu_UsartSetBaudRate( uint32_t u32_UartBaudRate)
 {
-	unsigned int u32_BaudPreScale = (((F_CPU / (u32_UartBaudRate * 16UL))) - 1);
-	REG->UBRR0.USART_BAUD = (uint16_t) u32_BaudPreScale;
+	// unsigned int u32_BaudPreScale = (((F_CPU / (u32_UartBaudRate * 16UL))) - 1);
+	uint32_t u32_BaudPreScale = ( ( mcu_u32_ReadSystemClk() / 16 ) / u32_UartBaudRate ) - 1;
+	REG->UBRR0.USART_BAUD = u32_BaudPreScale;
 }
 
 
@@ -414,20 +415,6 @@ static uint8_t mcu_u8_UsartReceive(void)
     return REG->UDR0;				
 }
 
-
-/*
-static void mcu_UsartReceiveString(char *str)
-{
-    unsigned char data;
-    do
-    {
-        data = mcu_u8_UsartReceive();
-        *str = data;
-        str++;
-    } while (data != '\0');
-}
-*/
-
 static void mcu_Usart0InitBuffer(char *pBuffer)
 {
 	usart0_buffer = pBuffer;
@@ -446,7 +433,7 @@ static void mcu_Usart0IrqService(void)
 		usart0_buffer++;
 		*usart0_buffer = '\0';
 		usart0_buffer -= usart0_buffer_len + 1;
-		usart0_buffer = 0;
+		usart0_buffer_len = 0;
 	}
 	else
 	{

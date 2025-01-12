@@ -9,7 +9,7 @@
 	#endif // BOARD_ID == ?
 	
 #define MAX_USART_BUFFER 		100
-#define SYS_TICK_PERIOD_IN_MS	1
+#define TIMER_PERIOD_IN_MS	1
 
 	#if ( BOARD_ID !=  BOARD_ID_STM32L010RB )
 typedef enum 
@@ -27,16 +27,16 @@ typedef enum
 } use_uart;
 
 static use_uart eUart = DEFAULT_UART;
-extern char uart_buffer[MAX_USART_BUFFER];
+extern char uart_rx_buffer[MAX_USART_BUFFER];
+extern char uart_tx_buffer[MAX_USART_BUFFER];
 
 
 static void ut_Init();
 
 static void ut_InitUart();
 static void ut_SendUart();
-// static void ut_ReceiveUart();
-
 static void ut_InitTimer();
+static uint8_t ut_GetRxBufferLen(void);
 
 
 static void ut_InitUart()
@@ -47,20 +47,20 @@ static void ut_InitUart()
 		case USE_UART0:
 			mcu_InitUsart0();
 			is_SetUsart0Interrupt();
-			mcu_Usart0InitBuffer(uart_buffer);
+			mcu_Usart0InitBuffer(uart_rx_buffer);
 			is_InitUsart0Isr(mcu_Usart0IrqService);
 			break;
 				#else // BOARD_ID != BOARD_ID_ATMEGA328P
 		case USE_UART1:
 			mcu_InitUsart1();
 			is_SetUsart1Interrupt();
-			mcu_Usart1InitBuffer(uart_buffer);
+			mcu_Usart1InitBuffer(uart_rx_buffer);
 			is_InitUsart1Isr(mcu_Usart1IrqService);
 			break;
 		case USE_UART2:
 			mcu_InitUsart2();
 			is_SetUsart2Interrupt();
-			mcu_Usart2InitBuffer(uart_buffer);
+			mcu_Usart2InitBuffer(uart_rx_buffer);
 			is_InitUsart2Isr(mcu_Usart2IrqService);
 			break;
 		case USE_UART3:
@@ -71,7 +71,7 @@ static void ut_InitUart()
 		case USE_UART6:
 			mcu_InitUsart6();
 			is_SetUsart6Interrupt();
-			mcu_Usart6InitBuffer(uart_buffer);
+			mcu_Usart6InitBuffer(uart_rx_buffer);
 			is_InitUsart6Isr(mcu_Usart6IrqService);
 			break;
 				#endif // BOARD_ID == ?
@@ -109,9 +109,9 @@ static void ut_SendUart(const char *pTxBuffer)
 static void ut_InitTimer()
 {
 		#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
-	mcu_ConfigSysTick(SYS_TICK_PERIOD_IN_MS);					// STM32 F411E using systick as system timer
+	mcu_ConfigSysTick(TIMER_PERIOD_IN_MS);					// STM32 F411E using systick as system timer
 		#elif ( BOARD_ID ==  BOARD_ID_ATMEGA328P )
-	is_InitTimer1(SYS_TICK_PERIOD_IN_MS);				// Arduino using Timer1 as system timer
+	is_InitTimer1(TIMER_PERIOD_IN_MS);				// Arduino using Timer1 as system timer
 		#else
 	// Do Nothing
 		#endif // BOARD_ID ==  BOARD_ID_STM32F411E
@@ -123,4 +123,15 @@ static void ut_Init()
 	ut_InitUart(); 		// Initialize UART
 		#endif // BOARD_ID ==  BOARD_ID_STM32F411E
 	ut_InitTimer();	// Initialize SysTick
+}
+
+static uint8_t ut_GetRxBufferLen(void)
+{
+	int i;
+	for(i=0; i < MAX_USART_BUFFER; i++ )
+	{
+		if ( ( uart_rx_buffer[i] == '\0' ) || ( uart_rx_buffer[i] == '\r' ) || ( uart_rx_buffer[i] == '\n' ) )
+			break;
+	}
+	return i+1;
 }

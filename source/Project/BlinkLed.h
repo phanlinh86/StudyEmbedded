@@ -37,6 +37,8 @@ typedef enum
 #define BUTTON      "B0"
     #endif // BOARD_ID == ?
 
+#define BLINK_LED_PERIOD_IN_MS 			500
+
 void InitLed(void);
 void BlinkLed(void);
 

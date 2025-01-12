@@ -4,12 +4,13 @@
 
 #include "BlinkLed.h"
 
-static uint32_t u32_ButtonPressCount = 0;
+uint32_t u32_ButtonPressCount = 0;
 	#if ( ( BOARD_ID ==  BOARD_ID_STM32F411E ) || ( BOARD_ID ==  BOARD_ID_ATMEGA328P ) )
-char uart_buffer[MAX_USART_BUFFER] = "Hello World\n";
+char uart_rx_buffer[MAX_USART_BUFFER] = "Hello World\n";
+char uart_tx_buffer[MAX_USART_BUFFER] = "Hello World\n";
 	#endif // BOARD_ID ==  BOARD_ID_STM32F411E
 
-static uint32_t u32_LedPeriodInMs = 500; 	// Toggle LED in this period/2
+uint32_t u32_LedPeriodInMs = BLINK_LED_PERIOD_IN_MS; 	// Toggle LED in this period/2
 
 
 void Init(void)
@@ -51,7 +52,6 @@ void InitButtonInterrupt(void)
 void BlinkLed(void)
 {
   	static LED eLed = GREEN; 		// State machine control which LED to toggle
-	// char buffer[30];
 	if (u32_ButtonPressCount % 2 == 0)
 	{	
 			#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
@@ -84,13 +84,13 @@ void BlinkLed(void)
 				#if ( BOARD_ID ==  BOARD_ID_STM32F411E ) 
 			is_SetSysTickCounter(0);        // Use SysTick to control LED blink
 			// ut_ReceiveUart(uart_buffer);
-			sprintf(uart_buffer, "SysTick:%lu\n", is_ReadSysTickCounter());
-			ut_SendUart(uart_buffer);
+			sprintf(uart_tx_buffer, "SysTick:%lu\n", is_ReadSysTickCounter());
+			ut_SendUart(uart_tx_buffer);
 				#elif ( BOARD_ID ==  BOARD_ID_STM32L010RB )
 			Delay(200000);                  // Use Timer0 to control LED blink
 			    #elif ( BOARD_ID == BOARD_ID_ATMEGA328P )
-			sprintf(uart_buffer, "Timer1:%lu\n", is_u32_ReadTimer1Counter());
-			ut_SendUart(uart_buffer);
+			sprintf(uart_tx_buffer, "Status:%d 0x%08lx 0x%08lx 0x%08lx %d\n", cmd_eGetCmdStatus(),cmd_GetCommand(), cmd_GetCommandParam(0), cmd_GetCommandParam(1), ut_GetRxBufferLen());
+			ut_SendUart(uart_tx_buffer);
 			is_SetTimer1Counter(0);        // Use Timer0 to control LED blink
 				#endif // BOARD_ID ==  ?
 		}
