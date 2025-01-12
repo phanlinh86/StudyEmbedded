@@ -1,54 +1,8 @@
 #pragma once
 
-#define USART_BAUDRATE_9600 9600
-#define USART_BAUDRATE_19200 19200
-#define USART_BAUDRATE_38400 38400
-#define USART_BAUDRATE_57600 57600
-#define USART_BAUDRATE_115200 115200
-#define USART_BAUDRATE_230400 230400
-#define USART_BAUDRATE_460800 460800
-#define USART_BAUDRATE_500000 500000
-#define USART_BAUDRATE_921600 921600
-#define USART_BAUDRATE_2250000 2000000
-#define USART_BAUDRATE_4500000 3000000
-#define USART_WORDLEN_8BITS  0
-#define USART_WORDLEN_9BITS  1
-
-typedef enum 
-{
-	USART_NO_STOP_BITS_0p5 	= 0,
-	USART_NO_STOP_BITS_1p0	= 1,
-	USART_NO_STOP_BITS_1p5 	= 2,
-	USART_NO_STOP_BITS_2p0 	= 3,
-} usart_nostopbit;
-
-typedef enum
-{
-	USART_MODE_ONLY_TX 		= 0,
-	USART_MODE_ONLY_RX 		= 1,
-	USART_MODE_TXRX  		= 2,
-} usart_mode;
-
-typedef enum
-{
-	USART_PARITY_DISABLE 	= 0,
-	USART_PARITY_EN_ODD 	= 1,
-	USART_PARITY_EN_EVEN 	= 2,
-} usart_parity_mode;
-
-typedef struct 
-{
-	usart_mode eMode;
-	usart_nostopbit eNoOfStopBits;
-	usart_parity_mode eParityControl;
-	uint32_t u32_BaudRate;
-	uint8_t u8_WordLength;
-} usart_config;
-
-
 static usart_config usart0_config;
-static char* usart0_buffer;
-static char usart0_buffer_len = 0;
+static uint8_t* usart0_buffer;
+static uint8_t usart0_buffer_len = 0;
 
 static inline void mcu_SetGpioOutput( char* pinString );
 static inline void mcu_SetGpioInput( char* pinString );
@@ -66,15 +20,15 @@ static void mcu_EnableTimer1Interrupt(void);
 
 // REG
 static void mcu_InitUsart0();
-static void mcu_Usart0SendData(const char *pTxBuffer);
-static void mcu_Usart0InitBuffer(char *pBuffer);
+static void mcu_Usart0SendData(const uint8_t *pTxBuffer);
+static void mcu_Usart0InitBuffer(uint8_t *pBuffer);
 static void mcu_Usart0IrqService(void);
 
 // General USART
-static void mcu_UsartTransmit(char data);
+static void mcu_UsartTransmit(uint8_t data);
 static uint8_t mcu_u8_UsartReceive(void);
 static uint8_t mcu_u8_UsartDataAvailable ( void );
-static void mcu_UsartTransmitString(const char *str);
+static void mcu_UsartTransmitString(const uint8_t *str);
 static void mcu_UsartInit(usart_config usartx_config);
 static inline void mcu_UsartSetBaudRate( uint32_t u32_UartBaudRate);
 
@@ -381,7 +335,7 @@ static inline void mcu_UsartSetBaudRate( uint32_t u32_UartBaudRate)
 }
 
 
-static void mcu_UsartTransmit(char data)
+static void mcu_UsartTransmit(uint8_t data)
 {
     /* Wait until not busy */
     while ( REG->UCSR0A.UDRE0 == 0 );
@@ -390,14 +344,15 @@ static void mcu_UsartTransmit(char data)
 	while ( REG->UCSR0A.UDRE0 == 0 );
 }
 
-static void mcu_UsartTransmitString(const char *str)
+static void mcu_UsartTransmitString(const uint8_t *str)
 {
-	unsigned char j=0;
+	uint8_t j=0;
 	
-	while (str[j])		/* Send string till null */
+	// while (str[j])		/* Send string till null */
+	
+	for (j=0; j<= TX_USART_BUFFER-1; j++)
 	{
-		mcu_UsartTransmit(str[j]);	
-		j++;
+		mcu_UsartTransmit(str[j]);
 	}
 }
 
@@ -415,29 +370,27 @@ static uint8_t mcu_u8_UsartReceive(void)
     return REG->UDR0;				
 }
 
-static void mcu_Usart0InitBuffer(char *pBuffer)
+static void mcu_Usart0InitBuffer(uint8_t *pBuffer)
 {
 	usart0_buffer = pBuffer;
 }
 
-static void mcu_Usart0SendData(const char *pTxBuffer)
+static void mcu_Usart0SendData(const uint8_t *pTxBuffer)
 {
 	mcu_UsartTransmitString( pTxBuffer );
 }
 
 static void mcu_Usart0IrqService(void)
 {
-	*usart0_buffer = mcu_u8_UsartReceive();
-	if ( ( *usart0_buffer == '\0' ) || ( *usart0_buffer == '\r' ) || ( *usart0_buffer == '\n' ) )
+	*(usart0_buffer + usart0_buffer_len) = mcu_u8_UsartReceive();
+	if ( usart0_buffer_len >= RX_USART_BUFFER - 1 )
 	{
-		usart0_buffer++;
-		*usart0_buffer = '\0';
-		usart0_buffer -= usart0_buffer_len + 1;
 		usart0_buffer_len = 0;
+		bUartRxComplete = TRUE;
 	}
 	else
 	{
 		usart0_buffer_len++;
-		usart0_buffer++;
+		bUartRxComplete = FALSE;
 	}
 }

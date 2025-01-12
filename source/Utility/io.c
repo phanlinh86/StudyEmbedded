@@ -8,8 +8,12 @@
 #define 	DEFAULT_UART		1
 	#endif // BOARD_ID == ?
 	
-#define MAX_USART_BUFFER 		100
+
 #define TIMER_PERIOD_IN_MS	1
+
+uint8_t uart_rx_buffer[RX_USART_BUFFER];
+uint8_t uart_tx_buffer[TX_USART_BUFFER];
+bool bUartRxComplete = TRUE;
 
 	#if ( BOARD_ID !=  BOARD_ID_STM32L010RB )
 typedef enum 
@@ -27,16 +31,12 @@ typedef enum
 } use_uart;
 
 static use_uart eUart = DEFAULT_UART;
-extern char uart_rx_buffer[MAX_USART_BUFFER];
-extern char uart_tx_buffer[MAX_USART_BUFFER];
-
 
 static void ut_Init();
 
 static void ut_InitUart();
 static void ut_SendUart();
 static void ut_InitTimer();
-static uint8_t ut_GetRxBufferLen(void);
 
 
 static void ut_InitUart()
@@ -79,7 +79,7 @@ static void ut_InitUart()
 }
 
 
-static void ut_SendUart(const char *pTxBuffer)
+static void ut_SendUart(const uint8_t *pTxBuffer)
 {
 	switch (eUart)
 	{
@@ -123,15 +123,4 @@ static void ut_Init()
 	ut_InitUart(); 		// Initialize UART
 		#endif // BOARD_ID ==  BOARD_ID_STM32F411E
 	ut_InitTimer();	// Initialize SysTick
-}
-
-static uint8_t ut_GetRxBufferLen(void)
-{
-	int i;
-	for(i=0; i < MAX_USART_BUFFER; i++ )
-	{
-		if ( ( uart_rx_buffer[i] == '\0' ) || ( uart_rx_buffer[i] == '\r' ) || ( uart_rx_buffer[i] == '\n' ) )
-			break;
-	}
-	return i+1;
 }

@@ -1,9 +1,10 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include "Utility/math.h"
 #include <stdio.h>
 #include <stdint.h>
+#include "Utility/math.h"
+#include "Utility/util.h"
 
 // Project name
 #define PROJECT_INVALID            0

@@ -3,45 +3,12 @@
 //
 #pragma once
 
-typedef enum 
-{
-	USART_NO_STOP_BITS_0p5 	= 0,
-	USART_NO_STOP_BITS_1p0	= 1,
-	USART_NO_STOP_BITS_1p5 	= 2,
-	USART_NO_STOP_BITS_2p0 	= 3,
-} usart_nostopbit;
-
-typedef enum
-{
-	USART_MODE_ONLY_TX 		= 0,
-	USART_MODE_ONLY_RX 		= 1,
-	USART_MODE_TXRX  		= 2,
-} usart_mode;
-
-typedef enum
-{
-	USART_PARITY_DISABLE 	= 0,
-	USART_PARITY_EN_ODD 	= 1,
-	USART_PARITY_EN_EVEN 	= 2,
-} usart_parity_mode;
-
 typedef enum
 {
 	RCC_CLK_SRC_HSI 		= 0,
 	RCC_CLK_SRC_HSE 		= 1,
 	RCC_CLK_SRC_PLL 		= 2,
 } rcc_clk_src;
-
-
-typedef struct 
-{
-	usart_mode eMode;
-	usart_nostopbit eNoOfStopBits;
-	usart_parity_mode eParityControl;
-	uint32_t u32_BaudRate;
-	uint8_t u8_WordLength;
-	// uint8_t u8_HWFlowControl;
-} usart_config;
 
 typedef struct
 {

@@ -530,24 +530,6 @@ typedef struct
 *									STM32 USART								*
 *	       Universal synchronous asynchronous receiver trasmitter 			*
 *****************************************************************************/
-#define USART_BAUDRATE_9600 9600
-#define USART_BAUDRATE_19200 19200
-#define USART_BAUDRATE_38400 38400
-#define USART_BAUDRATE_57600 57600
-#define USART_BAUDRATE_115200 115200
-#define USART_BAUDRATE_230400 230400
-#define USART_BAUDRATE_460800 460800
-#define USART_BAUDRATE_921600 921600
-#define USART_BAUDRATE_2250000 2000000
-#define USART_BAUDRATE_4500000 3000000
-#define USART_WORDLEN_8BITS  0
-#define USART_WORDLEN_9BITS  1
-#define USART_HW_FLOW_CTRL_NONE    	0
-#define USART_HW_FLOW_CTRL_CTS    	1
-#define USART_HW_FLOW_CTRL_RTS    	2
-#define USART_HW_FLOW_CTRL_CTS_RTS	3
-
-
 // Status register
 typedef volatile union
 {
