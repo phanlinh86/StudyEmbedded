@@ -81,7 +81,33 @@ static void cmd_UpdateCommandParam(void)
 	cmd_frame.param3 = ((uint32_t) uart_rx_buffer[20] << 24) + ((uint32_t) uart_rx_buffer[21] << 16) + ((uint32_t) uart_rx_buffer[22] << 8) + uart_rx_buffer[23]; 
 }
 
-static uint32_t cmd_GetCommandParam( uint8_t paramIndex)
+static void cmd_UpdateCommandResponse(void)
+{
+	uart_tx_buffer[0] = (uint8_t) resp_frame.status;
+	// Resp0
+	uart_tx_buffer[1] = (uint8_t) ( resp_frame.resp0 >> 24 );
+	uart_tx_buffer[2] = (uint8_t) ( ( resp_frame.resp0 >> 16 ) & 0xFF );
+	uart_tx_buffer[3] = (uint8_t) ( ( resp_frame.resp0 >> 8 ) & 0xFF );
+	uart_tx_buffer[4] = (uint8_t) ( resp_frame.resp0 & 0xFF );
+	// Resp1
+	uart_tx_buffer[5] = (uint8_t) ( resp_frame.resp1 >> 24 );
+	uart_tx_buffer[6] = (uint8_t) ( ( resp_frame.resp1 >> 16 ) & 0xFF );
+	uart_tx_buffer[7] = (uint8_t) ( ( resp_frame.resp1 >> 8 ) & 0xFF );
+	uart_tx_buffer[8] = (uint8_t) ( resp_frame.resp1 & 0xFF );	
+	// Resp2
+	uart_tx_buffer[9] = (uint8_t) ( resp_frame.resp2 >> 24 );
+	uart_tx_buffer[10] = (uint8_t) ( ( resp_frame.resp2 >> 16 ) & 0xFF );
+	uart_tx_buffer[11] = (uint8_t) ( ( resp_frame.resp2 >> 8 ) & 0xFF );
+	uart_tx_buffer[12] = (uint8_t) ( resp_frame.resp2 & 0xFF );	
+	// Resp3
+	uart_tx_buffer[13] = (uint8_t) ( resp_frame.resp3 >> 24 );
+	uart_tx_buffer[14] = (uint8_t) ( ( resp_frame.resp3 >> 16 ) & 0xFF );
+	uart_tx_buffer[15] = (uint8_t) ( ( resp_frame.resp3 >> 8 ) & 0xFF );
+	uart_tx_buffer[16] = (uint8_t) ( resp_frame.resp3 & 0xFF );
+	uart_tx_buffer[17] = '\0';
+}
+
+uint32_t cmd_GetCommandParam( uint8_t paramIndex)
 {
 	uint32_t *pBuffer = (uint32_t*) &cmd_frame + 1; 
 	return *(pBuffer+paramIndex);
@@ -92,12 +118,12 @@ static uint32_t cmd_GetCommand(void)
 	return cmd_frame.command;
 }
 
-static uint32_t cmd_GetRespStatus(void)
+uint32_t cmd_GetRespStatus(void)
 {
 	return resp_frame.status;
 }
 
-static uint32_t cmd_GetResp(uint8_t paramIndex)
+uint32_t cmd_GetResp(uint8_t paramIndex)
 {
 	uint32_t *pBuffer = (uint32_t*) &resp_frame + 1; 
 	return *(pBuffer+paramIndex);	
@@ -113,16 +139,18 @@ static void cmd_ResetCommandFrame(void)
 static void cmd_DoCommand(void)
 {
 	switch ( cmd_GetCommand() )
-	{
-		case 0x0000:				// Read ram			
-			cmd_ReadRam();
-			// *( (uint32_t*) 0x00800100) = u32_LedPeriodInMs / 2;			
-			break;
-			
+	{		
 		case 0x00001:				// Write ram
 			cmd_WriteRam();
 			break;
+		case 0x0002:				// Read ram			
+			cmd_ReadRam();		
+			break;
+			
 	}
+	cmd_UpdateCommandResponse();	// Update Command Response
+	// Send back response through usart
+	// ut_SendUart(uart_tx_buffer);
 	
 }
 
@@ -130,16 +158,17 @@ static void cmd_DoCommand(void)
 static void cmd_ReadRam(void)
 {	
 	uint32_t *pTemp;
+	pTemp = (uint32_t*) (uintptr_t)cmd_frame.param0;
 	resp_frame.status 	= 1;
-	pTemp = (uint32_t*) cmd_frame.param0;
+	
 	resp_frame.resp0 	= *( pTemp );
 }
 
 static void cmd_WriteRam(void)
 {	
 	uint32_t *pTemp;
+	pTemp = (uint32_t*)(uintptr_t) cmd_frame.param0;
 	resp_frame.status 	= 1;
-	pTemp = (uint32_t*) cmd_frame.param0;
 	resp_frame.resp0 	= *( pTemp );
 	resp_frame.resp1    = cmd_frame.param1;
 	*( pTemp ) = cmd_frame.param1;

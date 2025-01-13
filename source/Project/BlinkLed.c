@@ -6,8 +6,8 @@
 
 uint32_t u32_ButtonPressCount = 0;
 	#if ( ( BOARD_ID ==  BOARD_ID_STM32F411E ) || ( BOARD_ID ==  BOARD_ID_ATMEGA328P ) )
-uint8_t uart_rx_buffer[RX_USART_BUFFER] = "Hello World\n";
-uint8_t uart_tx_buffer[TX_USART_BUFFER] = "Hello World\n";
+uint8_t uart_rx_buffer[RX_USART_BUFFER];
+uint8_t uart_tx_buffer[TX_USART_BUFFER];
 	#endif // BOARD_ID ==  BOARD_ID_STM32F411E
 
 uint32_t u32_LedPeriodInMs = BLINK_LED_PERIOD_IN_MS; 	// Toggle LED in this period/2
@@ -89,7 +89,8 @@ void BlinkLed(void)
 				#elif ( BOARD_ID ==  BOARD_ID_STM32L010RB )
 			Delay(200000);                  // Use Timer0 to control LED blink
 			    #elif ( BOARD_ID == BOARD_ID_ATMEGA328P )
-			sprintf((char*) uart_tx_buffer, "Status:%lu %lu %lu %lu \n", cmd_GetRespStatus(),cmd_GetResp(0), cmd_GetResp(1), cmd_GetResp(2));
+			//sprintf((char*) uart_tx_buffer, "Status:%lu %lu %lu %lu \n", cmd_GetRespStatus(),cmd_GetResp(0), cmd_GetResp(1), cmd_GetResp(2));
+
 			ut_SendUart(uart_tx_buffer);
 			is_SetTimer1Counter(0);        // Use Timer0 to control LED blink
 				#endif // BOARD_ID ==  ?

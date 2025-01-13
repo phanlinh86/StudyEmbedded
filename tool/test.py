@@ -22,7 +22,7 @@ class Dut(object):
     def connect(self):
         self.usart = serial.Serial(     port        =self.port,
                                         baudrate    =self.baudrate,
-                                        timeout     =0.5,
+                                        timeout     =0.2,
                                         parity      =serial.PARITY_NONE,
                                         stopbits    =serial.STOPBITS_ONE,
                                         bytesize    =serial.EIGHTBITS
@@ -32,6 +32,17 @@ class Dut(object):
 
     def recv(self):
         return self.usart.readall()
+
+    def read(self):
+        data = list(self.usart.readall())
+        if len(data):
+            result = {  'status': data[0],
+                        'resp'  : [ int.from_bytes(data[i:i+4], byteorder='big', signed=False) for i in range(1, 17, 4)] }
+        else:
+            result = {  'status': 0,
+                        'resp'  : [] }
+        return result
+
 
     def disconnect(self):
         self.usart.close()
@@ -54,10 +65,20 @@ class Dut(object):
     def write_ram(self, var_name, value):
         var_name = self.get_var_address(var_name)
         self.send_cmd([self.WRITE_RAM, var_name, value, 0x00, 0x00])
+        # Get response
+        data = self.read()
+        #print(f"Status: {data['status']}, Response: {data['resp']}")
+        return data['status']
 
     def read_ram(self, var_name):
         var_name = self.get_var_address(var_name)
         self.send_cmd([self.READ_RAM, var_name, 0x00, 0x00, 0x00])
+        data = self.read()
+        #print(f"Status: {data['status']}, Response: {data['resp']}")
+        if data['status'] == 0:
+            return []
+        else:
+            return data['resp'][0]
 
     def read_sym(self, log_file = "../build/main.sym"):
         if log_file:
@@ -73,18 +94,17 @@ class Dut(object):
         return self.sym_dict
 
 
-
-
 if __name__ == '__main__':
     # Case1. Test USART
     dut = Dut(port='COM7', baudrate=500000, sym_file='../build/main.sym')
     dut.connect()       # Connect dut through USART
     dut.read_sym()     # Parse symbol file
     # Get the symbol list
-
-    for led_period in range(10,1000,10):
+    for led_period in range(400,1000,100):
         print("Setting LED period to ", led_period)
         dut.write_ram("u32_LedPeriodInMs", led_period)
-        time.sleep(0.5)
-
+        time.sleep(1)
+        print("Reading LED period :", end=" ")
+        print(dut.read_ram("u32_LedPeriodInMs"))
+        time.sleep(1)
     dut.disconnect()    # Disconnect dut through USART

@@ -35,7 +35,7 @@ static use_uart eUart = DEFAULT_UART;
 static void ut_Init();
 
 static void ut_InitUart();
-static void ut_SendUart();
+void ut_SendUart();
 static void ut_InitTimer();
 
 
@@ -79,7 +79,7 @@ static void ut_InitUart()
 }
 
 
-static void ut_SendUart(const uint8_t *pTxBuffer)
+void ut_SendUart(const uint8_t *pTxBuffer)
 {
 	switch (eUart)
 	{
