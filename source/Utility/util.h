@@ -83,7 +83,7 @@ typedef volatile struct
 	uint32_t 	resp3;
 } resp_frame_st;
 
-static cmd_status eCmdStatus = CMD_IDLE;
+extern cmd_status eCmdStatus;
 static cmd_frame_st cmd_frame;
 static resp_frame_st resp_frame;
 
