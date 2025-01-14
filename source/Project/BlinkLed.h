@@ -5,6 +5,7 @@
 #ifndef BLINKLED_H
 #define BLINKLED_H
 
+extern uint32_t u32_LedPeriodInMs;
 
 typedef enum
 {

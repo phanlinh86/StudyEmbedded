@@ -39,18 +39,21 @@ static void mcu_InitUsart1();
 static void mcu_Usart1SendData(const char *pTxBuffer);
 static void mcu_Usart1InitBuffer(char *pBuffer);
 static void mcu_Usart1IrqService(void);
+static usart_config mcu_GetUsart1Config(void);
 
 // USART2
 static void mcu_InitUsart2();
 static void mcu_Usart2SendData(const char *pTxBuffer);
 static void mcu_Usart2InitBuffer(char *pBuffer);
 static void mcu_Usart2IrqService(void);
+static usart_config mcu_GetUsart2Config(void);
 
 // USART6
 static void mcu_InitUsart6();
 static void mcu_Usart6SendData(const char *pTxBuffer);
 static void mcu_Usart6InitBuffer(char *pBuffer);
 static void mcu_Usart6IrqService(void);
+static usart_config mcu_GetUsart6Config(void);
 
 static inline void mcu_UsartInit( usart_handle* pUsartHandle ); 		// Enable and initiliaze USART
 static inline void mcu_UsartSetBaudRate( usart_handle *pUSARTHandle );	// Set USART baud rate
@@ -447,6 +450,24 @@ void mcu_UsartReceiveData(usart_handle *pUSARTHandle, char *str)
 		
     } while (data != '\0');
 }
+
+static usart_config mcu_GetUsart1Config(void)
+{
+	return usart1_handle.USART_Config;
+}
+
+static usart_config mcu_GetUsart2Config(void)
+{
+	return usart2_handle.USART_Config;
+}
+
+static usart_config mcu_GetUsart6Config(void)
+{
+	return usart6_handle.USART_Config;
+}
+
+
+
 
 /********************************************************************************
  * 									STM32 RCC									*

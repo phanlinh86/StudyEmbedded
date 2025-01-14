@@ -64,6 +64,18 @@ typedef enum
     CMD_COMPLETE = 3,
 } cmd_status;
 
+
+//  COMMAND TYPE
+// // 0x00xx - Basic functions
+#define GET_INFO		0x0000
+#define WRITE_RAM		0x0001
+#define	READ_RAM		0x0002
+
+// 0x01xx - Write/Read Hardware
+#define WRITE_GPIO		0x0101
+#define READ_GPIO		0x0102
+	
+
 typedef volatile struct
 {
 	uint32_t	command;
@@ -94,11 +106,14 @@ uint32_t cmd_GetCommandParam( uint8_t paramIndex);
 static bool cmd_bCheckCommandInUart(void);
 static uint32_t cmd_GetCommand(void);
 static void cmd_ResetCommandFrame(void);
-static void cmd_ReadRam(void);
+
 uint32_t cmd_GetResp(uint8_t paramIndex);
 uint32_t cmd_GetRespStatus(void);
-static void cmd_WriteRam(void);
 static void cmd_UpdateCommandResponse(void);
+
+static void cmd_WriteRam(void);
+static void cmd_ReadRam(void);
+static void cmd_GetInfo(void);
 
 
 

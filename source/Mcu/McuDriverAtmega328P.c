@@ -23,6 +23,7 @@ static void mcu_InitUsart0();
 static void mcu_Usart0SendData(const uint8_t *pTxBuffer);
 static void mcu_Usart0InitBuffer(uint8_t *pBuffer);
 static void mcu_Usart0IrqService(void);
+static usart_config mcu_GetUsart0Config(void);
 
 // General USART
 static void mcu_UsartTransmit(uint8_t data);
@@ -394,4 +395,9 @@ static void mcu_Usart0IrqService(void)
 		usart0_buffer_len++;
 		bUartRxComplete = FALSE;
 	}
+}
+
+static usart_config mcu_GetUsart0Config(void)
+{
+	return usart0_config;
 }

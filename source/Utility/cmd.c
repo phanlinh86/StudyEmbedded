@@ -140,15 +140,56 @@ static void cmd_DoCommand(void)
 {
 	switch ( cmd_GetCommand() )
 	{		
-		case 0x00001:				// Write ram
+		// Basic functions : 0x00xx
+		case GET_INFO:				// Get board information 	0x0000
+			cmd_GetInfo();
+			break;		
+		case WRITE_RAM:				// Write ram				0x0001
 			cmd_WriteRam();
 			break;
-		case 0x0002:				// Read ram			
+		case READ_RAM:				// Read ram					0x0002
 			cmd_ReadRam();		
 			break;
+			
+		//  Hardware
+		case WRITE_GPIO:			// Write GPIO				0x0001
+			break;
+		case READ_GPIO:				// Read GPIO				0x0002
+			break;			
 	}
 }
 
+static void cmd_GetInfo(void)
+{
+	resp_frame.status = 1;
+	switch ( cmd_frame.param0 ) 
+	{
+		case 0x0000:			// Board information
+			resp_frame.resp0 	= 	BOARD_ID; 
+			break;
+		case 0x0001:			// Project information
+			resp_frame.resp0 	= 	PROJECT;
+			break;
+		case 0x0002:			// CPU Clock
+			resp_frame.resp0 	=	FPU;
+			break;
+		case 0x0100:			// USART
+			if ( cmd_frame.param1 == 0 )
+			{
+				resp_frame.resp0 	=	(uint32_t) ut_u16_GetUsedUsart();
+			}
+			else
+			{
+				usart_config UsartConfig = ut_GetUsartConfig();
+				resp_frame.resp0	=   (uint32_t) UsartConfig.u32_BaudRate; 
+				resp_frame.resp1	= 	(uint32_t) UsartConfig.u8_WordLength; 
+				resp_frame.resp2	= 	(uint32_t) UsartConfig.eNoOfStopBits; 
+				resp_frame.resp3 	=	(uint32_t) UsartConfig.eParityControl; 
+			}
+			break;
+			
+	}
+}
 
 static void cmd_ReadRam(void)
 {	

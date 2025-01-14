@@ -4,6 +4,7 @@ import re
 
 class Dut(object):
     # List of supported command for the DUT through USART
+    GET_INFO    = 0x0000
     WRITE_RAM   = 0x0001
     READ_RAM    = 0x0002
 
@@ -60,6 +61,48 @@ class Dut(object):
         else:
             return var_name
 
+    def get_info(self, info, option=0):
+        if info.upper() == "BOARD":
+            self.send_cmd([self.GET_INFO, 0x0000, 0x00, 0x00, 0x00])
+            data = self.read()
+            return data['resp'][0]
+        elif info.upper() == "PROJECT":
+            self.send_cmd([self.GET_INFO, 0x0001, 0x00, 0x00, 0x00])
+            data = self.read()
+            return data['resp'][0]
+        elif info.upper() == "CLOCK":
+            self.send_cmd([self.GET_INFO, 0x0002, 0x00, 0x00, 0x00])
+            data = self.read()
+            return data['resp'][0]
+        elif info.upper() == "USART":
+            return_dict  = {}
+            self.send_cmd([self.GET_INFO, 0x100, 0x00, 0x00, 0x00])
+            data = self.read()
+            return_dict['usart'] = data['resp'][0]
+            self.send_cmd([self.GET_INFO, 0x100, 0x01, 0x00, 0x00])
+            data = self.read()
+            return_dict['baudrate'] = data['resp'][0]
+            if data['resp'][1] == 0:
+                return_dict['bytesize'] = serial.EIGHTBITS
+            else:
+                return_dict['bytesize'] = 9
+            if data['resp'][2] == 1:
+                return_dict['stopbits'] = serial.STOPBITS_ONE
+            elif data['resp'][2] == 2:
+                return_dict['stopbits'] = serial.STOPBITS_ONE_POINT_FIVE
+            elif data['resp'][2] == 3:
+                return_dict['stopbits'] = serial.STOPBITS_TWO
+            if data['resp'][3] == 0:
+                return_dict['parity'] = serial.PARITY_NONE
+            elif data['resp'][3] == 1:
+                return_dict['parity'] = serial.PARITY_ODD
+            elif data['resp'][3] == 2:
+                return_dict['parity'] = serial.PARITY_EVEN
+
+            return return_dict
+        else:
+            raise Exception("Invalid option")
+
     def write_ram(self, var_name, value):
         var_name = self.get_var_address(var_name)
         self.send_cmd([self.WRITE_RAM, var_name, value, 0x00, 0x00])
@@ -102,8 +145,8 @@ if __name__ == '__main__':
     for led_period in range(100,1000,10):
         print("Setting LED period to ", led_period)
         dut.write_ram("u32_LedPeriodInMs", led_period)
-        time.sleep(0.1)
+        #time.sleep(0.1)
         print("Reading LED period :", end=" ")
         print(dut.read_ram("u32_LedPeriodInMs"))
-        time.sleep(0.1)
+        #time.sleep(0.1)
     dut.disconnect()    # Disconnect dut through USART

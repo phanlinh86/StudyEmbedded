@@ -40,6 +40,8 @@ void ut_SendUart();
 void ut_ResetRxBuffer();
 void ut_ResetTxBuffer();
 static void ut_InitTimer();
+static use_uart ut_u16_GetUsedUsart(void);
+static usart_config ut_GetUsartConfig(void);
 
 
 static void ut_InitUart()
@@ -138,4 +140,38 @@ void ut_ResetTxBuffer()
 {
 	for (int i=0; i<TX_USART_BUFFER; i++)
 		uart_tx_buffer[i] = '\0';
+}
+
+static use_uart ut_u16_GetUsedUsart(void)
+{
+	return eUart;
+}
+
+static usart_config ut_GetUsartConfig(void)
+{
+	usart_config UsartConfig;
+	switch (eUart)
+	{
+				#if ( BOARD_ID == BOARD_ID_ATMEGA328P )
+		case USE_UART0:
+			UsartConfig = mcu_GetUsart0Config();
+			break;
+				#else // BOARD_ID != BOARD_ID_ATMEGA328P
+		case USE_UART1:
+			UsartConfig = mcu_GetUsart1Config();
+			break;
+		case USE_UART2:
+			UsartConfig = mcu_GetUsart2Config();
+			break;
+		case USE_UART3:
+		case USE_UART4:
+		case USE_UART5:
+			// Current there is no support for UART3/4/5
+			break;
+		case USE_UART6:
+			UsartConfig = mcu_GetUsart6Config();
+			break;
+				#endif // BOARD_ID == ?
+	}
+	return UsartConfig;
 }
