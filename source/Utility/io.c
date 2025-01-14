@@ -14,7 +14,6 @@
 uint8_t uart_rx_buffer[RX_USART_BUFFER];
 uint8_t uart_tx_buffer[TX_USART_BUFFER];
 bool bUartRxComplete = TRUE;
-
 	#if ( BOARD_ID !=  BOARD_ID_STM32L010RB )
 typedef enum 
 {
@@ -31,11 +30,15 @@ typedef enum
 } use_uart;
 
 static use_uart eUart = DEFAULT_UART;
+cmd_status eCmdStatus = CMD_IDLE;
+
 
 static void ut_Init();
 
 static void ut_InitUart();
 void ut_SendUart();
+void ut_ResetRxBuffer();
+void ut_ResetTxBuffer();
 static void ut_InitTimer();
 
 
@@ -123,4 +126,16 @@ static void ut_Init()
 	ut_InitUart(); 		// Initialize UART
 		#endif // BOARD_ID ==  BOARD_ID_STM32F411E
 	ut_InitTimer();	// Initialize SysTick
+}
+
+void ut_ResetRxBuffer()
+{
+	for (int i=0; i<RX_USART_BUFFER; i++)
+		uart_rx_buffer[i] = '\0';
+}
+
+void ut_ResetTxBuffer()
+{
+	for (int i=0; i<TX_USART_BUFFER; i++)
+		uart_tx_buffer[i] = '\0';
 }

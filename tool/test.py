@@ -34,7 +34,7 @@ class Dut(object):
         return self.usart.readall()
 
     def read(self):
-        data = list(self.usart.readall())
+        data = list(self.usart.read(18))
         if len(data):
             result = {  'status': data[0],
                         'resp'  : [ int.from_bytes(data[i:i+4], byteorder='big', signed=False) for i in range(1, 17, 4)] }
@@ -98,13 +98,12 @@ if __name__ == '__main__':
     # Case1. Test USART
     dut = Dut(port='COM7', baudrate=500000, sym_file='../build/main.sym')
     dut.connect()       # Connect dut through USART
+    time.sleep(2)       # Waiting for a while to get the connection stable
     dut.read_sym()     # Parse symbol file
     # Get the symbol list
-    for led_period in range(400,1000,100):
+    for led_period in range(100,1000,10):
         print("Setting LED period to ", led_period)
         dut.write_ram("u32_LedPeriodInMs", led_period)
-        time.sleep(1)
         print("Reading LED period :", end=" ")
         print(dut.read_ram("u32_LedPeriodInMs"))
-        time.sleep(1)
     dut.disconnect()    # Disconnect dut through USART

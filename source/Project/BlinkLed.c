@@ -89,9 +89,7 @@ void BlinkLed(void)
 				#elif ( BOARD_ID ==  BOARD_ID_STM32L010RB )
 			Delay(200000);                  // Use Timer0 to control LED blink
 			    #elif ( BOARD_ID == BOARD_ID_ATMEGA328P )
-			//sprintf((char*) uart_tx_buffer, "Status:%lu %lu %lu %lu \n", cmd_GetRespStatus(),cmd_GetResp(0), cmd_GetResp(1), cmd_GetResp(2));
-
-			ut_SendUart(uart_tx_buffer);
+			//sprintf((char*) uart_tx_buffer, "Status:%lu %lu %lu %lu \n", cmd_GetRespStatus(),cmd_GetResp(0), cmd_GetResp(1), cmd_GetResp(2));			
 			is_SetTimer1Counter(0);        // Use Timer0 to control LED blink
 				#endif // BOARD_ID ==  ?
 		}

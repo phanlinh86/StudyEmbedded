@@ -47,16 +47,20 @@ static void cmd_DoCommandIsr(void)
 				cmd_SetCmdStatus(CMD_WAITING);
 			break;
 		case CMD_WAITING:
-			cmd_UpdateCommandParam();
+			cmd_UpdateCommandParam();			// Get command parameter from the buffer
+			ut_ResetRxBuffer();					// Reset receive buffer after proccessing Rx Buffer
 			cmd_SetCmdStatus(CMD_PROCESSING);
 			// Get command information to process in the next stage
 			break;
 		case CMD_PROCESSING:
-			cmd_DoCommand();
+			cmd_DoCommand();					// Serve the command
+			cmd_UpdateCommandResponse();		// Update the tx buffer using command response
 			cmd_SetCmdStatus(CMD_COMPLETE);
 			break;			
 		case CMD_COMPLETE:		
-			cmd_ResetCommandFrame();		
+			cmd_ResetCommandFrame();
+			ut_SendUart(uart_tx_buffer);		// Send response through USART
+			ut_ResetTxBuffer();					// Reset tx buffer after sent	
 			cmd_SetCmdStatus(CMD_IDLE);			
 			break;			
 	}
@@ -104,7 +108,7 @@ static void cmd_UpdateCommandResponse(void)
 	uart_tx_buffer[14] = (uint8_t) ( ( resp_frame.resp3 >> 16 ) & 0xFF );
 	uart_tx_buffer[15] = (uint8_t) ( ( resp_frame.resp3 >> 8 ) & 0xFF );
 	uart_tx_buffer[16] = (uint8_t) ( resp_frame.resp3 & 0xFF );
-	uart_tx_buffer[17] = '\0';
+	uart_tx_buffer[17] = '\n';
 }
 
 uint32_t cmd_GetCommandParam( uint8_t paramIndex)
@@ -146,12 +150,7 @@ static void cmd_DoCommand(void)
 		case 0x0002:				// Read ram			
 			cmd_ReadRam();		
 			break;
-			
 	}
-	cmd_UpdateCommandResponse();	// Update Command Response
-	// Send back response through usart
-	// ut_SendUart(uart_tx_buffer);
-	
 }
 
 
