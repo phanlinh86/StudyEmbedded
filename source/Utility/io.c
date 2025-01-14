@@ -125,7 +125,7 @@ static void ut_Init()
 		#if ( BOARD_ID !=  BOARD_ID_STM32L010RB )
 	ut_InitUart(); 		// Initialize UART
 		#endif // BOARD_ID ==  BOARD_ID_STM32F411E
-	ut_InitTimer();	// Initialize SysTick
+	ut_InitTimer();	// Initialize timer for scheduler
 }
 
 void ut_ResetRxBuffer()

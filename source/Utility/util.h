@@ -60,7 +60,6 @@ extern bool bUartRxComplete;
 typedef enum
 {
     CMD_IDLE = 0,
-    CMD_WAITING = 1,
     CMD_PROCESSING = 2,
     CMD_COMPLETE = 3,
 } cmd_status;

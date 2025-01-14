@@ -40,8 +40,8 @@ static inline void mcu_UsartSetBaudRate( uint32_t u32_UartBaudRate);
 
 static inline void mcu_SetGpioOutput( char* pinString )
 {
-	char port; int pin;
-	sscanf( pinString, "%c%d", &port, &pin);
+	char port; uint8_t pin;
+	ut_GetPortAndPinFromString( pinString, &port, &pin );
 	switch (port)
 	{
 		case 'B':
@@ -59,8 +59,8 @@ static inline void mcu_SetGpioOutput( char* pinString )
 
 static inline void mcu_SetGpioInput( char* pinString )
 {
-	char port; int pin;
-	sscanf( pinString, "%c%d", &port, &pin);	
+	char port; uint8_t pin;
+	ut_GetPortAndPinFromString( pinString, &port, &pin );	
 	switch (port)
 	{
 		case 'B':
@@ -77,8 +77,9 @@ static inline void mcu_SetGpioInput( char* pinString )
 
 static inline void mcu_ToggleGpio( char* pinString )
 {
-	char port; int pin;
-	sscanf( pinString, "%c%d", &port, &pin);	
+	char port; uint8_t pin;
+	ut_GetPortAndPinFromString( pinString, &port, &pin );
+	port = 'B'; pin = 5;
 	switch (port)
 	{
 		case 'B':
@@ -95,8 +96,8 @@ static inline void mcu_ToggleGpio( char* pinString )
 
 static inline void mcu_SetGpioHigh( char* pinString )
 {
-	char port; int pin;
-	sscanf( pinString, "%c%d", &port, &pin);
+	char port; uint8_t pin;
+	ut_GetPortAndPinFromString( pinString, &port, &pin );
 	switch (port)
 	{
 		case 'B':
@@ -113,8 +114,8 @@ static inline void mcu_SetGpioHigh( char* pinString )
 
 static inline void mcu_SetGpioLow( char* pinString )
 {
-	char port; int pin;
-	sscanf( pinString, "%c%d", &port, &pin);
+	char port; uint8_t pin;
+	ut_GetPortAndPinFromString( pinString, &port, &pin );
 	switch (port)
 	{
 		case 'B':
@@ -346,7 +347,7 @@ static void mcu_UsartTransmit(uint8_t data)
 
 static void mcu_UsartTransmitString(const uint8_t *str)
 {
-	uint8_t j=0;
+	static uint8_t j=0;
 	
 	// while (str[j])		/* Send string till null */
 	

@@ -44,21 +44,17 @@ static void cmd_DoCommandIsr(void)
 		case CMD_IDLE:
 			// Check first 2 bytes of UART buffer whether matches with required command header to move to next stage
 			if ( cmd_bCheckCommandInUart() == TRUE )
-				cmd_SetCmdStatus(CMD_WAITING);
-			break;
-		case CMD_WAITING:
-			cmd_UpdateCommandParam();			// Get command parameter from the buffer
-			ut_ResetRxBuffer();					// Reset receive buffer after proccessing Rx Buffer
-			cmd_SetCmdStatus(CMD_PROCESSING);
-			// Get command information to process in the next stage
+				cmd_SetCmdStatus(CMD_PROCESSING);
 			break;
 		case CMD_PROCESSING:
+			cmd_UpdateCommandParam();			// Get command parameter from the buffer
+			ut_ResetRxBuffer();					// Reset receive buffer after proccessing Rx Buffer
 			cmd_DoCommand();					// Serve the command
 			cmd_UpdateCommandResponse();		// Update the tx buffer using command response
+			cmd_ResetCommandFrame();
 			cmd_SetCmdStatus(CMD_COMPLETE);
 			break;			
-		case CMD_COMPLETE:		
-			cmd_ResetCommandFrame();
+		case CMD_COMPLETE:
 			ut_SendUart(uart_tx_buffer);		// Send response through USART
 			ut_ResetTxBuffer();					// Reset tx buffer after sent	
 			cmd_SetCmdStatus(CMD_IDLE);			

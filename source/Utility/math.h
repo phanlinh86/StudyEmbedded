@@ -22,3 +22,17 @@ typedef enum
 // Bit fields using indexes (M > N)
 #define BITFIELDMNSET(VAR,M,N,VAL)  (VAR)=((VAR)&~(BITMASK((M),(N)))|BITVALUE((VAL),(N)))
 #define BITFIELDMNGET(VAR,M,N)      ((VAR)&(BITMASK((M),(N)))>>(N))
+
+
+void ut_GetPortAndPinFromString( const char* str, char *port, uint8_t *pin );
+
+void ut_GetPortAndPinFromString( const char* str, char *port, uint8_t *pin )
+{
+	int i = 1;
+	*port = str[0];
+	*pin = 0;
+	while (str[i])
+		*pin = *pin * 10 +  ( str[i++] - '0' );
+}
+
+

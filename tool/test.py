@@ -1,5 +1,3 @@
-from cmath import log10
-
 import serial
 import time
 import re
@@ -22,7 +20,7 @@ class Dut(object):
     def connect(self):
         self.usart = serial.Serial(     port        =self.port,
                                         baudrate    =self.baudrate,
-                                        timeout     =0.2,
+                                        timeout     =0.5,
                                         parity      =serial.PARITY_NONE,
                                         stopbits    =serial.STOPBITS_ONE,
                                         bytesize    =serial.EIGHTBITS
@@ -104,6 +102,8 @@ if __name__ == '__main__':
     for led_period in range(100,1000,10):
         print("Setting LED period to ", led_period)
         dut.write_ram("u32_LedPeriodInMs", led_period)
+        time.sleep(0.1)
         print("Reading LED period :", end=" ")
         print(dut.read_ram("u32_LedPeriodInMs"))
+        time.sleep(0.1)
     dut.disconnect()    # Disconnect dut through USART

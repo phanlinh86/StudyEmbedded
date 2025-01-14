@@ -2,8 +2,6 @@
 // Created by Phan Linh on 25/12/2024.
 //
 
-#include "BlinkLed.h"
-
 uint32_t u32_ButtonPressCount = 0;
 	#if ( ( BOARD_ID ==  BOARD_ID_STM32F411E ) || ( BOARD_ID ==  BOARD_ID_ATMEGA328P ) )
 uint8_t uart_rx_buffer[RX_USART_BUFFER];
@@ -57,7 +55,7 @@ void BlinkLed(void)
 			#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
 		if ( is_ReadSysTickCounter() >= u32_LedPeriodInMs )
 		    #elif ( BOARD_ID == BOARD_ID_ATMEGA328P )
-		if ( is_u32_ReadTimer1Counter() >= u32_LedPeriodInMs )
+		if ( is_u32_ReadTimerCounter() >= u32_LedPeriodInMs )
 			#endif // BOARD_ID ==  BOARD_ID_STM32F411E
 		{
 			switch ( eLed ) 
@@ -89,8 +87,7 @@ void BlinkLed(void)
 				#elif ( BOARD_ID ==  BOARD_ID_STM32L010RB )
 			Delay(200000);                  // Use Timer0 to control LED blink
 			    #elif ( BOARD_ID == BOARD_ID_ATMEGA328P )
-			//sprintf((char*) uart_tx_buffer, "Status:%lu %lu %lu %lu \n", cmd_GetRespStatus(),cmd_GetResp(0), cmd_GetResp(1), cmd_GetResp(2));			
-			is_SetTimer1Counter(0);        // Use Timer0 to control LED blink
+			is_SetTimerCounter(0);		
 				#endif // BOARD_ID ==  ?
 		}
 	}
