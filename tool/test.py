@@ -105,23 +105,41 @@ class Dut(object):
         else:
             raise Exception("Invalid option")
 
-    def write_ram(self, var_name, value):
+    def write_ram(self, var_name, value, byte_size=4):
         var_name = self.get_var_address(var_name)
-        self.send_cmd([self.WRITE_RAM, var_name, value, 0x00, 0x00])
+        self.send_cmd([self.WRITE_RAM, var_name, value, byte_size, 0x00])
         # Get response
         data = self.read()
         #print(f"Status: {data['status']}, Response: {data['resp']}")
         return data['status']
 
-    def read_ram(self, var_name):
+    def write_ram32(self, var_name, value):
+        return self.write_ram(var_name, value, 4)
+
+    def write_ram16(self, var_name, value):
+        return self.write_ram(var_name, value, 2)
+
+    def write_ram8(self, var_name, value):
+        return self.write_ram(var_name, value, 1)
+
+    def read_ram(self, var_name, byte_size=4):
         var_name = self.get_var_address(var_name)
-        self.send_cmd([self.READ_RAM, var_name, 0x00, 0x00, 0x00])
+        self.send_cmd([self.READ_RAM, var_name, byte_size, 0x00, 0x00])
         data = self.read()
         #print(f"Status: {data['status']}, Response: {data['resp']}")
         if data['status'] == 0:
             return []
         else:
             return data['resp'][0]
+
+    def read_ram32(self, var_name):
+        return self.read_ram(var_name, 4)
+
+    def read_ram16(self, var_name):
+        return self.read_ram(var_name, 2)
+
+    def read_ram8(self, var_name):
+        return self.read_ram(var_name, 1)
 
     def write_gpio(self, pin, value):
         cmd_str =   f"/cmd".encode("utf-8")
