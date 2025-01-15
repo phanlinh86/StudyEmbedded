@@ -8,6 +8,7 @@ static inline void mcu_SetGpioOutput( char* pinString );
 static inline void mcu_SetGpioInput( char* pinString );
 static inline void mcu_SetGpioHigh( char* pinString );
 static inline void mcu_SetGpioLow( char* pinString );
+static inline uint8_t mcu_u8_ReadGpio( char* pinString );
 static inline void mcu_ToggleGpio( char* pinString );
 
 
@@ -80,7 +81,6 @@ static inline void mcu_ToggleGpio( char* pinString )
 {
 	char port; uint8_t pin;
 	ut_GetPortAndPinFromString( pinString, &port, &pin );
-	port = 'B'; pin = 5;
 	switch (port)
 	{
 		case 'B':
@@ -131,6 +131,26 @@ static inline void mcu_SetGpioLow( char* pinString )
 	}
 }
 
+static inline uint8_t mcu_u8_ReadGpio( char* pinString )
+{
+	char port; uint8_t pin;
+	uint8_t value = 0;
+	ut_GetPortAndPinFromString( pinString, &port, &pin );
+	
+	switch (port)
+	{
+		case 'B':
+			value = ( ( REG->PORTB >> pin ) & 0x01 );
+			break;
+		case 'C':
+			value = ( ( REG->PORTC >> pin ) & 0x01 );
+			break;
+		case 'D':
+			value = ( ( REG->PORTD >> pin ) & 0x01 );
+			break;
+	}
+	return value;
+}
 
 
 /********************************************************************************

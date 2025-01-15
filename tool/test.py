@@ -7,6 +7,8 @@ class Dut(object):
     GET_INFO    = 0x0000
     WRITE_RAM   = 0x0001
     READ_RAM    = 0x0002
+    WRITE_GPIO  = 0x0101
+    READ_GPIO   = 0x0102
 
     def __init__(self, port=None, baudrate=None, sym_file="../build/main.sym"):
         self.usart      = None          # The serial port object
@@ -116,6 +118,31 @@ class Dut(object):
         self.send_cmd([self.READ_RAM, var_name, 0x00, 0x00, 0x00])
         data = self.read()
         #print(f"Status: {data['status']}, Response: {data['resp']}")
+        if data['status'] == 0:
+            return []
+        else:
+            return data['resp'][0]
+
+    def write_gpio(self, pin, value):
+        cmd_str =   f"/cmd".encode("utf-8")
+        cmd_str += self.WRITE_GPIO.to_bytes(4, byteorder='big')
+        cmd_str += pin.encode() + b'\0'*(4-len(pin))
+        for param in [value,0x00, 0x00]:
+            cmd_str += param.to_bytes(4, byteorder='big')
+        cmd_str += "\n".encode("utf-8")
+        self.usart.write(cmd_str)
+        data = self.read()
+        return data['status']
+
+    def read_gpio(self, pin):
+        cmd_str =   f"/cmd".encode("utf-8")
+        cmd_str += self.READ_GPIO.to_bytes(4, byteorder='big')
+        cmd_str += pin.encode() + b'\0'*(4-len(pin))
+        for param in [0x00, 0x00, 0x00]:
+            cmd_str += param.to_bytes(4, byteorder='big')
+        cmd_str += "\n".encode("utf-8")
+        self.usart.write(cmd_str)
+        data = self.read()
         if data['status'] == 0:
             return []
         else:

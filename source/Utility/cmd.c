@@ -153,12 +153,18 @@ static void cmd_DoCommand(void)
 			
 		//  Hardware
 		case WRITE_GPIO:			// Write GPIO				0x0001
+			cmd_WriteGpio();
 			break;
 		case READ_GPIO:				// Read GPIO				0x0002
+			cmd_ReadGpio();
 			break;			
 	}
 }
 
+
+// Command package
+
+// 0x00xx 	- 	BASIC
 static void cmd_GetInfo(void)
 {
 	resp_frame.status = 1;
@@ -196,8 +202,9 @@ static void cmd_ReadRam(void)
 	uint32_t *pTemp;
 	pTemp = (uint32_t*) (uintptr_t)cmd_frame.param0;
 	resp_frame.status 	= 1;
-	
 	resp_frame.resp0 	= *( pTemp );
+	resp_frame.resp2 	= 0x00;
+	resp_frame.resp3 	= 0x00;
 }
 
 static void cmd_WriteRam(void)
@@ -208,4 +215,63 @@ static void cmd_WriteRam(void)
 	resp_frame.resp0 	= *( pTemp );
 	resp_frame.resp1    = cmd_frame.param1;
 	*( pTemp ) = cmd_frame.param1;
+}
+
+
+// 0x00xx 	- 	HARDWARE
+static void cmd_WriteGpio(void)
+{
+	char pTemp[4];
+	pTemp[0] = cmd_frame.param0 >> 24;
+	pTemp[1] = ( cmd_frame.param0 >> 16 ) & (0xFF);
+	pTemp[2] = ( cmd_frame.param0 >> 8 ) & (0xFF);
+	pTemp[3] = cmd_frame.param0 & 0xFF;
+
+	switch ( cmd_frame.param1 )
+	{
+		case 0:
+			mcu_SetGpioLow(pTemp);			// Set Low
+			break;
+		case 1:
+			mcu_SetGpioHigh(pTemp);			// Set High
+			break;
+		case 2:
+			mcu_ToggleGpio(pTemp);			// Toggle
+			break;
+		case 3:
+			mcu_SetGpioOutput(pTemp);		// Set output
+			break;
+		case 4:
+			mcu_SetGpioInput(pTemp);		// Set input
+			break;
+				#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
+		case 5:
+			mcu_SetGpioAlternate(pTemp, cmd_frame.param2);			// Set Alternate pin which read from param2
+			break;
+				#endif // BOARD_ID == BOARD_ID_STM32F411E
+	}
+	
+	resp_frame.status 	= 1;
+	resp_frame.resp0 	= cmd_frame.param0;
+	resp_frame.resp1 	= cmd_frame.param1;
+	resp_frame.resp2 	= 0x00;
+	resp_frame.resp3 	= 0x00;
+}
+
+static void cmd_ReadGpio(void)
+{
+	char pTemp[4];
+	uint8_t u8_Value;
+	pTemp[0] = cmd_frame.param0 >> 24;
+	pTemp[1] = ( cmd_frame.param0 >> 16 ) & (0xFF);
+	pTemp[2] = ( cmd_frame.param0 >> 8 ) & (0xFF);
+	pTemp[3] = cmd_frame.param0 & 0xFF;
+
+	u8_Value = mcu_u8_ReadGpio(pTemp);
+	
+	resp_frame.status 	= 1;
+	resp_frame.resp0 	= u8_Value;
+	resp_frame.resp1 	= 0x00;
+	resp_frame.resp2 	= 0x00;
+	resp_frame.resp3 	= 0x00;
 }

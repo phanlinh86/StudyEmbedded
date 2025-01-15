@@ -114,6 +114,8 @@ static void cmd_UpdateCommandResponse(void);
 static void cmd_WriteRam(void);
 static void cmd_ReadRam(void);
 static void cmd_GetInfo(void);
+static void cmd_WriteGpio(void);
+static void cmd_ReadGpio(void);
 
 
 

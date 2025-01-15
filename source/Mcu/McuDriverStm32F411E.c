@@ -31,6 +31,7 @@ static inline void mcu_SetGpioOutput( char* pinString );
 static inline void mcu_SetGpioInput( char* pinString );
 static inline void mcu_SetGpioHigh( char* pinString );
 static inline void mcu_SetGpioLow( char* pinString );
+static inline void mcu_u8_ReadGpio(( char* pinString );
 static inline void mcu_ToggleGpio( char* pinString );
 static inline void mcu_SetGpioAlternate( char* pinString, uint8_t u8_AlternateValue );
 
@@ -124,6 +125,14 @@ static inline void mcu_SetGpioLow( char* pinString )
 	ut_GetPortAndPinFromString( pinString, &port, &pin );
 	gpio_regs *GPIO = (gpio_regs*)( GPIOA_BASE + ( port - 'A' ) * 0x400 );
 	GPIO->ODR.Register &= ~( 1 << pin );			// Set GPIO mode to output
+}
+
+static inline uint8_t mcu_u8_ReadGpio( char* pinString )
+{
+	char port; uint8_t pin;
+	ut_GetPortAndPinFromString( pinString, &port, &pin );
+	gpio_regs *GPIO = (gpio_regs*)( GPIOA_BASE + ( port - 'A' ) * 0x400 );
+	return ( ( GPIO->ODR.Register >> pin ) & 0x01 );			// Set GPIO mode to output
 }
 
 static inline void mcu_SetGpioAlternate( char* pinString, uint8_t u8_AlternateValue )
