@@ -152,10 +152,10 @@ static void cmd_DoCommand(void)
 			break;
 			
 		//  Hardware
-		case WRITE_GPIO:			// Write GPIO				0x0001
+		case WRITE_GPIO:			// Write GPIO				0x0101
 			cmd_WriteGpio();
 			break;
-		case READ_GPIO:				// Read GPIO				0x0002
+		case READ_GPIO:				// Read GPIO				0x0102
 			cmd_ReadGpio();
 			break;			
 	}
@@ -202,7 +202,21 @@ static void cmd_ReadRam(void)
 	uint32_t *pTemp;
 	pTemp = (uint32_t*) (uintptr_t)cmd_frame.param0;
 	resp_frame.status 	= 1;
-	resp_frame.resp0 	= *( pTemp );
+	switch ( cmd_frame.param1 ) 
+	{
+		case 4: 	// 4 bytes - 32 bits
+			resp_frame.resp0 	= *( pTemp );
+			break;
+		case 2:		// 2 byte - 16 bits
+			resp_frame.resp0 	= (uint16_t) *( pTemp ) & 0xFFFF;
+			break;
+		case 1:		// 1 byte - 8 bits
+			resp_frame.resp0 	= (uint8_t) *( pTemp ) & 0xFF;
+			break;
+		default:	// Other option - 32 bits by default
+			resp_frame.resp0 	= *( pTemp );
+			break;		
+	}
 	resp_frame.resp2 	= 0x00;
 	resp_frame.resp3 	= 0x00;
 }
@@ -212,9 +226,29 @@ static void cmd_WriteRam(void)
 	uint32_t *pTemp;
 	pTemp = (uint32_t*)(uintptr_t) cmd_frame.param0;
 	resp_frame.status 	= 1;
-	resp_frame.resp0 	= *( pTemp );
+
+	switch ( cmd_frame.param2 ) 
+	{
+		case 4: 	// 4 bytes - 32 bits
+			resp_frame.resp0 	= *( pTemp );
+			*( pTemp ) = cmd_frame.param1;
+			break;
+		case 2:		// 2 byte - 16 bits
+			resp_frame.resp0 	= (uint16_t) *( pTemp ) & 0xFFFF;
+			*( pTemp ) = ( *( pTemp ) & 0xFFFF0000 ) |  cmd_frame.param1;
+			break;
+		case 1:		// 1 byte - 8 bits
+			resp_frame.resp0 	= (uint8_t) *( pTemp ) & 0xFF;
+			*( pTemp ) = ( *( pTemp ) & 0xFFFFFF00 ) |  cmd_frame.param1;
+			break;
+		default:	// Other option - 32 bits by default
+			*( pTemp ) 			= cmd_frame.param1;
+			resp_frame.resp0 	= *( pTemp );
+			break;		
+	}
 	resp_frame.resp1    = cmd_frame.param1;
-	*( pTemp ) = cmd_frame.param1;
+	resp_frame.resp2 	= 0x00;
+	resp_frame.resp3 	= 0x00;
 }
 
 
