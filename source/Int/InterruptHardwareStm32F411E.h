@@ -63,7 +63,4 @@ static void is_InitUsart2Isr(void (*pfServiceFunction)(void));
 static void is_SetUsart6Interrupt(void);
 static void is_InitUsart6Isr(void (*pfServiceFunction)(void));
 
-static uint32_t is_ReadSysTickCounter();
-static void is_SetSysTickCounter( uint32_t val);
-
 #endif //INTERRUPTHARDWARESTM32F411E_H

@@ -20,18 +20,18 @@ static usart_handle usart1_handle;
 static usart_handle usart2_handle;
 static usart_handle usart6_handle;
 
-static char* usart1_buffer;
-static char* usart2_buffer;
-static char* usart6_buffer;
-static char usart1_buffer_len = 0;
-static char usart2_buffer_len = 0;
-static char usart6_buffer_len = 0;
+static uint8_t* usart1_buffer;
+static uint8_t* usart2_buffer;
+static uint8_t* usart6_buffer;
+static uint8_t usart1_buffer_len = 0;
+static uint8_t usart2_buffer_len = 0;
+static uint8_t usart6_buffer_len = 0;
 
 static inline void mcu_SetGpioOutput( char* pinString );
 static inline void mcu_SetGpioInput( char* pinString );
 static inline void mcu_SetGpioHigh( char* pinString );
 static inline void mcu_SetGpioLow( char* pinString );
-static inline void mcu_u8_ReadGpio(( char* pinString );
+static inline uint8_t mcu_u8_ReadGpio( char* pinString );
 static inline void mcu_ToggleGpio( char* pinString );
 static inline void mcu_SetGpioAlternate( char* pinString, uint8_t u8_AlternateValue );
 
@@ -62,7 +62,7 @@ void mcu_UsartSendData(usart_handle *pUSARTHandle, const char *pTxBuffer);
 void mcu_UsartSendChar(usart_handle *pUSARTHandle, char data);
 static char mcu_UsartDataAvailable(usart_handle *pUSARTHandle);
 void mcu_UsartReceiveData(usart_handle *pUSARTHandle, char *str);
-char mcu_UsartGetChar(usart_handle *pUSARTHandle);
+uint8_t mcu_UsartGetChar(usart_handle *pUSARTHandle);
 
 static uint32_t mcu_u32_ReadSysClk();
 static uint32_t mcu_u32_ReadAhbClk();
@@ -158,7 +158,7 @@ static inline void mcu_SetGpioAlternate( char* pinString, uint8_t u8_AlternateVa
 void mcu_InitUsart1(void)
 {	
 	usart1_handle.pUSARTx 						= USART1;
-	usart1_handle.USART_Config.u32_BaudRate 	= USART_BAUDRATE_115200;
+	usart1_handle.USART_Config.u32_BaudRate 	= USART_BAUDRATE_460800;
 	usart1_handle.USART_Config.eMode 			= USART_MODE_TXRX;
 	usart1_handle.USART_Config.eNoOfStopBits 	= USART_NO_STOP_BITS_1p0;
 	usart1_handle.USART_Config.u8_WordLength 	= USART_WORDLEN_8BITS;
@@ -180,18 +180,16 @@ static void mcu_Usart1InitBuffer(char *pBuffer)
 
 static void mcu_Usart1IrqService(void)
 {
-	*usart1_buffer = mcu_UsartGetChar(&usart1_handle);
-	if ( ( *usart1_buffer == '\0' ) || ( *usart1_buffer == '\r' ) || ( *usart1_buffer == '\n' ) )
+	*(usart1_buffer + usart1_buffer_len)  = mcu_UsartGetChar(&usart1_handle);
+	if ( usart1_buffer_len >= RX_USART_BUFFER - 1 )
 	{
-		usart1_buffer++;
-		*usart1_buffer = '\0';
-		usart1_buffer -= usart1_buffer_len + 1;
 		usart1_buffer_len = 0;
+		bUartRxComplete = TRUE;
 	}
 	else
 	{
 		usart1_buffer_len++;
-		usart1_buffer++;
+		bUartRxComplete = FALSE;
 	}
 }
 
@@ -199,7 +197,7 @@ static void mcu_Usart1IrqService(void)
 void mcu_InitUsart2(void)
 {	
 	usart2_handle.pUSARTx 						= USART2;
-	usart2_handle.USART_Config.u32_BaudRate 	= USART_BAUDRATE_115200;
+	usart2_handle.USART_Config.u32_BaudRate 	= USART_BAUDRATE_460800;
 	usart2_handle.USART_Config.eMode 			= USART_MODE_TXRX;
 	usart2_handle.USART_Config.eNoOfStopBits 	= USART_NO_STOP_BITS_1p0;
 	usart2_handle.USART_Config.u8_WordLength 	= USART_WORDLEN_8BITS;
@@ -221,25 +219,23 @@ static void mcu_Usart2InitBuffer(char *pBuffer)
 
 static void mcu_Usart2IrqService(void)
 {
-	*usart2_buffer = mcu_UsartGetChar(&usart2_handle);
-	if ( ( *usart2_buffer == '\0' ) || ( *usart2_buffer == '\r' ) || ( *usart2_buffer == '\n' ) )
+	*(usart2_buffer + usart2_buffer_len) = mcu_UsartGetChar(&usart2_handle);
+	if ( usart2_buffer_len >= RX_USART_BUFFER - 1 )
 	{
-		usart2_buffer++;
-		*usart2_buffer = '\0';
-		usart2_buffer -= usart2_buffer_len + 1;
 		usart2_buffer_len = 0;
+		bUartRxComplete = TRUE;
 	}
 	else
 	{
 		usart2_buffer_len++;
-		usart2_buffer++;
+		bUartRxComplete = FALSE;
 	}
 }
 
 void mcu_InitUsart6(void)
 {	
 	usart6_handle.pUSARTx 						= USART6;
-	usart6_handle.USART_Config.u32_BaudRate 	= USART_BAUDRATE_115200;
+	usart6_handle.USART_Config.u32_BaudRate 	= USART_BAUDRATE_460800;
 	usart6_handle.USART_Config.eMode 			= USART_MODE_TXRX;
 	usart6_handle.USART_Config.eNoOfStopBits 	= USART_NO_STOP_BITS_1p0;
 	usart6_handle.USART_Config.u8_WordLength 	= USART_WORDLEN_8BITS;
@@ -261,18 +257,16 @@ static void mcu_Usart6InitBuffer(char *pBuffer)
 
 static void mcu_Usart6IrqService(void)
 {
-	*usart6_buffer = mcu_UsartGetChar(&usart6_handle);
-	if ( ( *usart6_buffer == '\0' ) || ( *usart6_buffer == '\r' ) || ( *usart6_buffer == '\n' ) )
+	*(usart6_buffer + usart6_buffer_len)  = mcu_UsartGetChar(&usart6_handle);
+	if ( usart6_buffer_len >= RX_USART_BUFFER - 1 )
 	{
-		usart6_buffer++;
-		*usart6_buffer = '\0';
-		usart6_buffer -= usart6_buffer_len + 1;
 		usart6_buffer_len = 0;
+		bUartRxComplete = TRUE;
 	}
 	else
 	{
 		usart6_buffer_len++;
-		usart6_buffer++;
+		bUartRxComplete = FALSE;
 	}
 }
  
@@ -403,7 +397,7 @@ char mcu_UsartDataAvailable(usart_handle *pUSARTHandle)
 	return pUSARTHandle->pUSARTx->USART_SR.RXNE;
 }
 
-char mcu_UsartGetChar(usart_handle *pUSARTHandle)
+uint8_t mcu_UsartGetChar(usart_handle *pUSARTHandle)
 {
     // while(!pUSARTHandle->pUSARTx->USART_SR.RXNE); 	// Since this will be handled by interrupt
     if(pUSARTHandle->USART_Config.u8_WordLength == USART_WORDLEN_9BITS)
@@ -420,17 +414,11 @@ char mcu_UsartGetChar(usart_handle *pUSARTHandle)
 
 void mcu_UsartSendData(usart_handle *pUSARTHandle, const char *pTxBuffer)
 {
-	uint16_t index=0;
+	static uint8_t j=0;
+	
+	for (j=0; j<= TX_USART_BUFFER-1; j++)
+		mcu_UsartSendChar(pUSARTHandle, pTxBuffer[j]);
 
-	while  ( pTxBuffer[index] )
-	{
-		mcu_UsartSendChar(pUSARTHandle, pTxBuffer[index]);
-		if ( (pUSARTHandle->USART_Config.u8_WordLength == USART_WORDLEN_9BITS) && 
-			 (pUSARTHandle->USART_Config.eParityControl == USART_PARITY_DISABLE) )
-			index += 2;
-		else
-			index++;
-	}
 	//Implement the code to wait till TC flag is set in the SR
 	while(!pUSARTHandle->pUSARTx->USART_SR.TC);
 }

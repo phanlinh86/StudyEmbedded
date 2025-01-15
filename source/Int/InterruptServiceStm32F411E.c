@@ -4,8 +4,6 @@
 
 #include "InterruptHardwareStm32F411E.h"
 
-static uint32_t u32_SysTickCounter = 0; 		// For SysTick
-
 /****************************************************************************
 *									STM32 EXTI								*
 *									External Interrupt 						*
@@ -296,16 +294,5 @@ void USART6_IRQHandler(void)
  * ******************************************************************************/
 void SysTick_Handler(void)
 {
-	u32_SysTickCounter++;
+	DoIrqService();					// The IRQ do main loop
 }
-
-static uint32_t is_ReadSysTickCounter()
-{
-	return u32_SysTickCounter;
-}
-
-static void is_SetSysTickCounter( uint32_t val)
-{
-	u32_SysTickCounter = val;
-}
-

@@ -164,7 +164,8 @@ class Dut(object):
 
 if __name__ == '__main__':
     # Case1. Test USART
-    dut = Dut(port='COM7', baudrate=500000, sym_file='../build/main.sym')
+    # dut = Dut(port='COM7', baudrate=500000, sym_file='../build/main.sym')
+    dut = Dut(port='COM8', baudrate=460800, sym_file='../build/main.sym')
     dut.connect()       # Connect dut through USART
     time.sleep(2)       # Waiting for a while to get the connection stable
     dut.read_sym()     # Parse symbol file

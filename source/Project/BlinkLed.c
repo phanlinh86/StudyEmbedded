@@ -52,11 +52,7 @@ void BlinkLed(void)
   	static LED eLed = GREEN; 		// State machine control which LED to toggle
 	if (u32_ButtonPressCount % 2 == 0)
 	{	
-			#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
-		if ( is_ReadSysTickCounter() >= u32_LedPeriodInMs )
-		    #elif ( BOARD_ID == BOARD_ID_ATMEGA328P )
 		if ( is_u32_ReadTimerCounter() >= u32_LedPeriodInMs )
-			#endif // BOARD_ID ==  BOARD_ID_STM32F411E
 		{
 			switch ( eLed ) 
 			{
@@ -79,15 +75,10 @@ void BlinkLed(void)
 			{
 				eLed = GREEN;
 			}
-				#if ( BOARD_ID ==  BOARD_ID_STM32F411E ) 
-			is_SetSysTickCounter(0);        // Use SysTick to control LED blink
-			// ut_ReceiveUart(uart_buffer);
-			sprintf((char*) uart_tx_buffer, "SysTick:%lu\n", is_ReadSysTickCounter());
-			ut_SendUart(uart_tx_buffer);
+				#if ( BOARD_ID ==  BOARD_ID_STM32F411E ) || ( BOARD_ID == BOARD_ID_ATMEGA328P )
+			is_SetTimerCounter(0);        // Use SysTick to control LED blink
 				#elif ( BOARD_ID ==  BOARD_ID_STM32L010RB )
-			Delay(200000);                  // Use Timer0 to control LED blink
-			    #elif ( BOARD_ID == BOARD_ID_ATMEGA328P )
-			is_SetTimerCounter(0);		
+			Delay(200000);                  // Use Timer0 to control LED blink	
 				#endif // BOARD_ID ==  ?
 		}
 	}
