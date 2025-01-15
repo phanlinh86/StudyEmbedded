@@ -4,6 +4,9 @@
 # _b is used for STM32F4Nucleo board
 # _c is used for atmega328p board
 
+all: blink
+
+blink: blink_a blink_b blink_c
 
 blink_a: clean
 	batch\BuildStm32F411E BlinkLed

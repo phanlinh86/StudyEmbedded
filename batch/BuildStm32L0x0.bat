@@ -25,6 +25,7 @@ set PROGRAMMER=openocd
 set OPTIMIZATION=O0
 set OBJDUMP=arm-none-eabi-objcopy
 set FLOAT_ABI=soft
+set ERROR_FILE=error.txt
 
 
 :: If build folder not existed, create one
@@ -32,22 +33,22 @@ if not exist build ( mkdir build )
 
 :: Compile .c to .o
 echo Compiling main.c to main.o
-echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\main.o source\main.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
-%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb --std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\main.o source\main.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
+echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\main.o source\main.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_main_%ERROR_FILE%
+%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb --std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\main.o source\main.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_main_%ERROR_FILE%
 echo Compiling startup.c to startup.o
-echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb --std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\startup.o board\%BOARD%\%STARTUP_SCRIPT% -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
-%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\startup.o board\%BOARD%\%STARTUP_SCRIPT% -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
+echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb --std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\startup.o board\%BOARD%\%STARTUP_SCRIPT% -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_startup_%ERROR_FILE%
+%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\startup.o board\%BOARD%\%STARTUP_SCRIPT% -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_startup_%ERROR_FILE%
 echo Compiling sysmem.c to sysmem.o
-echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\sysmem.o board\%BOARD%\sysmem.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
-%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\sysmem.o board\%BOARD%\sysmem.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
+echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\sysmem.o board\%BOARD%\sysmem.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_sysmem_%ERROR_FILE%
+%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\sysmem.o board\%BOARD%\sysmem.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_sysmem_%ERROR_FILE%
 echo Compiling syscalls.c to syscalls.o
-echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\syscalls.o board\%BOARD%\syscalls.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
-%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\syscalls.o board\%BOARD%\syscalls.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
+echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\syscalls.o board\%BOARD%\syscalls.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_syscalls_%ERROR_FILE%
+%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\syscalls.o board\%BOARD%\syscalls.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_syscalls_%ERROR_FILE%
 
 :: Link all .o files
 echo Linking .o files and create main.elf
-echo %COMPILER% -mcpu=%MPU% -T board\%BOARD%\%LINKER_SCRIPT% -Wl,-Map=build\main.map --specs=nano.specs -mfloat-abi=%FLOAT_ABI% -mthumb -o build\main.elf build\main.o build\startup.o build\sysmem.o build\syscalls.o
-%COMPILER% -mcpu=%MPU% -T board\%BOARD%\%LINKER_SCRIPT% -Wl,-Map=build\main.map --specs=nano.specs -mfloat-abi=%FLOAT_ABI% -mthumb -o build\main.elf build\main.o build\startup.o build\sysmem.o build\syscalls.o
+echo %COMPILER% -mcpu=%MPU% -T board\%BOARD%\%LINKER_SCRIPT% -Wl,-Map=build\main.map --specs=nano.specs -mfloat-abi=%FLOAT_ABI% -mthumb -o build\main.elf build\main.o build\startup.o build\sysmem.o build\syscalls.o 2> build\%BOARD%_%PROJECT_NAME%_Link_%ERROR_FILE%
+%COMPILER% -mcpu=%MPU% -T board\%BOARD%\%LINKER_SCRIPT% -Wl,-Map=build\main.map --specs=nano.specs -mfloat-abi=%FLOAT_ABI% -mthumb -o build\main.elf build\main.o build\startup.o build\sysmem.o build\syscalls.o 2> build\%BOARD%_%PROJECT_NAME%_Link_%ERROR_FILE%
 
 :: Convert to binary
 echo Convert main.elf to main.hex and main.bin

@@ -23,6 +23,7 @@ set MPU=atmega328p
 set PROGRAMMER=avrdude
 set OBJDUMP=avr-objcopy
 set READELF=avr-readelf
+set ERROR_FILE=error.txt
 
 :: Project related
 set COMPILE_FILE=main
@@ -43,13 +44,13 @@ if not exist build (
 
 :: Compile main.c to main.o
 echo Compile main.c to main.o
-echo %COMPILER% -c source\main.c -o build\main.o -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
-%COMPILER% -c source\main.c -o build\main.o -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%
+echo %COMPILER% -c source\main.c -o build\main.o -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_main_%ERROR_FILE%
+%COMPILER% -c source\main.c -o build\main.o -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_main_%ERROR_FILE%
 
 :: Link main.o to main.elf
 echo Link main.o to main.elf
-echo %COMPILER% -mmcu=atmega328p -o build\main.elf build\main.o
-%COMPILER% -mmcu=atmega328p -o build\main.elf build\main.o
+echo %COMPILER% -mmcu=atmega328p -o build\main.elf build\main.o 2> build\%BOARD%_%PROJECT_NAME%_Link_%ERROR_FILE%.txt
+%COMPILER% -mmcu=atmega328p -o build\main.elf build\main.o 2> build\%BOARD%_%PROJECT_NAME%_Link_%ERROR_FILE%.txt
 
 :: Convert the elf file to hex
 echo Convert the elf file to hex
