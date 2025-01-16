@@ -25,6 +25,7 @@ set PROGRAMMER=openocd
 set OPTIMIZATION=O0
 set OBJDUMP=arm-none-eabi-objcopy
 set FLOAT_ABI=soft
+set READELF=arm-none-eabi-readelf
 set ERROR_FILE=error.txt
 
 
@@ -55,3 +56,7 @@ echo Convert main.elf to main.hex and main.bin
 echo %OBJDUMP% -O ihex build\main.elf build\main.hex
 %OBJDUMP% -O ihex build\main.elf build\main.hex
 
+:: Store symbol files
+echo Store symbol files
+echo %READELF% -s build\main.elf > build\main.sym
+%READELF% -s build\main.elf > build\main.sym
