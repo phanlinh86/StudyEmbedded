@@ -1,6 +1,7 @@
 import serial
 import time
 import re
+import random
 
 class Dut(object):
     # List of supported command for the DUT through USART
@@ -181,18 +182,73 @@ class Dut(object):
 
 
 if __name__ == '__main__':
-    # Case1. Test USART
+    # Test write/read RAM command
+    print("Test1. Write/Read RAM command")
     # dut = Dut(port='COM7', baudrate=500000, sym_file='../build/main.sym')
-    dut = Dut(port='COM8', baudrate=460800, sym_file='../build/main.sym')
-    dut.connect()       # Connect dut through USART
+    dut = Dut(port='COM8', baudrate=460800, sym_file='../build/main.sym')       # STM32F411E-DISCO
+    print("Test1. Connect to DUT through USART : ", end="")
+    dut.connect()  # Connect dut through USART
+    print("OK")
+    print("Test1. Read symbol file : ", end="")
+    dut.read_sym()  # Parse symbol file
+    print("OK")
+    print("Wating 2 seconds for the connection to be stable")
     time.sleep(2)       # Waiting for a while to get the connection stable
-    dut.read_sym()     # Parse symbol file
+    print("Test1. Write/Read RAM command ------------------------------------------------------")
+    print("Test case2. Write/Read 32-bit RAM at random delay")
     # Get the symbol list
     for led_period in range(100,1000,10):
-        print("Setting LED period to ", led_period)
-        dut.write_ram("u32_LedPeriodInMs", led_period)
-        #time.sleep(0.1)
-        print("Reading LED period :", end=" ")
-        print(dut.read_ram("u32_LedPeriodInMs"))
-        #time.sleep(0.1)
+        time_wait_random = random.randint(0,10) / 100
+        print("Led period = %d. 1. Setting LED period" % led_period)
+        dut.write_ram32("u32_LedPeriodInMs", led_period)
+        print("Led period = %d. 2. Pause for %.2f second" % (led_period, time_wait_random) )
+        time.sleep(time_wait_random)
+        led_period_rb = dut.read_ram32("u32_LedPeriodInMs")
+        print("Led period = %d. 3. Reading back LED period : %d" % (led_period, led_period_rb))
+        if led_period != led_period_rb:
+            raise Exception("Test case1. Failed. Led period expected %d, but got %d" % (led_period, led_period_rb))
+        time_wait_random = random.randint(0, 10) / 100
+        print("Led period = %d. 4. Pause for %.2f second" % (led_period, time_wait_random))
+        time.sleep(time_wait_random)
+    print("Test case2. Write/Read 32-bit, 16bit, 8bit RAM with random value")
+    for loop in range(1000):
+        value32 = random.randint(0, 0xFFFFFFFF)
+        # Check readram32, readram16 and readram8
+        print("Loop = %d. Check readram32, readram16 and readram8 from random value 0x%8x" % (loop, value32), end=" ")
+        dut.write_ram32("u32_ButtonPressCount", value32)
+        value32_rb = dut.read_ram32("u32_ButtonPressCount")
+        if value32 != value32_rb:
+            raise Exception("Test case2. Failed. readram32 expected 0x%8x, but got 0x%8x" % (value32, value32_rb))
+        value16_rb = dut.read_ram16("u32_ButtonPressCount")
+
+        if value16_rb != (value32 & 0xFFFF):
+            raise Exception("Test case2. Failed. readram16 expected 0x%4x, but got 0x%4x" % (value32 & 0xFFFF, value16_rb))
+
+        value8_rb = dut.read_ram8("u32_ButtonPressCount")
+        if value8_rb != (value32 & 0xFF):
+            raise Exception("Test case2. Failed. readram8 expected 0x%2x, but got 0x%2x" % (value32 & 0xFF, value8_rb))
+        print("Passed")
+
+        # Check writeram32, writeram16 and writeram8
+        value32 = random.randint(0, 0xFFFFFFFF)
+        value16 = random.randint(0, 0xFFFF)
+        value8 = random.randint(0, 0xFF)
+        print("Loop = %d. Check writeram32, writeram16 and writeram8 from random value 0x%8x 0x%4x 0x%2x" % (loop, value32,value16,value8), end=" ")
+        dut.write_ram32("u32_ButtonPressCount", value32)
+        value32_rb = dut.read_ram32("u32_ButtonPressCount")
+        if value32 != value32_rb:
+            raise Exception("Test case2. Failed. writeram32 expected 0x%8x, but got 0x%8x" % (value32, value32_rb))
+
+        dut.write_ram16("u32_ButtonPressCount", value16)
+        value32_rb = dut.read_ram32("u32_ButtonPressCount")
+        value32 = (value32 & 0xFFFF0000) | value16
+        if value32_rb != value32:
+            raise Exception("Test case2. Failed. writeram16 expected 0x%8x, but got 0x%8x" % (value32, value32_rb))
+        dut.write_ram8("u32_ButtonPressCount", value8)
+        value32_rb = dut.read_ram32("u32_ButtonPressCount")
+        value32 = (value32 & 0xFFFFFF00) | value8
+        if value32_rb != value32:
+            raise Exception("Test case2. Failed. writeram8 expected 0x%8x, but got 0x%8x" % (value32, value32_rb))
+        print("Passed")
+
     dut.disconnect()    # Disconnect dut through USART
