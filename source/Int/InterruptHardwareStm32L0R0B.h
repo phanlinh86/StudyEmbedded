@@ -5,16 +5,11 @@
 #ifndef INTERRUPTHARDWARESTM32F411E_H
 #define INTERRUPTHARDWARESTM32F411E_H
 
-// Timer related function
-void DelayUs( uint32_t u32_TimeInUs );
-void DelayMs( uint32_t u32_TimeInMs );
-void Delay( uint32_t u32_DelayLoop );
-
-
 // External settable interrupt handlers 
 void EXTI0_1_IRQHandler( void);
 void EXTI2_3_IRQHandler( void);
 void EXTI4_15_IRQHandler( void);
+void SysTick_Handler(void);
 
 // Function pointer for external interrupt handling
 static void ( *pfServiceExti01Irq ) (void) ; 		// Pointer to handle interrupt EXTI0-1

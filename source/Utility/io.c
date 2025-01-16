@@ -14,6 +14,10 @@
 uint8_t uart_rx_buffer[RX_USART_BUFFER];
 uint8_t uart_tx_buffer[TX_USART_BUFFER];
 bool bUartRxComplete = TRUE;
+
+static void ut_Init();
+static void ut_InitTimer();
+
 	#if ( BOARD_ID !=  BOARD_ID_STM32L010RB )
 typedef enum 
 {
@@ -32,18 +36,32 @@ typedef enum
 static use_uart eUart = DEFAULT_UART;
 cmd_status eCmdStatus = CMD_IDLE;
 
-
-static void ut_Init();
-
 static void ut_InitUart();
 void ut_SendUart();
 void ut_ResetRxBuffer();
 void ut_ResetTxBuffer();
-static void ut_InitTimer();
 static use_uart ut_u16_GetUsedUsart(void);
 static usart_config ut_GetUsartConfig(void);
+	#endif // BOARD_ID !=  BOARD_ID_STM32L010RB
 
+static void ut_Init()
+{
+		#if ( BOARD_ID !=  BOARD_ID_STM32L010RB )
+	ut_InitUart(); 		// Initialize UART
+		#endif // BOARD_ID ==  BOARD_ID_STM32F411E
+	ut_InitTimer();	// Initialize timer for scheduler
+}
 
+static void ut_InitTimer()
+{
+		#if ( ( BOARD_ID ==  BOARD_ID_STM32F411E ) || ( BOARD_ID ==  BOARD_ID_STM32L010RB ) )
+	mcu_ConfigSysTick(TIMER_PERIOD_IN_MS);					// STM32 F411E using systick as system timer
+		#elif ( BOARD_ID ==  BOARD_ID_ATMEGA328P )
+	is_InitTimer1(TIMER_PERIOD_IN_MS);				// Arduino using Timer1 as system timer
+		#endif // BOARD_ID ==  BOARD_ID_STM32F411E
+}
+
+	#if ( BOARD_ID !=  BOARD_ID_STM32L010RB )
 static void ut_InitUart()
 {
 	switch (eUart)
@@ -110,26 +128,7 @@ void ut_SendUart(const uint8_t *pTxBuffer)
 				#endif // BOARD_ID == ?
 	}
 }
-	#endif // BOARD_ID ==  BOARD_ID_STM32F411E
-static void ut_InitTimer()
-{
-		#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
-	mcu_ConfigSysTick(TIMER_PERIOD_IN_MS);					// STM32 F411E using systick as system timer
-		#elif ( BOARD_ID ==  BOARD_ID_ATMEGA328P )
-	is_InitTimer1(TIMER_PERIOD_IN_MS);				// Arduino using Timer1 as system timer
-		#else
-	// Do Nothing
-		#endif // BOARD_ID ==  BOARD_ID_STM32F411E
-}
-
-static void ut_Init()
-{
-		#if ( BOARD_ID !=  BOARD_ID_STM32L010RB )
-	ut_InitUart(); 		// Initialize UART
-		#endif // BOARD_ID ==  BOARD_ID_STM32F411E
-	ut_InitTimer();	// Initialize timer for scheduler
-}
-
+	
 void ut_ResetRxBuffer()
 {
 	for (int i=0; i<RX_USART_BUFFER; i++)
@@ -175,3 +174,5 @@ static usart_config ut_GetUsartConfig(void)
 	}
 	return UsartConfig;
 }
+	#endif // BOARD_ID !=  BOARD_ID_STM32L010RB
+		
