@@ -14,6 +14,13 @@ static void inline is_EnableExtiInterrupt()
 	RCC->RCC_APB2ENR |= 1 << 0;
 }
 
+static void inline is_SetUsart2Interrupt()
+{
+	// Position: 28
+	*NVIC_ISER0 |=  1 << 28;
+	*NVIC_IPR7  &= 0xFFFFFF00;
+}
+
 static void inline is_SetExtiInterrupt(char* pinString)
 {
 	char port; int exti;
@@ -99,6 +106,10 @@ static void inline is_ClearExtiPendingInterrupt(char* pinString)
     EXTI->EXTI_PR.Register |= ( 1 << exti );
 }
 
+static void is_InitUsart2Isr(void (*pfServiceFunction)(void))
+{
+	pfServiceUsart2Irq = pfServiceFunction;
+}
 void InitIsr(char* pinString, void (*pfServiceFunction) (void))
 {
     char port; int exti;
@@ -146,6 +157,10 @@ void EXTI4_15_IRQHandler(void)
     (*pfServiceExti415Irq)();
 }
 
+void USART2_IRQHandler(void)
+{
+	(*pfServiceUsart2Irq)();
+}
 /********************************************************************************
  * 									ARM SYS TICK								*
  * 								System Tick Timer								*
