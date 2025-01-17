@@ -60,6 +60,7 @@
 #define NVIC_ISER6_BASE					0xE000E118U
 #define NVIC_ISER7_BASE					0xE000E11CU
 
+#define SYSTICK_BASE 					0xE000E010U
 
 #define reg16( r ) unsigned short r
 #define reg32( r ) unsigned long r
@@ -181,13 +182,36 @@ typedef volatile union
 	};
 } RCC_IOPENR_reg;
 
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t SW			:	2; 		// 1:0
+		uint32_t SWS		: 	2;		// 3:2
+		uint32_t HPRE		: 	4;		// 7:4
+		uint32_t PPRE1		: 	3;		// 8:10
+		uint32_t PPRE2		: 	3;		// 13:11
+		uint32_t RVSD 		: 	1;		// 14
+		uint32_t STOPWUCK	: 	1;		// 15
+		uint32_t PLLSRC 	: 	1; 		// 16
+		uint32_t RVSD1 		: 	1; 		// 17
+		uint32_t PLLMUL		: 	4; 		// 21:18
+		uint32_t PLLDIV		: 	2; 		// 23:22
+		uint32_t MCOSEL 	:	4;		// 27:24
+		uint32_t MCOPRE		:	3;		// 30:28
+		uint32_t RVSD2 		:	1;		// 31
+	};
+} RCC_CFGR_reg;
+
+
 // Register map
 typedef volatile struct
 {
 	reg32(RCC_CR);					// 0x00
 	reg32(RCC_ICSCR);				// 0x04
 	reg32(RVSD);				    // 0x08
-	reg32(RCC_CFGR); 				// 0x0C
+	RCC_CFGR_reg RCC_CFGR; 			// 0x0C
 	reg32(RCC_CIER); 			    // 0x10
 	reg32(RCC_CIFR);			    // 0x14
 	reg32(RCC_CICR);				// 0x18
@@ -521,6 +545,63 @@ typedef struct
 } usart_regs;
 
 
+/****************************************************************************
+*									SYSTICK								    *
+*									Arm Cortex M4 						    *
+*****************************************************************************/
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t ENABLE			:	1;      // 0
+		uint32_t TICKINT		:	1;      // 1
+		uint32_t CLKSOURCE		:	1;      // 2
+		uint32_t RVSD		    :	13;     // 15:3
+		uint32_t COUNTFLAG		:	1;      // 16
+		uint32_t RVSD1		    :	15;     // 31:17
+	};
+} STK_CTRL_reg;
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t RELOAD		    :	24;     // 23:0
+		uint32_t RVSD		    :	8;      // 31:24
+	};
+} STK_LOAD_reg;
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t CURRENT		:	24;     // 23:0
+		uint32_t RVSD		    :	8;      // 31:24
+	};
+} STK_VAL_reg;
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t TENMS		    :	24;     // 23:0
+		uint32_t RVSD		    :	6;      // 29:24
+	};
+} STK_CALIB_reg;
+
+// Register map
+typedef struct
+{
+	STK_CTRL_reg STK_CTRL; 				    // 0x00
+	STK_LOAD_reg STK_LOAD; 				    // 0x04
+	STK_VAL_reg STK_VAL;					// 0x08
+	STK_CALIB_reg STK_CALIB;				// 0x0C
+} systick_regs;
+
 
 #define GPIOA 		((gpio_regs*) 			GPIOA_BASE)
 #define GPIOB 		((gpio_regs*) 			GPIOB_BASE)
@@ -539,5 +620,7 @@ typedef struct
 #define NVIC_ISER1 ((uint32_t*)			NVIC_ISER1_BASE)
 #define NVIC_ISER2 ((uint32_t*)			NVIC_ISER2_BASE)
 #define NVIC_ISER3 ((uint32_t*)			NVIC_ISER3_BASE)
+
+#define SYSTICK 	((systick_regs*) 		SYSTICK_BASE)
 
 #endif //MCUSTM32F411E_H

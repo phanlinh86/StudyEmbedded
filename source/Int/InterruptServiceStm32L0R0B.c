@@ -4,23 +4,6 @@
 
 #include "InterruptHardwareStm32L0R0B.h"
 
-// #Delay
-void DelayUs( uint32_t u32_TimeInUs )
-{
-	for (uint32_t volatile i = 0; i < ( u32_TimeInUs * FPU / 7 ); i++);
-}
-
-void DelayMs( uint32_t u32_TimeInMs )
-{
-	for (uint32_t volatile i = 0; i < ( u32_TimeInMs * 1000 * FPU / 7  ); i++);
-}
-
-void Delay( uint32_t u32_DelayLoop )
-{
-	for (uint32_t volatile i = 0; i < u32_DelayLoop; i++);
-}
-
-
 /****************************************************************************
 *									STM32 EXTI								*
 *									External Interrupt 						*
@@ -161,4 +144,13 @@ void EXTI2_3_IRQHandler(void)
 void EXTI4_15_IRQHandler(void)
 {
     (*pfServiceExti415Irq)();
+}
+
+/********************************************************************************
+ * 									ARM SYS TICK								*
+ * 								System Tick Timer								*
+ * ******************************************************************************/
+void SysTick_Handler(void)
+{
+	DoIrqService();					// The IRQ do main loop
 }

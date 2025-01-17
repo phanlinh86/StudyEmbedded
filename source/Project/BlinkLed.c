@@ -28,9 +28,12 @@ void InitLed(void)
 {
 	// Enable and set output to 4 LEDS
 	mcu_SetGpioOutput( LED_GREEN );
-	mcu_SetGpioOutput( LED_ORANGE );
-	mcu_SetGpioOutput( LED_RED );
-	mcu_SetGpioOutput( LED_BLUE );
+	if ( NUMBER_SUPPORTED_LED == 4 )
+	{
+		mcu_SetGpioOutput( LED_ORANGE );
+		mcu_SetGpioOutput( LED_RED );
+		mcu_SetGpioOutput( LED_BLUE );
+	}
 }
 
 	#if ( BOARD_ID != BOARD_ID_ATMEGA328P )
@@ -75,11 +78,8 @@ void BlinkLed(void)
 			{
 				eLed = GREEN;
 			}
-				#if ( BOARD_ID ==  BOARD_ID_STM32F411E ) || ( BOARD_ID == BOARD_ID_ATMEGA328P )
+
 			is_SetTimerCounter(0);        // Use SysTick to control LED blink
-				#elif ( BOARD_ID ==  BOARD_ID_STM32L010RB )
-			Delay(200000);                  // Use Timer0 to control LED blink	
-				#endif // BOARD_ID ==  ?
 		}
 	}
 }
