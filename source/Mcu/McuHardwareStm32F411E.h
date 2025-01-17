@@ -656,7 +656,7 @@ typedef volatile union
 typedef struct
 {
 	USART_SR_reg USART_SR;			// 0x00
-	USART_DR_reg USART_DR;				// 0x04
+	USART_DR_reg USART_DR;			// 0x04
 	USART_BRR_reg USART_BRR;		// 0x08
 	USART_CR1_reg USART_CR1;		// 0x0C
 	USART_CR2_reg USART_CR2;		// 0x10

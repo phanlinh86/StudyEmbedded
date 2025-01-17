@@ -60,6 +60,14 @@
 #define NVIC_ISER6_BASE					0xE000E118U
 #define NVIC_ISER7_BASE					0xE000E11CU
 
+#define NVIC_IPR0_BASE					0xE000E400U
+#define NVIC_IPR1_BASE					0xE000E404U
+#define NVIC_IPR2_BASE					0xE000E408U
+#define NVIC_IPR3_BASE					0xE000E40CU
+#define NVIC_IPR4_BASE					0xE000E410U
+#define NVIC_IPR5_BASE					0xE000E414U
+#define NVIC_IPR6_BASE					0xE000E418U
+#define NVIC_IPR7_BASE					0xE000E41CU
 #define SYSTICK_BASE 					0xE000E010U
 
 #define reg16( r ) unsigned short r
@@ -94,6 +102,30 @@ typedef volatile union
 		uint32_t MODER15:2;
 	};
 } MODER_reg;
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t PUPDR0:2;
+		uint32_t PUPDR1:2;
+		uint32_t PUPDR2:2;
+		uint32_t PUPDR3:2;
+		uint32_t PUPDR4:2;
+		uint32_t PUPDR5:2;
+		uint32_t PUPDR6:2;
+		uint32_t PUPDR7:2;
+		uint32_t PUPDR8:2;
+		uint32_t PUPDR9:2;
+		uint32_t PUPDR10:2;
+		uint32_t PUPDR11:2;
+		uint32_t PUPDR12:2;
+		uint32_t PUPDR13:2;
+		uint32_t PUPDR14:2;
+		uint32_t PUPDR15:2;
+	};
+} PUPDR_reg;
 
 typedef volatile union
 {
@@ -146,19 +178,52 @@ typedef volatile union
 	};
 } IDR_reg;
 
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t AFRL0:4; 		// 3:0
+		uint32_t AFRL1:4;		// 7:4
+		uint32_t AFRL2:4;		// 11:8
+		uint32_t AFRL3:4;		// 15:12
+		uint32_t AFRL4:4;		// 19:16
+		uint32_t AFRL5:4;		// 23:20
+		uint32_t AFRL6:4;		// 27:24
+		uint32_t AFRL7:4;		// 31:28
+	};
+} AFRL_reg;
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t AFRH0:4;
+		uint32_t AFRH1:4;
+		uint32_t AFRH2:4;
+		uint32_t AFRH3:4;
+		uint32_t AFRH4:4;
+		uint32_t AFRH5:4;
+		uint32_t AFRH6:4;
+		uint32_t AFRH7:4;
+	};
+} AFRH_reg;
+
 // Register map
 typedef volatile struct
 {
 	MODER_reg MODER;
 	reg32(OTYPER);
 	reg32(OSPEEDR);
-	reg32(PUPDR);
+	PUPDR_reg PUPDR;
 	IDR_reg IDR;
 	ODR_reg ODR;
 	reg32(BSRR);
 	reg32(LCKR);
-	reg32(AFRL);
-	reg32(AFRH);
+	AFRL_reg AFRL;
+	AFRH_reg AFRH;
+
 } gpio_regs;
 
 /****************************************************************************
@@ -205,6 +270,26 @@ typedef volatile union
 } RCC_CFGR_reg;
 
 
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t TIM2EN		:	1; 		// 0
+		uint32_t RVSD		: 	10;		// 10:1
+		uint32_t WWDGEN		: 	1;		// 11
+		uint32_t RVSD1		: 	5;		// 16:12
+		uint32_t USART2EN	: 	1;		// 17
+		uint32_t LPUART1EN 	: 	1;		// 18
+		uint32_t RVSD2		: 	2;		// 20:19
+		uint32_t I2C1EN 	: 	1; 		// 21
+		uint32_t RVSD3 		:	6;		// 27:22
+		uint32_t PWREN 		:	1;		// 28
+		uint32_t RVSD4 		:	2;		// 30:29
+		uint32_t LPTIM1EN	:	1;		// 31
+	};
+} RCC_APB1ENR_reg;
+
 // Register map
 typedef volatile struct
 {
@@ -222,7 +307,7 @@ typedef volatile struct
 	RCC_IOPENR_reg RCC_IOPENR;	    // 0x2C
 	reg32(RCC_AHBENR);	            // 0x30
 	reg32(RCC_APB2ENR);				// 0x34
-	reg32(RCC_APB1ENR);				// 0x38
+	RCC_APB1ENR_reg RCC_APB1ENR;	// 0x38
 	reg32(RCC_IOPSMEN);				// 0x3C
 	reg32(RCC_AHBSMENR);			// 0x40
 	reg32(RCC_APB2SMENR);			// 0x44
@@ -237,7 +322,7 @@ typedef volatile struct
 *									System Configuration Controller			*
 *****************************************************************************/
 // Field map
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -250,7 +335,7 @@ typedef union
 	};
 } SYSCFG_EXTICR1_reg;
 
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -263,7 +348,7 @@ typedef union
 	};
 } SYSCFG_EXTICR2_reg;
 
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -276,7 +361,7 @@ typedef union
 	};
 } SYSCFG_EXTICR3_reg;
 
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -308,7 +393,7 @@ typedef struct
 *									External Interrupt 						*
 *****************************************************************************/
 // Field map
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -339,7 +424,7 @@ typedef union
 	};
 } EXTI_IMR_reg;
 
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -371,7 +456,7 @@ typedef union
 } EXTI_TSR_reg;
 
 
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -420,71 +505,60 @@ typedef struct
 *****************************************************************************/
 // Field map
 
-// Status register
-typedef union
-{
-	uint32_t Register;
-	struct
-	{
-		uint32_t PE 	: 	1;  	// 0
-		uint32_t FE 	: 	1;		// 1
-		uint32_t NF 	: 	1;		// 2
-		uint32_t ORE 	: 	1;		// 3
-		uint32_t IDLE 	: 	1;		// 4
-		uint32_t RXNE 	: 	1;		// 5
-		uint32_t TC 	: 	1;		// 6
-		uint32_t TXE 	: 	1;		// 7
-		uint32_t LBD 	: 	1;		// 8
-		uint32_t CTS 	: 	1;		// 9
-		uint32_t RVSD 	: 	22;		// 31:10
-	};
-} USART_SR_reg;
+
+
 
 // Baud Rate register
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
 	{
-		uint32_t DIV_FRACTION 	: 	4;  // 3:0
-		uint32_t DIV_MANTISSA 	: 	12;	// 15:4
+		uint32_t BRR 			: 	16;  //
+		uint32_t RVSD           :   16;  //
 	};
 } USART_BRR_reg;
 
 // Control Register1
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
 	{
-		uint32_t SBK 	: 	1;  	// 0
-		uint32_t RWU 	: 	1;		// 1
+		uint32_t UE 	: 	1;  	// 0
+		uint32_t UESM 	: 	1;		// 1
 		uint32_t RE 	: 	1;		// 2
 		uint32_t TE 	: 	1;		// 3
-		uint32_t IDLEIE : 	1;		// 4
-		uint32_t RXNEIE	: 	1;		// 5
+		uint32_t IDLEIE	: 	1;		// 4
+		uint32_t RXNEIE : 	1;		// 5
 		uint32_t TCIE 	: 	1;		// 6
 		uint32_t TXEIE 	: 	1;		// 7
 		uint32_t PEIE 	: 	1;		// 8
 		uint32_t PS 	: 	1;		// 9
 		uint32_t PCE 	: 	1;		// 10
 		uint32_t WAKE 	: 	1;		// 11
-		uint32_t M 		: 	1;		// 12
-		uint32_t UE 	: 	1;		// 13
-		uint32_t RVSD 	: 	1;		// 14
-		uint32_t OVERS 	: 	1;		// 15
-		uint32_t RVSD1 	: 	16;		// 31:16
+		uint32_t M0 	: 	1;		// 12
+		uint32_t MME 	: 	1;		// 13
+		uint32_t CMIE 	: 	1;		// 14
+		uint32_t OVER8 	: 	1;		// 15
+		uint32_t DEDT 	: 	5;		// 20:16
+		uint32_t DEAT 	: 	5;		// 25:21
+		uint32_t RTOIE	: 	1;		// 26
+		uint32_t EOBIE	: 	1;		// 27
+		uint32_t M1		: 	1;		// 28
+		uint32_t RVSD 	: 	3;		// 31:29
 	};
 } USART_CR1_reg;
 
+
 // Control Register2
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
 	{
-		uint32_t ADD 	: 	4;  	// 3:0
-		uint32_t RVSD 	: 	1;		// 4
+		uint32_t RVSD 	: 	4;  	// 3:0
+		uint32_t ADDM7 	: 	1;		// 4
 		uint32_t LBDL 	: 	1;		// 5
 		uint32_t LBDIE 	: 	1;		// 6
 		uint32_t RVSD1  : 	1;		// 7
@@ -499,7 +573,7 @@ typedef union
 } USART_CR2_reg;
 
 // Control Register3
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -520,8 +594,27 @@ typedef union
 	};
 } USART_CR3_reg;
 
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t PE 	: 	1;  	// 0
+		uint32_t FE 	: 	1;		// 1
+		uint32_t NF 	: 	1;		// 2
+		uint32_t ORE 	: 	1;		// 3
+		uint32_t IDLE 	: 	1;		// 4
+		uint32_t RXNE 	: 	1;		// 5
+		uint32_t TC 	: 	1;		// 6
+		uint32_t TXE 	: 	1;		// 7
+		uint32_t LBD 	: 	1;		// 8
+		uint32_t CTS 	: 	1;		// 9
+		uint32_t RVSD 	: 	22;		// 31:10
+	};
+} USART_ISR_reg;
+
 // Guard time and prescaler register
-typedef union
+typedef volatile union
 {
 	uint32_t Register;
 	struct
@@ -532,18 +625,31 @@ typedef union
 	};
 } USART_GTPR_reg;
 
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t DR		:	9;		// 8:0
+		uint32_t RVSD 	:	23;		// 31:6
+	};
+} USART_DR_reg;
+
 // Register map
 typedef struct
 {
-	USART_SR_reg USART_SR;			// 0x00
-	reg32(USART_DR);				// 0x04
-	USART_BRR_reg USART_BRR;		// 0x08
-	USART_CR1_reg USART_CR1;		// 0x0C
-	USART_CR2_reg USART_CR2;		// 0x10
-	USART_CR3_reg USART_CR3;		// 0x14
-	USART_GTPR_reg USART_GTPR;		// 0x18
+	USART_CR1_reg USART_CR1;		// 0x00
+	USART_CR2_reg USART_CR2;		// 0x04
+	USART_CR3_reg USART_CR3;		// 0X08
+	USART_BRR_reg USART_BRR;		// 0x0C
+	USART_GTPR_reg USART_GTPR;		// 0x10
+	reg32(USART_RTOR); 				// 0X14
+	reg32(USART_RQR); 				// 0X18
+	USART_ISR_reg USART_ISR;		// 0X1C
+	reg32(USART_ICR); 				// 0X20
+	USART_DR_reg USART_RDR;			// 0X24
+	USART_DR_reg USART_TDR;			// 0X28
 } usart_regs;
-
 
 /****************************************************************************
 *									SYSTICK								    *
@@ -610,16 +716,18 @@ typedef struct
 #define GPIOE 		((gpio_regs*) 			GPIOE_BASE)
 #define GPIOH 		((gpio_regs*) 			GPIOH_BASE)
 #define RCC 		((rcc_regs*) 			RCC_BASE)
-#define SYSCFG 	((syscfg_regs*) 		SYSCFG_BASE)
+#define SYSCFG 		((syscfg_regs*) 		SYSCFG_BASE)
 #define EXTI 		((ext_regs*) 			EXTI_BASE)
-#define USART1 	((usart_regs*)			USART1_BASE)
+
 #define USART2 	((usart_regs*)			USART2_BASE)
-#define USART6 	((usart_regs*)			USART6_BASE)
 
 #define NVIC_ISER0 ((uint32_t*)			NVIC_ISER0_BASE)
 #define NVIC_ISER1 ((uint32_t*)			NVIC_ISER1_BASE)
 #define NVIC_ISER2 ((uint32_t*)			NVIC_ISER2_BASE)
 #define NVIC_ISER3 ((uint32_t*)			NVIC_ISER3_BASE)
+
+#define NVIC_IPR0 ((uint32_t*)			NVIC_IPR0_BASE)
+#define NVIC_IPR7 ((uint32_t*)			NVIC_IPR7_BASE)
 
 #define SYSTICK 	((systick_regs*) 		SYSTICK_BASE)
 
