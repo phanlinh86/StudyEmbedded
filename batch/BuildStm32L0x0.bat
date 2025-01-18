@@ -32,19 +32,23 @@ set ERROR_FILE=error.txt
 :: If build folder not existed, create one
 if not exist build ( mkdir build )
 
-:: Compile .c to .o
+:: Preprocess .c to .macro
+echo Preprocess main.c to main.macro
+%COMPILER% -dM -E -mcpu=%MPU% -%OPTIMIZATION% -mthumb --std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs source\main.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% > build\main.macro
+
+:: Compile .c to .i .s .o
 echo Compiling main.c to main.o
-echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\main.o source\main.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_main_%ERROR_FILE%
-%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb --std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\main.o source\main.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_main_%ERROR_FILE%
+echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -save-temps -o build\main.o source\main.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_main_%ERROR_FILE%
+%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb --std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -save-temps -o build\main.o source\main.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_main_%ERROR_FILE%
 echo Compiling startup.c to startup.o
-echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb --std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\startup.o board\%BOARD%\%STARTUP_SCRIPT% -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_startup_%ERROR_FILE%
-%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\startup.o board\%BOARD%\%STARTUP_SCRIPT% -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_startup_%ERROR_FILE%
+echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb --std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -save-temps -o build\startup.o board\%BOARD%\%STARTUP_SCRIPT% -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_startup_%ERROR_FILE%
+%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -save-temps -o build\startup.o board\%BOARD%\%STARTUP_SCRIPT% -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_startup_%ERROR_FILE%
 echo Compiling sysmem.c to sysmem.o
-echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\sysmem.o board\%BOARD%\sysmem.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_sysmem_%ERROR_FILE%
-%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\sysmem.o board\%BOARD%\sysmem.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_sysmem_%ERROR_FILE%
+echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -save-temps -o build\sysmem.o board\%BOARD%\sysmem.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_sysmem_%ERROR_FILE%
+%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -save-temps -o build\sysmem.o board\%BOARD%\sysmem.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_sysmem_%ERROR_FILE%
 echo Compiling syscalls.c to syscalls.o
-echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\syscalls.o board\%BOARD%\syscalls.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_syscalls_%ERROR_FILE%
-%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -o build\syscalls.o board\%BOARD%\syscalls.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_syscalls_%ERROR_FILE%
+echo %COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -save-temps -o build\syscalls.o board\%BOARD%\syscalls.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_syscalls_%ERROR_FILE%
+%COMPILER% -c -mcpu=%MPU% -%OPTIMIZATION% -mthumb -std=gnu11 -mfloat-abi=%FLOAT_ABI% --specs=nano.specs -save-temps -o build\syscalls.o board\%BOARD%\syscalls.c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_syscalls_%ERROR_FILE%
 
 :: Link all .o files
 echo Linking .o files and create main.elf

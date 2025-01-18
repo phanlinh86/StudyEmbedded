@@ -42,6 +42,17 @@ if not exist build (
     del /Q build\*
 )
 
+:: Preprocess main.c to main.i
+echo Preprocess main.c to main.i
+echo %COMPILER% -E source\main.c -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% > build\main.i
+%COMPILER% -E source\main.c -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% > build\main.i
+
+:: Preprocess main.c to main.macro
+echo Preprocess main.c to main.macro
+echo %COMPILER% -dM -E source\main.c -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% > build\main.macro
+%COMPILER% -dM -E source\main.c -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% > build\main.macro
+
+
 :: Compile main.c to main.o
 echo Compile main.c to main.o
 echo %COMPILER% -c source\main.c -o build\main.o -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_main_%ERROR_FILE%
@@ -61,11 +72,4 @@ echo %OBJDUMP% -O ihex build\main.elf build\main.hex
 echo Store symbol files
 echo %READELF% -s build\main.elf > build\main.sym
 %READELF% -s build\main.elf > build\main.sym
-
-:: Upload the hex file to the Arduino
-:: set ARDUINO_PORT=COM7
-::if %UPLOAD_OPTION%==yes (
-::    echo %PROGRAMMER% -p atmega328p -c arduino -p %ARDUINO_PORT% -b 115200 -U flash:w:build\%PROJECT_NAME%.hex
-::    %PROGRAMMER% -p atmega328p -c arduino -P "%ARDUINO_PORT%" -b 115200 -U flash:w:build\%PROJECT_NAME%.hex
-::)
 
