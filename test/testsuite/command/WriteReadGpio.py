@@ -8,117 +8,117 @@ class WriteReadGpio(TestInstances):
 
     def test_gpio_output(self, gpio):
         # 2. Set GPIO to output
-        print(f"2. Set {gpio} to output")
+        self.log(f"2. Set {gpio} to output")
         self.mcu.writegpio(gpio, 4)
         # 2.a Write GPIO to 0. Read back GPIO should return 0
-        print(f"2.a Write {gpio} to 0 and read back. Return value should be 0. ", end="")
+        self.log(f"2.a Write {gpio} to 0 and read back. Return value should be 0. ")
         self.mcu.writegpio(gpio, 0)
         value = self.mcu.readgpio(gpio)  # Read back GPIO
         if value != 0:
-            raise Exception(f"Failed. {gpio} expected 0, but got {value}")
+            self.error(f"Failed. {gpio} expected 0, but got {value}")
         else:
-            print("Passed")
+            self.log("Passed")
         # 2.b Write GPIO to 1. Read back GPIO should return 1
-        print(f"2.b Write {gpio} to 1 and read back. Return value should be 1. ", end="")
+        self.log(f"2.b Write {gpio} to 1 and read back. Return value should be 1. ")
         self.mcu.writegpio(gpio, 1)
         value = self.mcu.readgpio(gpio)
         if value != 1:
-            raise Exception(f"Failed. {gpio} expected 1, but got {value}")
+            self.error(f"Failed. {gpio} expected 1, but got {value}")
         else:
-            print("Passed")
+            self.log("Passed")
         # 2.c Toggle GPIO. Read back GPIO should return 0
-        print(f"2.c Toogle {gpio}. Read back. Return value should be 0. ", end="")
+        self.log(f"2.c Toogle {gpio}. Read back. Return value should be 0. ")
         self.mcu.writegpio(gpio, 2)
         value = self.mcu.readgpio(gpio)
         if value != 0:
-            raise Exception(f"Failed. {gpio} expected 0, but got {value}")
+            self.error(f"Failed. {gpio} expected 0, but got {value}")
         else:
-            print("Passed")
+            self.log("Passed")
         # 2.d Toggle GPIO again. Read back GPIO should return 1
-        print(f"2.d Toogle {gpio}. Read back. Return value should be 1. ", end="")
+        self.log(f"2.d Toogle {gpio}. Read back. Return value should be 1. ")
         self.mcu.writegpio(gpio, 2)
         value = self.mcu.readgpio(gpio)
         if value != 1:
-            raise Exception(f"Failed. {gpio} expected 1, but got {value}")
+            self.error(f"Failed. {gpio} expected 1, but got {value}")
         else:
-            print("Passed")
+            self.log("Passed")
 
     def test_gpio_input(self, gpio):
         # 3. Set GPIO to input
-        print(f"3. Set {gpio} to input")
+        self.log(f"3. Set {gpio} to input")
         self.mcu.writegpio(gpio, 3)
         # 3.a Read back GPIO. Store the current value
-        print(f"3.a Read back {gpio}: ", end="")
+        self.log(f"3.a Read back {gpio}: ")
         gpio_value = self.mcu.readgpio(gpio)
         if gpio_value > 1:
-            raise Exception(f"Failed. {gpio} expected 0 or 1, but got {gpio_value}")
+            self.error(f"Failed. {gpio} expected 0 or 1, but got {gpio_value}")
         else:
-            print(f"{gpio_value}")
+            self.log(f"{gpio_value}")
         # 3.b Write GPIO to 1. Read back GPIO should return 0
-        print(f"3.b Write {gpio} to 1 and read back. Return value should be {gpio_value}. ", end="")
+        self.log(f"3.b Write {gpio} to 1 and read back. Return value should be {gpio_value}. ")
         self.mcu.writegpio(gpio, 1)
         value = self.mcu.readgpio(gpio)
         if value != gpio_value:
-            raise Exception(f"Failed. {gpio} expected {gpio_value}, but got {value}")
+            self.error(f"Failed. {gpio} expected {gpio_value}, but got {value}")
         else:
-            print("Passed")
+            self.log("Passed")
         # 3.c Toggle GPIO. Read back GPIO should return 0
-        print(f"3.c Toogle {gpio}. Read back. Return value should be {gpio_value}. ", end="")
+        self.log(f"3.c Toogle {gpio}. Read back. Return value should be {gpio_value}. ")
         self.mcu.writegpio(gpio, 2)
         value = self.mcu.readgpio(gpio)
         if value != gpio_value:
-            raise Exception(f"Failed. {gpio} expected {gpio_value}, but got {value}")
+            self.error(f"Failed. {gpio} expected {gpio_value}, but got {value}")
         else:
-            print("Passed")
+            self.log("Passed")
         # 3.d Toggle GPIO again. Read back GPIO should return 0
-        print(f"3.d Toogle {gpio}. Read back. Return value should be {gpio_value}. ", end="")
+        self.log(f"3.d Toogle {gpio}. Read back. Return value should be {gpio_value}. ")
         self.mcu.writegpio(gpio, 2)
         value = self.mcu.readgpio(gpio)
         if value != gpio_value:
-            raise Exception(f"Failed. {gpio} expected {gpio_value}, but got {value}")
+            self.error(f"Failed. {gpio} expected {gpio_value}, but got {value}")
         else:
-            print("Passed")
+            self.log("Passed")
 
     def test_gpio_af(self, gpio, af):
-        print(f"4. Set {gpio} to random alternate function")
+        self.log(f"4. Set {gpio} to random alternate function")
         self.mcu.writegpio(gpio, 5, af)
         # 4.a Read back GPIO. Store the current value
-        print(f"4.a Read back {gpio}: ", end="")
+        self.log(f"4.a Read back {gpio}: ")
         gpio_value = self.mcu.readgpio(gpio)
         if gpio_value > 1:
-            raise Exception(f"Failed. {gpio} expected 0 or 1, but got {gpio_value}")
+            self.error(f"Failed. {gpio} expected 0 or 1, but got {gpio_value}")
         else:
-            print(f"{gpio_value}")
+            self.log(f"{gpio_value}")
         # 4.b Write GPIO to 1. Read back GPIO should return 0
-        print(f"4.b Write {gpio} to 1 and read back. Return value should be {gpio_value}. ", end="")
+        self.log(f"4.b Write {gpio} to 1 and read back. Return value should be {gpio_value}. ")
         self.mcu.writegpio(gpio, 1)
         value = self.mcu.readgpio(gpio)
         if value != gpio_value:
-            raise Exception(f"Failed. {gpio} expected {gpio_value}, but got {value}")
+            self.error(f"Failed. {gpio} expected {gpio_value}, but got {value}")
         else:
-            print("Passed")
+            self.log("Passed")
         # 4.c Toggle GPIO. Read back GPIO should return 0
-        print(f"4.c Toogle {gpio}. Read back. Return value should be {gpio_value}. ", end="")
+        self.log(f"4.c Toogle {gpio}. Read back. Return value should be {gpio_value}. ")
         self.mcu.writegpio(gpio, 2)
         value = self.mcu.readgpio(gpio)
         if value != gpio_value:
-            raise Exception(f"Failed. {gpio} expected {gpio_value}, but got {value}")
+            self.error(f"Failed. {gpio} expected {gpio_value}, but got {value}")
         else:
-            print("Passed")
+            self.log("Passed")
         # 4.d Toggle GPIO again. Read back GPIO should return 0
-        print(f"4.d Toogle {gpio}. Read back. Return value should be {gpio_value}. ", end="")
+        self.log(f"4.d Toogle {gpio}. Read back. Return value should be {gpio_value}. ")
         self.mcu.writegpio(gpio, 2)
         value = self.mcu.readgpio(gpio)
         if value != gpio_value:
-            raise Exception(f"Failed. {gpio} expected {gpio_value}, but got {value}")
+            self.error(f"Failed. {gpio} expected {gpio_value}, but got {value}")
         else:
-            print("Passed")
+            self.log("Passed")
 
     def run(self):
         for gpio in self.LIST_GPIO_PIN:
             # 1. If the pin is USART, skip
             if gpio in self.LIST_GPIO_USART:
-                print(f"{gpio} is USART pin. Skip")
+                self.log(f"{gpio} is USART pin. Skip")
                 continue
 
             # 2. Test write/read gpio command when GPIO pin set to output
