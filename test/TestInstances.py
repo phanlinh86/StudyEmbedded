@@ -2,6 +2,7 @@ import test.lib as lib
 import time
 import os
 import sys
+import logging
 
 # Import necessary libraries
 class TestInstances(object):
@@ -14,9 +15,16 @@ class TestInstances(object):
         self.power = None               # Power supply
         self.os = None                  # Window OS object
         self.firmware = lib.firmware    # Firmware object
-        self.log = None                 # Log object
         self.main_path = '\\'.join(os.path.realpath(__file__).split('\\')[:-2])  # Main path of the whole project including firmware, test, etc.
         self.test_path = self.main_path + "\\test"                # Path of the test folder
+        self.log_path = self.main_path + "\\log"                  # Path of the log folder
+        self.log_name =  self.__class__.__name__ + ".log"                  # Log file name
+        # Initialize the file logger
+        logging.basicConfig(filename=self.log_path + "\\" + self.log_name,
+                            level=logging.INFO,
+                            format='%(asctime)s.%(msecs)03d %(filename)s %(levelname)5s - %(message)s',
+                            datefmt='%m/%d/%Y %H:%M:%S',
+                            )
 
     def init(self, port=None, baudrate=None):
         # Initialize the test instances
@@ -58,10 +66,21 @@ class TestInstances(object):
     def cleanup(self):
         self.mcu.disconnect()
 
+    @staticmethod
+    def log(message):
+        print(message)
+        logging.info(message)
+
+    @staticmethod
+    def error(message):
+        logging.error(message)
+        raise Exception(message)
+
 # Test the class
 if __name__ == "__main__":
     test_instance = TestInstances()
     # Print out git information
+    test_instance.log("Get git information")
     test_instance.firmware.git_info(print_info=True)
     # Build and download the firmware
     test_instance.firmware.build("blink_a")
