@@ -13,7 +13,7 @@ class TestInstances(object):
         self.logic = None               # Logic analyzer
         self.power = None               # Power supply
         self.os = None                  # Window OS object
-        self.firmware = None            # Firmware object
+        self.firmware = lib.firmware    # Firmware object
         self.log = None                 # Log object
         self.main_path = '\\'.join(os.path.realpath(__file__).split('\\')[:-2])  # Main path of the whole project including firmware, test, etc.
         self.test_path = self.main_path + "\\test"                # Path of the test folder
@@ -61,8 +61,16 @@ class TestInstances(object):
 # Test the class
 if __name__ == "__main__":
     test_instance = TestInstances()
+    # Print out git information
+    test_instance.firmware.git_info(print_info=True)
+    # Build and download the firmware
+    test_instance.firmware.build("blink_a")
+    test_instance.firmware.download("flash_a")
+    # Initialize the test instance
     test_instance.init(port = 'COM10', baudrate = 460800)
+    # Read the symbol file
     test_instance.mcu.readsym(test_instance.main_path + "\\build\\main.sym")
+    # Run the test
     test_instance.run()
     test_instance.cleanup()
     print("TestInstances test passed")
