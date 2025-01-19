@@ -132,7 +132,10 @@ static inline uint8_t mcu_u8_ReadGpio( char* pinString )
 	char port; uint8_t pin;
 	ut_GetPortAndPinFromString( pinString, &port, &pin );
 	gpio_regs *GPIO = (gpio_regs*)( GPIOA_BASE + ( port - 'A' ) * 0x400 );
-	return ( ( GPIO->ODR.Register >> pin ) & 0x01 );			// Set GPIO mode to output
+	if ( BITFIELDMNGET(GPIO->MODER.Register, pin*2+1, pin*2) == 1 )
+		return ( ( GPIO->ODR.Register >> pin ) & 0x01 );			// Set GPIO mode to output
+	else
+		return ( ( GPIO->IDR.Register >> pin ) & 0x01 );			// Set GPIO mode to output
 }
 
 static inline void mcu_SetGpioAlternate( char* pinString, uint8_t u8_AlternateValue )
