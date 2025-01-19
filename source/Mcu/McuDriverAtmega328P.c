@@ -140,13 +140,22 @@ static inline uint8_t mcu_u8_ReadGpio( char* pinString )
 	switch (port)
 	{
 		case 'B':
-			value = ( ( REG->PORTB >> pin ) & 0x01 );
+			if ( REG->DDRB & ( 1 << pin ) )
+				value = ( ( REG->PORTB >> pin ) & 0x01 );
+			else
+				value = ( ( REG->PINB >> pin ) & 0x01 );
 			break;
 		case 'C':
-			value = ( ( REG->PORTC >> pin ) & 0x01 );
+			if ( REG->DDRC & ( 1 << pin ) )
+				value = ( ( REG->PORTC >> pin ) & 0x01 );
+			else
+				value = ( ( REG->PINC >> pin ) & 0x01 );
 			break;
 		case 'D':
-			value = ( ( REG->PORTD >> pin ) & 0x01 );
+			if ( REG->DDRD & ( 1 << pin ) )
+				value = ( ( REG->PORTD >> pin ) & 0x01 );
+			else
+				value = ( ( REG->PIND >> pin ) & 0x01 );
 			break;
 	}
 	return value;

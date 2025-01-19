@@ -1,5 +1,4 @@
 import test.lib as lib
-import time
 import os
 import sys
 import logging
@@ -53,9 +52,6 @@ class TestInstances(object):
                 self.mcu.disconnect()
         if not board_id:
             raise Exception("Can't connect to the MCU using port: {self.port}")
-
-        print("Waiting 2 seconds for the connection to be stable")
-        time.sleep(2)       # Waiting for a while to get the connection stable
 
     def run(self):
         """ This is the main function to run the test

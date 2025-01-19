@@ -1,5 +1,6 @@
 import serial
 import re
+from time import sleep
 
 class Mcu(object):
     # List of supported command for the DUT through USART
@@ -33,6 +34,7 @@ class Mcu(object):
                                     )
 
         self.usart.reset_input_buffer() # Clear input buffer
+        sleep(2)                   # Waiting for a while to get the connection stable
 
     def send(self, data):
         self.usart.write(data)
