@@ -25,7 +25,7 @@ class WriteReadRam(TestInstances):
         for loop in range(1000):
             value32 = random.randint(0, 0xFFFFFFFF)
             # Check readram32, readram16 and readram8
-            self.log("Loop = %d. Check readram32, readram16 and readram8 from random value 0x%8x" % (loop, value32), end=" ")
+            self.log("Loop = %d. Check readram32, readram16 and readram8 from random value 0x%8x" % (loop, value32))
             self.mcu.writeram32("u32_ButtonPressCount", value32)
             value32_rb = self.mcu.readram32("u32_ButtonPressCount")
             if value32 != value32_rb:
@@ -44,7 +44,7 @@ class WriteReadRam(TestInstances):
             value32 = random.randint(0, 0xFFFFFFFF)
             value16 = random.randint(0, 0xFFFF)
             value8 = random.randint(0, 0xFF)
-            self.log("Loop = %d. Check writeram32, writeram16 and writeram8 from random value 0x%8x 0x%4x 0x%2x" % (loop, value32,value16,value8), end=" ")
+            self.log("Loop = %d. Check writeram32, writeram16 and writeram8 from random value 0x%8x 0x%4x 0x%2x" % (loop, value32,value16,value8))
             self.mcu.writeram32("u32_ButtonPressCount", value32)
             value32_rb = self.mcu.readram32("u32_ButtonPressCount")
             if value32 != value32_rb:
@@ -65,7 +65,8 @@ class WriteReadRam(TestInstances):
 
 if __name__ == "__main__":
     test_instance = WriteReadRam()
-    test_instance.init(port = 'COM10', baudrate = 460800)
+    # test_instance.init(port = 'COM7', baudrate = 500000)      # Arduino
+    test_instance.init(port = 'COM10', baudrate = 500000)       # STM32
     test_instance.mcu.readsym(test_instance.main_path + "\\build\\main.sym")
     test_instance.run()
     test_instance.cleanup()

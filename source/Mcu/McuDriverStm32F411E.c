@@ -37,31 +37,31 @@ static inline void mcu_SetGpioAlternate( char* pinString, uint8_t u8_AlternateVa
 
 // USART1
 static void mcu_InitUsart1();
-static void mcu_Usart1SendData(const char *pTxBuffer);
-static void mcu_Usart1InitBuffer(char *pBuffer);
+static void mcu_Usart1SendData(const uint8_t *pTxBuffer);
+static void mcu_Usart1InitBuffer(uint8_t *pBuffer);
 static void mcu_Usart1IrqService(void);
 static usart_config mcu_GetUsart1Config(void);
 
 // USART2
 static void mcu_InitUsart2();
-static void mcu_Usart2SendData(const char *pTxBuffer);
-static void mcu_Usart2InitBuffer(char *pBuffer);
+static void mcu_Usart2SendData(const uint8_t *pTxBuffer);
+static void mcu_Usart2InitBuffer(uint8_t *pBuffer);
 static void mcu_Usart2IrqService(void);
 static usart_config mcu_GetUsart2Config(void);
 
 // USART6
 static void mcu_InitUsart6();
-static void mcu_Usart6SendData(const char *pTxBuffer);
-static void mcu_Usart6InitBuffer(char *pBuffer);
+static void mcu_Usart6SendData(const uint8_t *pTxBuffer);
+static void mcu_Usart6InitBuffer(uint8_t *pBuffer);
 static void mcu_Usart6IrqService(void);
 static usart_config mcu_GetUsart6Config(void);
 
 static inline void mcu_UsartInit( usart_handle* pUsartHandle ); 		// Enable and initiliaze USART
 static inline void mcu_UsartSetBaudRate( usart_handle *pUSARTHandle );	// Set USART baud rate
-void mcu_UsartSendData(usart_handle *pUSARTHandle, const char *pTxBuffer);
-void mcu_UsartSendChar(usart_handle *pUSARTHandle, char data);
-static char mcu_UsartDataAvailable(usart_handle *pUSARTHandle);
-void mcu_UsartReceiveData(usart_handle *pUSARTHandle, char *str);
+void mcu_UsartSendData(usart_handle *pUSARTHandle, const uint8_t *pTxBuffer);
+void mcu_UsartSendChar(usart_handle *pUSARTHandle, uint8_t data);
+static uint8_t mcu_UsartDataAvailable(usart_handle *pUSARTHandle);
+void mcu_UsartReceiveData(usart_handle *pUSARTHandle, uint8_t *str);
 uint8_t mcu_UsartGetChar(usart_handle *pUSARTHandle);
 
 static uint32_t mcu_u32_ReadSysClk();
@@ -158,7 +158,7 @@ static inline void mcu_SetGpioAlternate( char* pinString, uint8_t u8_AlternateVa
 void mcu_InitUsart1(void)
 {	
 	usart1_handle.pUSARTx 						= USART1;
-	usart1_handle.USART_Config.u32_BaudRate 	= USART_BAUDRATE_460800;
+	usart1_handle.USART_Config.u32_BaudRate 	= USART_BAUDRATE_500000;
 	usart1_handle.USART_Config.eMode 			= USART_MODE_TXRX;
 	usart1_handle.USART_Config.eNoOfStopBits 	= USART_NO_STOP_BITS_1p0;
 	usart1_handle.USART_Config.u8_WordLength 	= USART_WORDLEN_8BITS;
@@ -168,12 +168,12 @@ void mcu_InitUsart1(void)
 	mcu_SetGpioAlternate("B7", 7); 	// USART1 RX. Use B6 instead of A9 due to A10 connected to a LED with capacitor
 }
 
-static void mcu_Usart1SendData(const char *pTxBuffer)
+static void mcu_Usart1SendData(const uint8_t *pTxBuffer)
 {
 	mcu_UsartSendData( &usart1_handle, pTxBuffer );
 }
 
-static void mcu_Usart1InitBuffer(char *pBuffer)
+static void mcu_Usart1InitBuffer(uint8_t *pBuffer)
 {
 	usart1_buffer = pBuffer;
 }
@@ -197,7 +197,7 @@ static void mcu_Usart1IrqService(void)
 void mcu_InitUsart2(void)
 {	
 	usart2_handle.pUSARTx 						= USART2;
-	usart2_handle.USART_Config.u32_BaudRate 	= USART_BAUDRATE_460800;
+	usart2_handle.USART_Config.u32_BaudRate 	= USART_BAUDRATE_500000;
 	usart2_handle.USART_Config.eMode 			= USART_MODE_TXRX;
 	usart2_handle.USART_Config.eNoOfStopBits 	= USART_NO_STOP_BITS_1p0;
 	usart2_handle.USART_Config.u8_WordLength 	= USART_WORDLEN_8BITS;
@@ -207,12 +207,12 @@ void mcu_InitUsart2(void)
 	mcu_SetGpioAlternate("A3", 7); 	// USART3 RX	
 }
 
-static void mcu_Usart2SendData(const char *pTxBuffer)
+static void mcu_Usart2SendData(const uint8_t *pTxBuffer)
 {
 	mcu_UsartSendData( &usart2_handle, pTxBuffer );
 }
 
-static void mcu_Usart2InitBuffer(char *pBuffer)
+static void mcu_Usart2InitBuffer(uint8_t *pBuffer)
 {
 	usart2_buffer = pBuffer;
 }
@@ -235,7 +235,7 @@ static void mcu_Usart2IrqService(void)
 void mcu_InitUsart6(void)
 {	
 	usart6_handle.pUSARTx 						= USART6;
-	usart6_handle.USART_Config.u32_BaudRate 	= USART_BAUDRATE_460800;
+	usart6_handle.USART_Config.u32_BaudRate 	= USART_BAUDRATE_500000;
 	usart6_handle.USART_Config.eMode 			= USART_MODE_TXRX;
 	usart6_handle.USART_Config.eNoOfStopBits 	= USART_NO_STOP_BITS_1p0;
 	usart6_handle.USART_Config.u8_WordLength 	= USART_WORDLEN_8BITS;
@@ -245,12 +245,12 @@ void mcu_InitUsart6(void)
 	mcu_SetGpioAlternate("C7", 8); 	// USART7 RX.
 }
 
-static void mcu_Usart6SendData(const char *pTxBuffer)
+static void mcu_Usart6SendData(const uint8_t *pTxBuffer)
 {
 	mcu_UsartSendData( &usart6_handle, pTxBuffer );
 }
 
-static void mcu_Usart6InitBuffer(char *pBuffer)
+static void mcu_Usart6InitBuffer(uint8_t *pBuffer)
 {
 	usart6_buffer = pBuffer;
 }
@@ -330,6 +330,8 @@ void mcu_UsartInit(usart_handle *pUSARTHandle)
 		pUSARTHandle->pUSARTx->USART_CR1.PS = 0;		
 	}
 
+	// Set OVER8 = 1 to get higher speed
+	// pUSARTHandle->pUSARTx->USART_CR1.OVER8 = 1;
 
 	/******************************** Configuration of CR2******************************************/
 
@@ -382,7 +384,7 @@ static inline void mcu_UsartSetBaudRate( usart_handle *pUSARTHandle )
 
 }
 
-void mcu_UsartSendChar(usart_handle *pUSARTHandle, char data)
+void mcu_UsartSendChar(usart_handle *pUSARTHandle, uint8_t data)
 {
 	while(!pUSARTHandle->pUSARTx->USART_SR.TXE);
 	
@@ -392,7 +394,7 @@ void mcu_UsartSendChar(usart_handle *pUSARTHandle, char data)
 		pUSARTHandle->pUSARTx->USART_DR.DR = data & (uint8_t)0xFF;
 }
 
-char mcu_UsartDataAvailable(usart_handle *pUSARTHandle)
+uint8_t mcu_UsartDataAvailable(usart_handle *pUSARTHandle)
 {
 	return pUSARTHandle->pUSARTx->USART_SR.RXNE;
 }
@@ -402,17 +404,17 @@ uint8_t mcu_UsartGetChar(usart_handle *pUSARTHandle)
     // while(!pUSARTHandle->pUSARTx->USART_SR.RXNE); 	// Since this will be handled by interrupt
     if(pUSARTHandle->USART_Config.u8_WordLength == USART_WORDLEN_9BITS)
 		if(pUSARTHandle->USART_Config.eParityControl == USART_PARITY_DISABLE)
-			return (char)(pUSARTHandle->pUSARTx->USART_DR.DR & (uint16_t)0x01FF);
+			return (uint8_t)(pUSARTHandle->pUSARTx->USART_DR.DR & (uint16_t)0x01FF);
 		else
-			return (char)(pUSARTHandle->pUSARTx->USART_DR.DR & (uint8_t)0x0FF);
+			return (uint8_t)(pUSARTHandle->pUSARTx->USART_DR.DR & (uint8_t)0x0FF);
     else
 		if(pUSARTHandle->USART_Config.eParityControl == USART_PARITY_DISABLE)
-			return (char)(pUSARTHandle->pUSARTx->USART_DR.DR & (uint8_t)0xFF);
+			return (uint8_t)(pUSARTHandle->pUSARTx->USART_DR.DR & (uint8_t)0xFF);
 		else
-			return (char)(pUSARTHandle->pUSARTx->USART_DR.DR  & (uint8_t)0x7F);
+			return (uint8_t)(pUSARTHandle->pUSARTx->USART_DR.DR  & (uint8_t)0x7F);
 }
 
-void mcu_UsartSendData(usart_handle *pUSARTHandle, const char *pTxBuffer)
+void mcu_UsartSendData(usart_handle *pUSARTHandle, const uint8_t *pTxBuffer)
 {
 	static uint8_t j=0;
 	
@@ -424,9 +426,9 @@ void mcu_UsartSendData(usart_handle *pUSARTHandle, const char *pTxBuffer)
 }
 
 
-void mcu_UsartReceiveData(usart_handle *pUSARTHandle, char *str)
+void mcu_UsartReceiveData(usart_handle *pUSARTHandle, uint8_t *str)
 {
-    unsigned char data;
+    uint8_t data;
 	int index;
 	
 	if ( mcu_UsartDataAvailable(pUSARTHandle) == 0 )

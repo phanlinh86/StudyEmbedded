@@ -26,11 +26,14 @@ class Mcu(object):
             self.baudrate = baudrate
         self.usart = serial.Serial(     port        =self.port,
                                         baudrate    =self.baudrate,
-                                        timeout     =0.5,
+                                        timeout     =0.1,
                                         parity      =serial.PARITY_NONE,
                                         stopbits    =serial.STOPBITS_ONE,
                                         bytesize    =serial.EIGHTBITS
                                     )
+
+        self.usart.reset_input_buffer() # Clear input buffer
+
     def send(self, data):
         self.usart.write(data)
 
@@ -39,6 +42,10 @@ class Mcu(object):
 
     def read(self):
         data = list(self.usart.read(18))
+        #bytesToRead = self.usart.inWaiting()
+        #data = self.usart.read(bytesToRead)
+        #bytesToRead = 16
+        #print(f"{bytesToRead} bytes Data: {data}")
         if len(data):
             result = {  'status': data[0],
                         'resp'  : [ int.from_bytes(data[i:i+4], byteorder='big', signed=False) for i in range(1, 17, 4)] }
@@ -144,11 +151,11 @@ class Mcu(object):
     def readram8(self, var_name):
         return self.readram(var_name, 1)
 
-    def writegpio(self, pin, value):
+    def writegpio(self, pin, value, af=0):
         cmd_str =   f"/cmd".encode("utf-8")
         cmd_str += self.WRITE_GPIO.to_bytes(4, byteorder='big')
         cmd_str += pin.encode() + b'\0'*(4-len(pin))
-        for param in [value,0x00, 0x00]:
+        for param in [value,af, 0x00]:
             cmd_str += param.to_bytes(4, byteorder='big')
         cmd_str += "\n".encode("utf-8")
         self.usart.write(cmd_str)

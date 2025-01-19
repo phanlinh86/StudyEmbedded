@@ -7,7 +7,8 @@
 #define USART_BAUDRATE_460800 460800
 #define USART_BAUDRATE_500000 500000
 #define USART_BAUDRATE_921600 921600
-#define USART_BAUDRATE_2250000 2000000
+#define USART_BAUDRATE_1000000 1000000
+#define USART_BAUDRATE_2000000 2000000
 #define USART_BAUDRATE_4500000 3000000
 #define USART_WORDLEN_8BITS  0
 #define USART_WORDLEN_9BITS  1
@@ -95,8 +96,8 @@ typedef volatile struct
 } resp_frame_st;
 
 extern cmd_status eCmdStatus;
-static cmd_frame_st cmd_frame;
-static resp_frame_st resp_frame;
+extern cmd_frame_st cmd_frame;
+extern resp_frame_st resp_frame;
 
 static cmd_status cmd_eGetCmdStatus(void);
 static void cmd_DoCommandIsr(void);

@@ -24,6 +24,8 @@
  
 uint8_t uart_rx_buffer[RX_USART_BUFFER];
 uint8_t uart_tx_buffer[TX_USART_BUFFER];
+cmd_frame_st cmd_frame;
+resp_frame_st resp_frame;
 
 #define reg8( r ) unsigned char r
 
