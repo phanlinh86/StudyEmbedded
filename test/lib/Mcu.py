@@ -9,6 +9,7 @@ class Mcu(object):
     READ_RAM    = 0x0002
     WRITE_GPIO  = 0x0101
     READ_GPIO   = 0x0102
+    SOFT_RESET  = 0XFEEF
 
     def __init__(self, port=None, baudrate=None, sym_file="../build/main.sym"):
         self.usart      = None          # The serial port object
@@ -44,10 +45,6 @@ class Mcu(object):
 
     def read(self):
         data = list(self.usart.read(18))
-        #bytesToRead = self.usart.inWaiting()
-        #data = self.usart.read(bytesToRead)
-        #bytesToRead = 16
-        #print(f"{bytesToRead} bytes Data: {data}")
         if len(data):
             result = {  'status': data[0],
                         'resp'  : [ int.from_bytes(data[i:i+4], byteorder='big', signed=False) for i in range(1, 17, 4)] }
@@ -177,6 +174,11 @@ class Mcu(object):
             return []
         else:
             return data['resp'][0]
+
+    def reset(self):
+        self.sendcmd([self.SOFT_RESET, 0x00, 0x00, 0x00, 0x00])
+        data = self.read()
+        return data['status']
 
     def readsym(self, log_file = "../build/main.sym"):
         if log_file:

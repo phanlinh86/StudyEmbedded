@@ -79,6 +79,13 @@ static void mcu_SetStkCounter( bool bEnable );
 static void mcu_SetStkCalib( uint32_t val );
 static void mcu_ConfigSysTick( uint32_t u32_TickInMs );
 
+static inline void mcu_SoftReset();
+
+__attribute__((always_inline)) static inline void __DSB(void)
+{
+  __asm volatile ("dsb 0xF":::"memory");
+}
+
 
 /********************************************************************************
 *									STM32 GPIOA_BASE							*
@@ -597,4 +604,25 @@ static void mcu_ConfigSysTick( uint32_t u32_TickInMs )
 	mcu_SetStkReload( u32_SysTickClk / 1000 * u32_TickInMs - 1 );	// Set value for Tick In Ms
 	mcu_SetStkVal(0);												// Clear the current counter
 	mcu_SetStkEnable(TRUE); 										// Temporary disable SysTick 
+}
+
+
+/********************************************************************************
+ * 									ARM RESET									*
+ * 								Software reset									*
+ * ******************************************************************************/
+static inline void mcu_SoftReset(void)
+{
+	__DSB();
+	SCB->AIRCR.Register  = (NVIC_AIRCR_VECTKEY | (SCB->AIRCR.Register & (0x700)) | (1<<NVIC_SYSRESETREQ));  	// Keep priority group unchanged  
+	/*
+	// Don't know why, need to write the whole register together to make the reset work instead of programming every fields
+	SCB->AIRCR.VECTKEY = 0x5FA;
+	SCB->AIRCR.VECTRESET = 0x0;
+	SCB->AIRCR.VECTCLRACTIVE = 0x0;  
+	SCB->AIRCR.SYSRESETREQ = 0x1;		//Assert signal request reset
+	*/
+	
+	__DSB();
+	while(1);                                                             	// wait until reset
 }

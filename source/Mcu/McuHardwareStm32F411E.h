@@ -44,6 +44,9 @@
 #define NVIC_ISER6_BASE					0xE000E118U
 #define NVIC_ISER7_BASE					0xE000E11CU
 
+#define SCS_BASE            			0xE000E000U       			// System Control Space Base Address
+#define SCB_BASE            			(SCS_BASE +  0x0D00)        // System Control Block Base Address
+
 #define SYSTICK_BASE 					0xE000E010U
 
 
@@ -722,6 +725,48 @@ typedef struct
 } systick_regs;
 
 
+/****************************************************************************
+*								SYSTEM CONTROL BLOCK				    	*
+*									Arm Cortex M4 						    *
+*****************************************************************************/
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t VECTRESET		:	1;     	// 0
+		uint32_t VECTCLRACTIVE  :	1;      // 1
+		uint32_t SYSRESETREQ  	:	1;		// 2
+		uint32_t RVSD			: 	5;		// 7:3
+		uint32_t PRIGROUP		: 	3; 		// 10:8
+		uint32_t RVSD1			:	4;		// 14:11
+		uint32_t ENDIANESS		:	1;		// 15
+		uint32_t VECTKEY		: 	16;		// 31:16
+	};
+} AIR_reg;
+
+typedef struct
+{
+	reg32(PUID);                        	// CPU ID Base Register                                     
+	reg32(ICSR);                         	// Interrupt Control State Register                        
+	reg32(VTOR);                         	// Vector Table Offset Register                            
+	AIR_reg AIRCR;                        	// Application Interrupt / Reset Control Register           
+	reg32(SCR);                          	// System Control Register                                  
+	reg32(CCR);                          	// Configuration Control Register                           
+	reg32(RVSD[3]);                      	// System Handlers Priority Registers (4-7, 8-11, 12-15)    
+	reg32(SHCSR);                        	// System Handler Control and State Register                
+	reg32(CFSR);                         	// Configurable Fault Status Register                       
+	reg32(HFSR);                         	// Hard Fault Status Register                               
+	reg32(DFSR);                         	// Debug Fault Status Register                              
+	reg32(MMFAR);                        	// Mem Manage Address Register                             
+	reg32(BFAR);                         	// Bus Fault Address Register
+	reg32(AFSR);                         	// Auxiliary Fault Status Register
+	reg32(PFR[2]);                       	// Processor Feature Register
+	reg32(DFR);                          	// Debug Feature Register
+	reg32(ADR);                          	// Auxiliary Feature Register
+	reg32(MMFR[4]);                      	// Memory Model Feature Register
+	reg32(ISAR[5]);                      	// ISA Feature Register
+} scb_reg;
 
 #define GPIOA 		((gpio_regs*) 			GPIOA_BASE)
 #define GPIOB 		((gpio_regs*) 			GPIOB_BASE)
@@ -741,7 +786,13 @@ typedef struct
 #define NVIC_ISER2 	((uint32_t*)			NVIC_ISER2_BASE)
 #define NVIC_ISER3 	((uint32_t*)			NVIC_ISER3_BASE)
 
+#define SCB         ((scb_reg *)           	SCB_BASE)
+
 #define SYSTICK 	((systick_regs*) 		SYSTICK_BASE)
+
+
+#define NVIC_AIRCR_VECTKEY    (0x5FA << 16)   // AIRCR Key for write access   */
+#define NVIC_SYSRESETREQ            2         // System Reset Request         */
 
 
 #endif //MCUSTM32F411E_H

@@ -75,6 +75,9 @@ typedef enum
 // 0x01xx - Write/Read Hardware
 #define WRITE_GPIO		0x0101
 #define READ_GPIO		0x0102
+
+// 0xFxxx - System command
+#define SOFT_RESET 		0xFEEF
 	
 
 typedef volatile struct
@@ -117,6 +120,7 @@ static void cmd_ReadRam(void);
 static void cmd_GetInfo(void);
 static void cmd_WriteGpio(void);
 static void cmd_ReadGpio(void);
+static void cmd_SoftReset(void);
 
 
 

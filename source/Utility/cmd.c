@@ -159,7 +159,12 @@ static void cmd_DoCommand(void)
 			break;
 		case READ_GPIO:				// Read GPIO				0x0102
 			cmd_ReadGpio();
-			break;			
+			break;
+
+		// Reset
+		case SOFT_RESET:
+			cmd_SoftReset();
+			break;
 	}
 }
 
@@ -307,6 +312,17 @@ static void cmd_ReadGpio(void)
 	
 	resp_frame.status 	= 1;
 	resp_frame.resp0 	= u8_Value;
+	resp_frame.resp1 	= 0x00;
+	resp_frame.resp2 	= 0x00;
+	resp_frame.resp3 	= 0x00;
+}
+
+static void cmd_SoftReset(void)
+{
+	mcu_SoftReset();
+	
+	resp_frame.status 	= 1;
+	resp_frame.resp0 	= 0x00;
 	resp_frame.resp1 	= 0x00;
 	resp_frame.resp2 	= 0x00;
 	resp_frame.resp3 	= 0x00;

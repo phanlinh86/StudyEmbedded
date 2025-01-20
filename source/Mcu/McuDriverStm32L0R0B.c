@@ -58,6 +58,14 @@ static void mcu_SetStkCounter( bool bEnable );
 static void mcu_SetStkCalib( uint32_t val );
 static void mcu_ConfigSysTick( uint32_t u32_TickInMs );
 
+static inline void mcu_SoftReset();
+
+__attribute__((always_inline)) static inline void __DSB(void)
+{
+  __asm volatile ("dsb 0xF":::"memory");
+}
+
+
 /********************************************************************************
 *									STM32 GPIOA_BASE							*
 *									General Purpose I/O							*
@@ -473,4 +481,13 @@ static void mcu_ConfigSysTick( uint32_t u32_TickInMs )
 	mcu_SetStkReload( u32_SysTickClk / 1000 * u32_TickInMs - 1 );	// Set value for Tick In Ms
 	mcu_SetStkVal(0);												// Clear the current counter
 	mcu_SetStkEnable(TRUE); 										// Temporary disable SysTick 
+}
+
+/********************************************************************************
+ * 									ARM RESET									*
+ * 								Software reset									*
+ * ******************************************************************************/
+static inline void mcu_SoftReset(void)
+{
+	//  Place holder. No support. Do nothing
 }

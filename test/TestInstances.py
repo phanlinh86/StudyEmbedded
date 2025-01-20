@@ -60,7 +60,8 @@ class TestInstances(object):
         pass
 
     def cleanup(self):
-        self.mcu.disconnect()
+        self.mcu.reset()                # Soft reset the MCU
+        self.mcu.disconnect()           # Disconnect MCU connection
 
     @staticmethod
     def log(message):
@@ -82,7 +83,7 @@ if __name__ == "__main__":
     test_instance.firmware.build("blink_a")
     test_instance.firmware.download("flash_a")
     # Initialize the test instance
-    test_instance.init(port = 'COM10', baudrate = 460800)
+    test_instance.init(port = 'COM11', baudrate = 500000)
     # Read the symbol file
     test_instance.mcu.readsym(test_instance.main_path + "\\build\\main.sym")
     # Run the test

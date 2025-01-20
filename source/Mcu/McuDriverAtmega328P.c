@@ -34,6 +34,7 @@ static void mcu_UsartTransmitString(const uint8_t *str);
 static void mcu_UsartInit(usart_config usartx_config);
 static inline void mcu_UsartSetBaudRate( uint32_t u32_UartBaudRate);
 
+static inline void mcu_SoftReset();
 
 /********************************************************************************
 *									ATMega328P GPIO_BASE						*
@@ -429,4 +430,13 @@ static void mcu_Usart0IrqService(void)
 static usart_config mcu_GetUsart0Config(void)
 {
 	return usart0_config;
+}
+
+/********************************************************************************
+ * 									ARM RESET									*
+ * 								Software reset									*
+ * ******************************************************************************/
+static inline void mcu_SoftReset(void)
+{
+	//  Place holder. No support. Do nothing
 }
