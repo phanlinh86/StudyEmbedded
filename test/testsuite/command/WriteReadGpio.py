@@ -163,9 +163,12 @@ class WriteReadGpio(TestInstances):
 
 if __name__ == "__main__":
     test_instance = WriteReadGpio()
-    test_instance.init(port='COM10', baudrate=500000)
-    #test_instance.init(port='COM7', baudrate=500000)
+    #test_instance.init(port='COM11', baudrate=500000)
+    test_instance.init(port='COM7', baudrate=500000)
     test_instance.mcu.readsym(test_instance.main_path + "\\build\\main.sym")
     test_instance.mcu.writeram32('u32_ButtonPressCount', 1)       # Turn off blinking LED for GPIO testing
-    test_instance.run()
+    try:
+        test_instance.run()
+    except Exception as e:
+        print("TEST FAILED: ", e)
     test_instance.cleanup()

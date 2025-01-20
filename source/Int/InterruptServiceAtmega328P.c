@@ -1,4 +1,5 @@
-#include <avr/interrupt.h>
+#include 	<avr/interrupt.h>
+#include 	<avr/wdt.h>
 
 static uint32_t u32_Timer1Counter = 0;
 static uint32_t u32_Timer1Start = 0;
@@ -39,4 +40,17 @@ static void is_SetUsart0Interrupt(void)
 static void is_InitUsart0Isr(void (*pfServiceFunction)(void))
 {
 	pfServiceUsart0Irq = pfServiceFunction;
+}
+
+
+// Do soft reset using Watchdog Timer
+static void is_SoftResetUseWdt(void)
+{
+	cli();
+	wdt_reset();
+	MCUSR = 0;                           // allow changes, disable reset
+	WDTCSR = (1 << WDCE) | (1 << WDE);    //set up WDT interrupt
+	WDTCSR = (1 << WDE) | (1 << WDP2);   //Start watchdog timer with 0.25s prescaler
+	sei();
+	Delay( 2000 ) ;  // force WDT to reset system
 }

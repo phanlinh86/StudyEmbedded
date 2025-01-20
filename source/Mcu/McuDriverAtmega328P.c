@@ -438,5 +438,6 @@ static usart_config mcu_GetUsart0Config(void)
  * ******************************************************************************/
 static inline void mcu_SoftReset(void)
 {
-	//  Place holder. No support. Do nothing
+	//  For Arduino, use Watch dog timer
+	is_SoftResetUseWdt();
 }

@@ -7,3 +7,4 @@ void is_SetTimerStart(uint32_t val);
 void DelayUs( uint32_t u32_TimeInUs );
 void DelayMs( uint32_t u32_TimeInMs );
 void Delay( uint32_t u32_DelayLoop );
+static void is_SoftResetUseWdt(void);

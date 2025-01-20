@@ -2,6 +2,7 @@ import logging
 
 from test.TestInstances import *
 import random
+from time import sleep
 
 class WriteReadRam(TestInstances):
     def run(self):
@@ -13,14 +14,14 @@ class WriteReadRam(TestInstances):
             self.log("Led period = %d. 1. Setting LED period" % led_period)
             self.mcu.writeram32("u32_LedPeriodInMs", led_period)
             self.log("Led period = %d. 2. Pause for %.2f second" % (led_period, timewait) )
-            time.sleep(timewait)
+            sleep(timewait)
             led_period_rb = self.mcu.readram32("u32_LedPeriodInMs")
             self.log("Led period = %d. 3. Reading back LED period : %d" % (led_period, led_period_rb))
             if led_period != led_period_rb:
                 self.error("Test case1. Failed. Led period expected %d, but got %d" % (led_period, led_period_rb))
             timewait = random.randint(0, 10) / 100
             self.log("Led period = %d. 4. Pause for %.2f second" % (led_period, timewait))
-            time.sleep(timewait)
+            sleep(timewait)
         self.log("Test case2. Write/Read 32-bit, 16bit, 8bit RAM with random value")
         for loop in range(1000):
             value32 = random.randint(0, 0xFFFFFFFF)
@@ -65,8 +66,11 @@ class WriteReadRam(TestInstances):
 
 if __name__ == "__main__":
     test_instance = WriteReadRam()
-    # test_instance.init(port = 'COM7', baudrate = 500000)      # Arduino
-    test_instance.init(port = 'COM10', baudrate = 500000)       # STM32
+    test_instance.init(port = 'COM7', baudrate = 500000)      # Arduino
+    # test_instance.init(port = 'COM11', baudrate = 500000)       # STM32
     test_instance.mcu.readsym(test_instance.main_path + "\\build\\main.sym")
-    test_instance.run()
+    try:
+        test_instance.run()
+    except Exception as e:
+        print("TEST FAILED: ", e)
     test_instance.cleanup()
