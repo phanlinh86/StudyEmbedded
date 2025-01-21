@@ -6,6 +6,10 @@ import logging
 # Import necessary libraries
 class TestInstances(object):
     LIST_BAUDRATE = [9600, 19200, 38400, 57600, 115200, 230400, 460800, 500000, 921600]
+    BOARD_NAME = {  1   : "STM32F411E-DISCO",
+                    2   : "STM32L0xx-Nucleo",
+                    3   :  "Arduino Uno R3"}
+
     def __init__(self, port=None, baudrate=None):
         self.port = port                # Port name associated with the serial port
         self.baudrate = baudrate        # Baud Rate
@@ -52,6 +56,31 @@ class TestInstances(object):
                 self.mcu.disconnect()
         if not board_id:
             raise Exception("Can't connect to the MCU using port: {self.port}")
+        # 2. Print out the information of the test instances
+        self.print_info()
+
+    def get_board_name(self):
+        # Get the MCU name
+        return(self.BOARD_NAME[self.mcu.getinfo("board")])
+
+    def get_firmware(self):
+        # Get the firmware object
+        return hex(self.mcu.getinfo("firmware"))
+
+    def print_info(self):
+        # Print out the information of the test instances
+        self.log("=====================================================")
+        self.log(f"Main path        : {self.main_path}")
+        self.log(f"Test path        : {self.test_path}")
+        self.log(f"Log path         : {self.log_path}")
+        self.log(f"Log name         : {self.log_name}")
+        self.log(f"Port             : {self.port}")
+        self.log(f"Baudrate         : {self.baudrate}")
+        self.log(f"MCU              : {self.get_board_name()}")
+        self.log(f"Logic Analyzer   : {self.logic}")
+        self.log(f"Power            : {self.power}")
+        self.log(f"Firmware Rev     : {self.get_firmware()}")
+        self.log("=====================================================")
 
     def run(self):
         """ This is the main function to run the test
@@ -80,10 +109,11 @@ if __name__ == "__main__":
     test_instance.log("Get git information")
     test_instance.firmware.git_info(print_info=True)
     # Build and download the firmware
-    test_instance.firmware.build("blink_a")
-    test_instance.firmware.download("flash_a")
+    test_instance.firmware.build("blink_c")
+    test_instance.firmware.download("flash_c")
     # Initialize the test instance
-    test_instance.init(port = 'COM11', baudrate = 500000)
+    # test_instance.init(port = 'COM11', baudrate = 500000)
+    test_instance.init(port='COM7', baudrate=500000)
     # Read the symbol file
     test_instance.mcu.readsym(test_instance.main_path + "\\build\\main.sym")
     # Run the test

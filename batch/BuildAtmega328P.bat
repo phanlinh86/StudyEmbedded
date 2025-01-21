@@ -2,6 +2,7 @@
 @echo off
 :: Arguments
 set PROJECT_NAME=%1
+set REV=%2
 
 if "%PROJECT_NAME%" == "" (
     echo Usage: build.bat PROJECT_NAME
@@ -17,6 +18,7 @@ if "%PROJECT_NAME%" == "" (
 :: Build configuration
 set BOARD=atmega328p
 set BOARD_ID=3
+set FIRMWARE_REVISION=0x%REV%
 
 set COMPILER=avr-gcc
 set MPU=atmega328p
@@ -42,21 +44,25 @@ if not exist build (
     del /Q build\*
 )
 
+:: Print out build information
+echo PROJECT_NAME = %PROJECT_NAME%
+echo REV          = %REV%
+
 :: Preprocess main.c to main.i
 echo Preprocess main.c to main.i
-echo %COMPILER% -E source\main.c -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% > build\main.i
-%COMPILER% -E source\main.c -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% > build\main.i
+echo %COMPILER% -E source\main.c -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID%  -DFIRMWARE_REVISION=%FIRMWARE_REVISION% > build\main.i
+%COMPILER% -E source\main.c -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% -DFIRMWARE_REVISION=%FIRMWARE_REVISION% > build\main.i
 
 :: Preprocess main.c to main.macro
 echo Preprocess main.c to main.macro
-echo %COMPILER% -dM -E source\main.c -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% > build\main.macro
-%COMPILER% -dM -E source\main.c -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% > build\main.macro
+echo %COMPILER% -dM -E source\main.c -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% -DFIRMWARE_REVISION=%FIRMWARE_REVISION% > build\main.macro
+%COMPILER% -dM -E source\main.c -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% -DFIRMWARE_REVISION=%FIRMWARE_REVISION% > build\main.macro
 
 
 :: Compile main.c to main.o
 echo Compile main.c to main.o
-echo %COMPILER% -c source\main.c -o build\main.o -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_main_%ERROR_FILE%
-%COMPILER% -c source\main.c -o build\main.o -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% 2> build\%BOARD%_%PROJECT_NAME%_Compile_main_%ERROR_FILE%
+echo %COMPILER% -c source\main.c -o build\main.o -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% -DFIRMWARE_REVISION=%FIRMWARE_REVISION% 2> build\%BOARD%_%PROJECT_NAME%_Compile_main_%ERROR_FILE%
+%COMPILER% -c source\main.c -o build\main.o -Wall -Os -DF_CPU=16000000UL -mmcu=%MPU% -c -DPROJECT=%PROJECT% -DBOARD_ID=%BOARD_ID% -DFIRMWARE_REVISION=%FIRMWARE_REVISION% 2> build\%BOARD%_%PROJECT_NAME%_Compile_main_%ERROR_FILE%
 
 :: Link main.o to main.elf
 echo Link main.o to main.elf

@@ -86,6 +86,10 @@ class Mcu(object):
             self.sendcmd([self.GET_INFO, 0x0002, 0x00, 0x00, 0x00])
             data = self.read()
             if data['resp']: result=data['resp'][0]
+        elif info.upper() == "FIRMWARE":
+            self.sendcmd([self.GET_INFO, 0x003, 0x00, 0x00, 0x00])
+            data = self.read()
+            if data['resp']: result=data['resp'][0]
         elif info.upper() == "USART":
             return_dict  = {}
             self.sendcmd([self.GET_INFO, 0x100, 0x00, 0x00, 0x00])

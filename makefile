@@ -8,14 +8,19 @@ all: blink
 
 blink: blink_a blink_b blink_c
 
-blink_a: clean
-	batch\BuildStm32F411E BlinkLed
+options: clean
+ifeq ($(rev),)
+rev = 0000
+endif
+
+blink_a: options
+	batch\BuildStm32F411E BlinkLed $(rev)
 	
-blink_b: clean
-	batch\BuildStm32L0x0 BlinkLed
+blink_b: options
+	batch\BuildStm32L0x0 BlinkLed $(rev)
 	
-blink_c: clean
-	batch\BuildAtmega328P BlinkLed
+blink_c: options
+	batch\BuildAtmega328P BlinkLed $(rev)
 
 clean:
 	del /q build

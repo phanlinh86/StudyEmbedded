@@ -186,6 +186,10 @@ static void cmd_GetInfo(void)
 		case 0x0002:			// CPU Clock
 			resp_frame.resp0 	=	FPU;
 			break;
+		case 0x0003: 			// Firmware Revision
+			resp_frame.resp0 	=	FIRMWARE_REVISION;
+			break;
+			
 		case 0x0100:			// USART
 			if ( cmd_frame.param1 == 0 )
 			{
