@@ -15,12 +15,18 @@ endif
 
 blink_a: options
 	batch\BuildStm32F411E BlinkLed $(rev)
+	echo Build is successful. Copy files into dedicated build folder.
+	(robocopy build build\$@ /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0
 	
 blink_b: options
 	batch\BuildStm32L0x0 BlinkLed $(rev)
+	echo Build is successful. Copy files into dedicated build folder.
+	(robocopy build build\$@ /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0
 	
 blink_c: options
 	batch\BuildAtmega328P BlinkLed $(rev)
+	echo Build is successful. Copy files into dedicated build folder.
+	(robocopy build build\$@ /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0
 
 clean:
 	del /q build
