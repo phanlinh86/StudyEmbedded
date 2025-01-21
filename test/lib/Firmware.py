@@ -30,6 +30,36 @@ class Firmware(object):
         # Return the symbols dictionary
         return symbols
 
+    def readmacro(self, macro_file=None):
+        """
+        Read the macro file and return the dictionary of the macros
+        :param macro_file: Macro file path
+        :return: Dictionary of the macros
+        """
+        macros = {}
+        # If the macro file is not provided, use the default one
+        if not macro_file:
+            macro_file = self.build_path + "\\main.macro"
+
+        # Read the macro file
+        with open(macro_file, 'r') as file:
+            for line in file:
+                line = line.strip()
+                if line:
+                    if line.startswith("#define"):
+                        # Parse the line and extract the macro and value
+                        if len(line.split(' ')) == 3:
+                            macro, value = line.split(' ')[1:]
+
+                            if self.isint(value):
+                                macros[macro] = int(value)
+                            elif self.ishex(value):
+                                macros[macro] = int(value, 16)
+                            else:
+                                macros[macro] = value
+        # Return the macros dictionary
+        return macros
+
     def build(self, build_option="blink_a"):
         subprocess.run(["make ", build_option], cwd=self.main_path)
 
@@ -68,6 +98,22 @@ class Firmware(object):
         else:
             subprocess.run("git checkout master", cwd=self.main_path)
 
+    @staticmethod
+    def isint(value):
+        try:
+            int(value)
+            return True
+        except ValueError:
+            return False
+
+    @staticmethod
+    def ishex(value):
+        try:
+            int(value, 16)
+            return True
+        except ValueError:
+            return False
+
 # Test the class
 if __name__ == "__main__":
     firmware = Firmware()
@@ -75,4 +121,5 @@ if __name__ == "__main__":
     firmware.git_checkout(commit_id=None)   # Checkout to the latest commit
     firmware.build("blink_a")
     firmware.download("flash_a")
+    firmware.readmacro()
     print("Firmware test passed")

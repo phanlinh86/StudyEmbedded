@@ -19,6 +19,7 @@ class Mcu(object):
         self.sym_dict   = None          # Symbol list from the .sym file
                                         # First column is variable name.
                                         # 2nd column is variable address
+        self.macro_dict = None          # Macro list from the .macro file
 
 
     def connect(self, port=None, baudrate=None):
@@ -196,3 +197,49 @@ class Mcu(object):
                 if len(temp) > 1 and temp[7]:
                     self.sym_dict[temp[7]] = int(temp[2],16)
         return self.sym_dict
+
+    def readmacro(self, macro_file=None):
+        """
+        Read the macro file and return the dictionary of the macros
+        :param macro_file: Macro file path
+        :return: Dictionary of the macros
+        """
+        self.macro_dict = {}
+        # If the macro file is not provided, use the default one
+        if not macro_file:
+            macro_file = self.build_path + "\\main.macro"
+
+        # Read the macro file
+        with open(macro_file, 'r') as file:
+            for line in file:
+                line = line.strip()
+                if line:
+                    if line.startswith("#define"):
+                        # Parse the line and extract the macro and value
+                        if len(line.split(' ')) == 3:
+                            macro, value = line.split(' ')[1:]
+
+                            if self.isint(value):
+                                self.macro_dict[macro] = int(value)
+                            elif self.ishex(value):
+                                self.macro_dict[macro] = int(value, 16)
+                            else:
+                                self.macro_dict[macro] = value
+        # Return the macros dictionary
+        return self.macro_dict
+
+    @staticmethod
+    def isint(value):
+        try:
+            int(value)
+            return True
+        except ValueError:
+            return False
+
+    @staticmethod
+    def ishex(value):
+        try:
+            int(value, 16)
+            return True
+        except ValueError:
+            return False
