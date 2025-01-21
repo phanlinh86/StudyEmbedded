@@ -12,21 +12,42 @@ options: clean
 ifeq ($(rev),)
 rev = 0000
 endif
+ifeq ($(rel),)
+rel = 0
+endif
 
 blink_a: options
 	batch\BuildStm32F411E BlinkLed $(rev)
-	echo Build is successful. Copy files into dedicated build folder.
-	(robocopy build build\$@ /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0
+	echo Build is successful. Release file according to release option
+	@if $(rel)==0 ((robocopy build build\$@ /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0)
+	@if $(rel)==1 ((robocopy build release\$@\$(rev) /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0)
+	@if $(rel)==2 ((robocopy build release\$@\$(rev) *.elf *.hex *.sym /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0)
+	@if $(rel)==3 (
+	@(robocopy build release\$@\$(rev) *.elf *.hex *.sym /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0
+	@(robocopy test release\$@\$(rev)\test /NFL /NDL /njh /njs /ndl /nc /s) ^& IF %ERRORLEVEL% LEQ 1 exit 0	
+	@7z a .\release\$@_$(rev).zip .\release\$@\$(rev)\* > nul)	
 	
 blink_b: options
 	batch\BuildStm32L0x0 BlinkLed $(rev)
-	echo Build is successful. Copy files into dedicated build folder.
-	(robocopy build build\$@ /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0
+	echo Build is successful. Release file according to release option
+	@if $(rel)==0 ((robocopy build build\$@ /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0)
+	@if $(rel)==1 ((robocopy build release\$@\$(rev) /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0)
+	@if $(rel)==2 ((robocopy build release\$@\$(rev) *.elf *.hex *.sym /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0)
+	@if $(rel)==3 (
+	@(robocopy build release\$@\$(rev) *.elf *.hex *.sym /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0
+	@(robocopy test release\$@\$(rev)\test /NFL /NDL /njh /njs /ndl /nc /s) ^& IF %ERRORLEVEL% LEQ 1 exit 0	
+	@7z a .\release\$@_$(rev).zip .\release\$@\$(rev)\* > nul)
 	
 blink_c: options
 	batch\BuildAtmega328P BlinkLed $(rev)
-	echo Build is successful. Copy files into dedicated build folder.
-	(robocopy build build\$@ /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0
+	echo Build is successful. Release file according to release option
+	@if $(rel)==0 ((robocopy build build\$@ /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0)
+	@if $(rel)==1 ((robocopy build release\$@\$(rev) /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0)
+	@if $(rel)==2 ((robocopy build release\$@\$(rev) *.elf *.hex *.sym /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0)
+	@if $(rel)==3 (
+	@(robocopy build release\$@\$(rev) *.elf *.hex *.sym /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0
+	@(robocopy test release\$@\$(rev)\test /NFL /NDL /njh /njs /ndl /nc /s) ^& IF %ERRORLEVEL% LEQ 1 exit 0	
+	@7z a .\release\$@_$(rev).zip .\release\$@\$(rev)\* > nul)
 
 clean:
 	del /q build
