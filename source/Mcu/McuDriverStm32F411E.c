@@ -16,6 +16,21 @@ typedef struct
 	usart_config   	USART_Config;		// Struct to store the config
 }usart_handle;
 
+typedef struct
+{
+	i2c_regs 		*pI2Cx;
+	i2c_config 		I2C_Config;
+	uint8_t 		*pTxBuffer; /* !< To store the app. Tx buffer address > */
+	uint8_t 		*pRxBuffer;	/* !< To store the app. Rx buffer address > */
+	uint32_t 		TxLen;		/* !< To store Tx len > */
+	uint32_t 		RxLen;		/* !< To store Tx len > */
+	uint8_t 		TxRxState;	/* !< To store Communication state > */
+	uint8_t 		DevAddr;	/* !< To store slave/device address > */
+    uint32_t        RxSize;		/* !< To store Rx size  > */
+    uint8_t         Sr;			/* !< To store repeated start value  > */
+}i2c_handle;
+
+
 static usart_handle usart1_handle;
 static usart_handle usart2_handle;
 static usart_handle usart6_handle;
@@ -27,6 +42,14 @@ static uint8_t usart1_buffer_len = 0;
 static uint8_t usart2_buffer_len = 0;
 static uint8_t usart6_buffer_len = 0;
 
+static i2c_handle i2c1_handle;
+static i2c_handle i2c2_handle;
+static i2c_handle i2c3_handle;
+static uint8_t* i2c1_buffer;
+static uint8_t* i2c2_buffer;
+static uint8_t* i2c3_buffer;
+
+// GPIO
 static inline void mcu_SetGpioOutput( char* pinString );
 static inline void mcu_SetGpioInput( char* pinString );
 static inline void mcu_SetGpioHigh( char* pinString );
@@ -56,6 +79,8 @@ static void mcu_Usart6InitBuffer(uint8_t *pBuffer);
 static void mcu_Usart6IrqService(void);
 static usart_config mcu_GetUsart6Config(void);
 
+
+// USART
 static inline void mcu_UsartInit( usart_handle* pUsartHandle ); 		// Enable and initiliaze USART
 static inline void mcu_UsartSetBaudRate( usart_handle *pUSARTHandle );	// Set USART baud rate
 void mcu_UsartSendData(usart_handle *pUSARTHandle, const uint8_t *pTxBuffer);
@@ -64,6 +89,8 @@ static uint8_t mcu_UsartDataAvailable(usart_handle *pUSARTHandle);
 void mcu_UsartReceiveData(usart_handle *pUSARTHandle, uint8_t *str);
 uint8_t mcu_UsartGetChar(usart_handle *pUSARTHandle);
 
+
+// Clock
 static uint32_t mcu_u32_ReadSysClk();
 static uint32_t mcu_u32_ReadAhbClk();
 static uint32_t mcu_u32_ReadClkApb1();
@@ -79,6 +106,31 @@ static void mcu_SetStkCounter( bool bEnable );
 static void mcu_SetStkCalib( uint32_t val );
 static void mcu_ConfigSysTick( uint32_t u32_TickInMs );
 
+// I2C
+static inline void mcu_I2cInit( i2c_handle* pI2CHandle ); 			// Enable and initiliaze I2C
+static inline void mcu_I2cMasterSendData( i2c_handle* pI2CHandle, const uint8_t *pTxbuffer, uint32_t Len, uint8_t SlaveAddr,uint8_t Sr ); 		// Send data through I2C
+static inline void mcu_I2cMasterReceiveData( i2c_handle* pI2CHandle, uint8_t *pTxbuffer, uint8_t Len, uint8_t SlaveAddr,uint8_t Sr ); 		// Receive data through I2C
+static void mcu_ClearI2cAddrFlag(i2c_handle *pI2CHandle );
+
+
+// I2C1
+static void mcu_InitI2c1();
+static void mcu_I2c1SendData(const uint8_t *pTxBuffer, uint8_t SlaveAddr);
+static void mcu_I2c1InitBuffer(uint8_t *pBuffer);
+static void mcu_I2c1IrqService(void);
+// I2C2
+static void mcu_InitI2c2();
+static void mcu_I2c2SendData(const uint8_t *pTxBuffer, uint8_t SlaveAddr);
+static void mcu_I2c2InitBuffer(uint8_t *pBuffer);
+static void mcu_I2c2IrqService(void);
+
+// I2C3
+static void mcu_InitI2c3();
+static void mcu_I2c3SendData(const uint8_t *pTxBuffer, uint8_t SlaveAddr);
+static void mcu_I2c3InitBuffer(uint8_t *pBuffer);
+static void mcu_I2c3IrqService(void);
+
+// Reset 
 static inline void mcu_SoftReset();
 
 __attribute__((always_inline)) static inline void __DSB(void)
@@ -476,8 +528,6 @@ static usart_config mcu_GetUsart6Config(void)
 }
 
 
-
-
 /********************************************************************************
  * 									STM32 RCC									*
  * 						Reset and Clock Control									*
@@ -606,6 +656,230 @@ static void mcu_ConfigSysTick( uint32_t u32_TickInMs )
 	mcu_SetStkEnable(TRUE); 										// Temporary disable SysTick 
 }
 
+/********************************************************************************
+ * 									STM32 I2C									*
+ * 						Inter-integrated circuit Interface						*
+ * ******************************************************************************/
+// Enable and initiliaze I2C
+static inline void mcu_I2cInit( i2c_handle* pI2CHandle )
+{
+	// Enable the clock for the I2C peripheral
+	if ( pI2CHandle->pI2Cx == I2C1 )
+		RCC->RCC_APB1ENR.I2C1EN = 1;
+	else if ( pI2CHandle->pI2Cx == I2C2 )
+		RCC->RCC_APB1ENR.I2C2EN = 1;
+	else if ( pI2CHandle->pI2Cx == I2C3 )
+		RCC->RCC_APB1ENR.I2C3EN = 1;	
+
+	// ACK control bit
+	pI2CHandle->pI2Cx->I2C_CR1.ACK = pI2CHandle->I2C_Config.u8_AckControl;
+
+	// Configure FREQ
+	pI2CHandle->pI2Cx->I2C_CR2.FREQ =  mcu_u32_ReadClkApb1() / 1000000U;
+
+   // I2C Address (7-bit address mode). So will need to review again for 10-bit address here
+	pI2CHandle->pI2Cx->I2C_OAR1.Register |= ( 1 << 14);
+	pI2CHandle->pI2Cx->I2C_OAR1.ADD71 = pI2CHandle->I2C_Config.u8_Address;	// 7-bit address
+
+	// CCR calculations	
+	if(pI2CHandle->I2C_Config.u32_ClockSpeed <= I2C_SCL_SPEED_SM)
+	{
+		//Standard mode
+		pI2CHandle->pI2Cx->I2C_CCR.FS = 0;
+		pI2CHandle->pI2Cx->I2C_CCR.DUTY = 0;
+		pI2CHandle->pI2Cx->I2C_CCR.CCR = (mcu_u32_ReadClkApb1() / ( 2 * pI2CHandle->I2C_Config.u32_ClockSpeed ) );
+	}else
+	{
+		//Fast mode
+		pI2CHandle->pI2Cx->I2C_CCR.FS = 1;
+		pI2CHandle->pI2Cx->I2C_CCR.DUTY = pI2CHandle->I2C_Config.u8_DutyCycle;
+		if(pI2CHandle->I2C_Config.u8_DutyCycle == I2C_FM_DUTY_2)
+		{
+			pI2CHandle->pI2Cx->I2C_CCR.CCR = (mcu_u32_ReadClkApb1() / ( 3 * pI2CHandle->I2C_Config.u32_ClockSpeed ) );
+		}else
+		{
+			pI2CHandle->pI2Cx->I2C_CCR.CCR = (mcu_u32_ReadClkApb1() / ( 25 * pI2CHandle->I2C_Config.u32_ClockSpeed ) );
+		}		
+	}
+
+	//TRISE Configuration
+	if(pI2CHandle->I2C_Config.u32_ClockSpeed <= I2C_SCL_SPEED_SM)
+	{
+		//Standard mode
+		pI2CHandle->pI2Cx->I2C_TRISE.TRISE = (mcu_u32_ReadClkApb1() /1000000U) + 1 ;
+	}
+	else
+	{
+		//Fast mode
+		pI2CHandle->pI2Cx->I2C_TRISE.TRISE = ( (mcu_u32_ReadClkApb1() * 300) / 1000000000U ) + 1;
+	}
+	
+}
+
+// Send data through I2C
+static inline void mcu_I2cMasterSendData( 	i2c_handle* pI2CHandle,
+											const uint8_t *pTxbuffer, 
+											uint32_t Len, 
+											uint8_t SlaveAddr,
+											uint8_t Sr )
+{
+	// 1. Generate START condition
+	pI2CHandle->pI2Cx->I2C_CR1.START = 1;
+
+	// 2. Confirm START condition by checking SB bit
+	while( pI2CHandle->pI2Cx->I2C_SR1.SB == 0 );
+
+	// 3. Send the address of the slave with r/nw bit set to w(0) (total 8 bits )
+	SlaveAddr = SlaveAddr << 1;
+	SlaveAddr &= ~(1); //SlaveAddr is Slave address + r/nw bit=0
+	pI2CHandle->pI2Cx->I2C_DR.Register = SlaveAddr; //Address is the slave address + r/nw bit=0
+
+	// 4. Confirm address sent
+	while( pI2CHandle->pI2Cx->I2C_SR1.ADDR == 0 );
+	
+	// 5. Clear the ADDR flag according to its software sequence
+	mcu_ClearI2cAddrFlag(pI2CHandle);
+
+	// 6. Send the data until len becomes 0
+	for ( int i=0 ; i < Len; i++ )
+	{
+		while( pI2CHandle->pI2Cx->I2C_SR1.TXE == 0 ); // Wait till TXE is set
+		pI2CHandle->pI2Cx->I2C_DR.DR = pTxbuffer[i];
+	}
+
+	// 7. Wait for TXE=1 and BTF=1 before the STOP condition
+	while( pI2CHandle->pI2Cx->I2C_SR1.TXE == 0 );
+	while( pI2CHandle->pI2Cx->I2C_SR1.BTF == 0 );
+
+	// 8. Generate STOP condition. Don't need to wait for stop condition finish in master mode.
+	if( Sr == 0 )
+		pI2CHandle->pI2Cx->I2C_CR1.STOP = 1;
+}
+
+static void mcu_ClearI2cAddrFlag(i2c_handle *pI2CHandle )
+{
+	uint32_t dummy_read;
+
+	if ( pI2CHandle->pI2Cx->I2C_SR2.MSL == 1 )
+	{
+		// Master mode
+		if(pI2CHandle->TxRxState == I2C_BUSY_IN_RX)
+		{
+			if(pI2CHandle->RxSize  == 1)
+			{
+				// Disable ack
+				pI2CHandle->pI2Cx->I2C_CR1.ACK = 0;
+
+				//clear the ADDR flag by reading SR1 and SR2
+				dummy_read = pI2CHandle->pI2Cx->I2C_SR1.Register;
+				dummy_read = pI2CHandle->pI2Cx->I2C_SR2.Register;
+				(void)dummy_read;
+			}
+
+		}
+		else
+		{
+			//clear the ADDR flag by reading SR1 and SR2
+			dummy_read = pI2CHandle->pI2Cx->I2C_SR1.Register;
+			dummy_read = pI2CHandle->pI2Cx->I2C_SR2.Register;
+			(void)dummy_read;
+		}
+
+	}
+	else
+	{
+		// Slave mode
+		//clear the ADDR flag by reading SR1 and SR2
+		dummy_read = pI2CHandle->pI2Cx->I2C_SR1.Register;
+		dummy_read = pI2CHandle->pI2Cx->I2C_SR2.Register;
+		(void)dummy_read;
+	}
+}
+
+
+// Receive data through I2C
+static inline void mcu_I2cMasterReceiveData( i2c_handle* pI2CHandle, uint8_t *pTxbuffer, uint8_t Len, uint8_t SlaveAddr,uint8_t Sr )
+{
+}
+
+static void mcu_InitI2c1()
+{
+	i2c1_handle.pI2Cx 						= I2C1;
+	i2c1_handle.I2C_Config.u32_ClockSpeed 	= I2C_SCL_SPEED_SM;
+	i2c1_handle.I2C_Config.u8_Address 		= 0x61;
+	i2c1_handle.I2C_Config.u8_AckControl 	= 1;
+	i2c1_handle.I2C_Config.u8_DutyCycle 	= 2;
+	mcu_I2cInit(&i2c1_handle);
+	mcu_SetGpioAlternate("B6", 4); 		// IC1 SCL.
+	mcu_SetGpioAlternate("B7", 4); 		// IC1 SDA.
+}
+
+static void mcu_I2c1SendData( const uint8_t *pTxBuffer, uint8_t SlaveAddr)
+{
+	mcu_I2cMasterSendData( &i2c1_handle, pTxBuffer, 10, SlaveAddr, 1 );
+}
+
+static void mcu_I2c1InitBuffer( uint8_t *pBuffer)
+{
+	i2c1_buffer = pBuffer;
+}
+
+static void mcu_I2c1IrqService(void)
+{
+}
+
+
+static void mcu_InitI2c2()
+{
+	i2c2_handle.pI2Cx 						= I2C2;
+	i2c2_handle.I2C_Config.u32_ClockSpeed 	= I2C_SCL_SPEED_SM;
+	i2c2_handle.I2C_Config.u8_Address 		= 0x61;
+	i2c2_handle.I2C_Config.u8_AckControl 	= 1;
+	i2c2_handle.I2C_Config.u8_DutyCycle 	= 2;
+	mcu_I2cInit(&i2c2_handle);
+	mcu_SetGpioAlternate("B10", 4); 		// IC2 SCL.
+	mcu_SetGpioAlternate("B11", 4); 		// IC2 SDA.
+}
+
+static void mcu_I2c2SendData(const uint8_t *pTxBuffer, uint8_t SlaveAddr)
+{
+	mcu_I2cMasterSendData( &i2c2_handle, pTxBuffer, 10, SlaveAddr, 1 );
+}
+
+static void mcu_I2c2InitBuffer(uint8_t *pBuffer)
+{
+	i2c2_buffer = pBuffer;
+}
+
+static void mcu_I2c2IrqService(void)
+{
+}
+
+static void mcu_InitI2c3()
+{
+	i2c3_handle.pI2Cx 						= I2C3;
+	i2c3_handle.I2C_Config.u32_ClockSpeed 	= I2C_SCL_SPEED_SM;
+	i2c3_handle.I2C_Config.u8_Address 		= 0x61;
+	i2c3_handle.I2C_Config.u8_AckControl 	= 1;
+	i2c3_handle.I2C_Config.u8_DutyCycle 	= 2;
+	mcu_I2cInit(&i2c3_handle);
+	mcu_SetGpioAlternate("A8", 4); 		// IC3 SCL.
+	mcu_SetGpioAlternate("C9", 4); 		// IC3 SDA.
+}
+
+static void mcu_I2c3SendData(const uint8_t *pTxBuffer, uint8_t SlaveAddr)
+{
+	mcu_I2cMasterSendData( &i2c3_handle, pTxBuffer, 10, SlaveAddr, 1 );
+}
+
+static void mcu_I2c3InitBuffer(uint8_t *pBuffer)
+{
+	i2c3_buffer = pBuffer;
+}
+
+static void mcu_I2c3IrqService(void)
+{
+}
 
 /********************************************************************************
  * 									ARM RESET									*

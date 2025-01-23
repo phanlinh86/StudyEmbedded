@@ -724,6 +724,180 @@ typedef struct
 	STK_CALIB_reg STK_CALIB;				// 0x0C
 } systick_regs;
 
+/********************************************************************************
+ * 									STM32 I2C									*
+ * 						Inter-integrated circuit Interface						*
+ * ******************************************************************************/
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t PE		    	:	1;     // 0
+		uint32_t SMBUS	    	:	1;     // 1
+		uint32_t RVSD	    	:	1;     // 2
+		uint32_t SMBTYPE    	:	1;     // 3
+		uint32_t ENARP	    	:	1;     // 4
+		uint32_t ENPEC	    	:	1;     // 5
+		uint32_t ENGC	    	:	1;     // 6
+		uint32_t NOSTRETCH    	:	1;     // 7
+		uint32_t START	    	:	1;     // 8
+		uint32_t STOP	    	:	1;     // 9
+		uint32_t ACK	    	:	1;     // 10
+		uint32_t POS	    	:	1;     // 11
+		uint32_t PEC	    	:	1;     // 12	
+		uint32_t ALERT	    	:	1;     // 13
+		uint32_t RVSD1	    	:	1;     // 14
+		uint32_t SWRST	    	:	1;     // 15
+		uint32_t RVSD2	    	:	16;     // 31:16	
+	};
+} I2C_CR1_reg;
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t FREQ	    	:	6;     // 5:0
+		uint32_t RVSD	    	:	2;     // 7:6
+		uint32_t ITERREN	    :	1;     // 8
+		uint32_t ITEVTEN    	:	1;     // 9
+		uint32_t ITBUFEN    	:	1;     // 10
+		uint32_t DMAEN	    	:	1;     // 11
+		uint32_t LAST	    	:	1;     // 12		
+		uint32_t RVSD1	    	:	19;    // 31:13
+	};
+} I2C_CR2_reg;
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t ADD0	    	:	1;     // 0
+		uint32_t ADD71	    	:	7;     // 7:1
+		uint32_t ADD98	    	:	2;     // 9:8
+		uint32_t RVSD    		:	5;     // 14:10
+		uint32_t ADDMODE    	:	1;     // 15	
+		uint32_t RVSD1	    	:	16;    // 31:16
+	};
+} I2C_OAR1_reg;
+
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t ENDUAL	    	:	1;     // 0
+		uint32_t ADD2	    	:	7;     // 7:1
+		uint32_t RVSD	    	:	24;    // 31:8
+	};
+} I2C_OAR2_reg;
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t DR	    		:	8;     // 7:0
+		uint32_t RVSD	    	:	24;    // 31:8
+	};
+} I2C_DR_reg;
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t SB		    	:	1;     // 0
+		uint32_t ADDR	    	:	1;     // 1
+		uint32_t BTF	    	:	1;     // 2
+		uint32_t ADD10    		:	1;     // 3
+		uint32_t STOPF	    	:	1;     // 4
+		uint32_t RVSD	    	:	1;     // 5
+		uint32_t RXNE	    	:	1;     // 6
+		uint32_t TXE    		:	1;     // 7
+		uint32_t BERR	    	:	1;     // 8
+		uint32_t ARLO	    	:	1;     // 9
+		uint32_t AF	    		:	1;     // 10
+		uint32_t OVR	    	:	1;     // 11
+		uint32_t PECERR	    	:	1;     // 12	
+		uint32_t RVSD1	    	:	1;     // 13
+		uint32_t TIMEOUT	    :	1;     // 14
+		uint32_t SMBALERT	    :	1;     // 15
+		uint32_t RVSD2	    	:	16;    // 31:16	
+	};
+} I2C_SR1_reg;
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t MSL		    :	1;     // 0
+		uint32_t BUSY	    	:	1;     // 1
+		uint32_t TRA	    	:	1;     // 2
+		uint32_t RVSD    		:	1;     // 3
+		uint32_t GENCALL	    :	1;     // 4
+		uint32_t SMBDEFAULT	    :	1;     // 5
+		uint32_t SMBHOST	    :	1;     // 6
+		uint32_t DUALF    		:	1;     // 7
+		uint32_t PEC	    	:	8;     // 15:8
+		uint32_t RVSD2	    	:	16;    // 31:16	
+	};
+} I2C_SR2_reg;
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t CCR		    :	12;    // 11:0
+		uint32_t RVSD	    	:	2;     // 13:12
+		uint32_t DUTY	    	:	1;     // 14
+		uint32_t FS    			:	1;     // 15
+		uint32_t RVSD2	    	:	16;    // 31:16	
+	};
+} I2C_CCR_reg;
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t TRISE	    	:	6;     // 5:0
+		uint32_t RVSD	    	:	26;    // 31:6
+	};
+} I2C_TRISE_reg;
+
+typedef volatile union
+{
+	uint32_t Register;
+	struct
+	{
+		uint32_t DNF	    	:	4;     	// 3:0
+		uint32_t ANOFF	    	:	1;    	// 4
+		uint32_t RVSD 			:	27;		// 31:5
+	};
+} I2C_FLTR_reg;
+
+
+ // Register map
+typedef struct
+{
+	I2C_CR1_reg I2C_CR1; 				    	// 0x00
+	I2C_CR2_reg I2C_CR2; 				    	// 0x04
+	I2C_OAR1_reg I2C_OAR1; 				    	// 0x08
+	I2C_OAR2_reg I2C_OAR2; 				    	// 0x0C
+	I2C_DR_reg I2C_DR; 				    		// 0x10
+	I2C_SR1_reg I2C_SR1; 				    	// 0x14
+	I2C_SR2_reg I2C_SR2; 				    	// 0x18
+	I2C_CCR_reg I2C_CCR; 				    	// 0x1C
+	I2C_TRISE_reg I2C_TRISE; 				    // 0x20
+	I2C_FLTR_reg I2C_FLTR; 				    	// 0x24
+} i2c_regs;
+
 
 /****************************************************************************
 *								SYSTEM CONTROL BLOCK				    	*
@@ -786,11 +960,13 @@ typedef struct
 #define NVIC_ISER2 	((uint32_t*)			NVIC_ISER2_BASE)
 #define NVIC_ISER3 	((uint32_t*)			NVIC_ISER3_BASE)
 
-#define SCB         ((scb_reg *)           	SCB_BASE)
-
 #define SYSTICK 	((systick_regs*) 		SYSTICK_BASE)
 
+#define I2C1 		((i2c_regs*)			I2C1_BASE)
+#define I2C2 		((i2c_regs*)			I2C2_BASE)
+#define I2C3 		((i2c_regs*)			I2C3_BASE)
 
+#define SCB         ((scb_reg *)           	SCB_BASE)
 #define NVIC_AIRCR_VECTKEY    (0x5FA << 16)   // AIRCR Key for write access   */
 #define NVIC_SYSRESETREQ            2         // System Reset Request         */
 

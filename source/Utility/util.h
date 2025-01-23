@@ -13,6 +13,21 @@
 #define USART_WORDLEN_8BITS  0
 #define USART_WORDLEN_9BITS  1
 
+
+// I2C application state
+#define I2C_READY 					0
+#define I2C_BUSY_IN_RX 				1
+#define I2C_BUSY_IN_TX 				2
+
+// I2C CLock Speed
+#define I2C_SCL_SPEED_SM 	100000
+#define I2C_SCL_SPEED_FM4K 	400000
+#define I2C_SCL_SPEED_FM2K  200000
+
+// I2C Fast Mode duty cycle
+#define I2C_FM_DUTY_2        0
+#define I2C_FM_DUTY_16_9     1
+
 #define CMD_HEADER 	("/cmd")
 #define MAX_CMD_FRAME_LENGTH 		5 		// Each frame contains 32bits data	
 
@@ -57,6 +72,15 @@ extern uint8_t uart_rx_buffer[RX_USART_BUFFER];
 extern uint8_t uart_tx_buffer[TX_USART_BUFFER];
 extern bool bUartRxComplete;
 
+
+typedef struct
+{
+	uint32_t u32_ClockSpeed;
+	uint8_t  u8_Address;
+	uint8_t  u8_AckControl;
+	uint8_t  u8_DutyCycle;
+
+}i2c_config;
 
 typedef enum
 {
