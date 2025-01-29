@@ -14,7 +14,7 @@ class TestInstances(object):
         self.port = port                # Port name associated with the serial port
         self.baudrate = baudrate        # Baud Rate
         self.mcu = lib.mcu              # MCU under test
-        self.logic = None               # Logic analyzer
+        self.logic = lib.logic          # Logic analyzer
         self.power = None               # Power supply
         self.os = None                  # Window OS object
         self.firmware = lib.firmware    # Firmware object
@@ -109,11 +109,11 @@ if __name__ == "__main__":
     test_instance.log("Get git information")
     test_instance.firmware.git_info(print_info=True)
     # Build and download the firmware
-    test_instance.firmware.build("blink_a")
-    test_instance.firmware.download("flash_a")
+    test_instance.firmware.build("blink_c")
+    test_instance.firmware.download("flash_c")
     # Initialize the test instance
     # test_instance.init(port = 'COM11', baudrate = 500000)
-    test_instance.init(port='COM11', baudrate=500000)
+    test_instance.init(port='COM7', baudrate=500000)
     # Read the symbol file
     test_instance.mcu.readsym(test_instance.main_path + "\\build\\main.sym")
     test_instance.mcu.readmacro(test_instance.main_path + "\\build\\main.macro")
