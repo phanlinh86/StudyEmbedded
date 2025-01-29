@@ -124,6 +124,28 @@ class Firmware(object):
     def download(self, flash_option="flash_a"):
         subprocess.run("make " + flash_option, cwd=self.main_path)
 
+    def auto_build(self, build_option="blink_a", no_commits=None):
+        # Get the history of the GIT
+        log_list = self.git_log(no_commits)
+        # flash_option = "flash_" + build_option.split('_')[1]
+        for log in log_list[::-1]:
+            commit_id = log['id']
+            self.git_checkout(commit_id)
+            if not self.check_release(build_option, commit_id):
+                print(f"Build and release the firmware with commit ID: {commit_id}")
+                self.release(build_option, commit_id)
+            else:
+                print(f"Release folder with commit ID: {commit_id} already exists")
+
+        # Checkout back to master
+        self.git_checkout()
+
+    def check_release(self, build_option="blink_a", commit_id=None):
+        if commit_id is not None:
+            commit_id = self.git_log(1)[0]['id']
+        # Check the release folder with the build option and commit ID exist
+        return os.path.exists(self.main_path + f"\\release\\{build_option}\\{build_option}_{commit_id}.zip")
+
     @staticmethod
     def git_info(print_info=False):
         # Get information from GIT
@@ -139,6 +161,23 @@ class Firmware(object):
             print(f"Message     : {info_dict['message']}")
             print("---------------------------------------------------------")
         return info_dict
+
+    @staticmethod
+    def git_log(no_commits=None):
+        # Get the history of the GIT
+        #info = os.popen("git log --pretty=format:'%H %ct %<(20)%an %s' -10").read().strip().splitlines()   # Print out the history of the GIT
+        if no_commits is None:
+            log = os.popen('git log --pretty=format:"%H %ct %<(20)%an %s"').read().strip().splitlines()
+        else:
+            log = os.popen(f'git log --pretty=format:"%H %ct %<(20)%an %s" -{no_commits}').read().strip().splitlines()
+        # Result is a list of dictionaries
+        log_list = []
+        for line in log:
+            commit_id, timestamp, temp = line.split(' ', 2)
+            author = temp[0:20].strip()
+            message = temp[20:].strip()
+            log_list.append({'id': commit_id, 'timestamp': timestamp, 'author': author, 'message': message})
+        return log_list
 
     def git_checkout(self, commit_id=None):
         # Checkout to a specific commit
@@ -175,4 +214,5 @@ if __name__ == "__main__":
     # firmware.download("flash_c")
     firmware.release("blink_a")
     firmware.readmacro()
+    firmware.auto_build('blink_c', 2)
     print("Firmware test passed")
