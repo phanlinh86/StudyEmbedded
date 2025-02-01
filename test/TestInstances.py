@@ -91,6 +91,7 @@ class TestInstances(object):
     def cleanup(self):
         self.mcu.reset()                # Soft reset the MCU
         self.mcu.disconnect()           # Disconnect MCU connection
+        self.logic.disconnect()         # Disconnect Logic Analyzer
 
     @staticmethod
     def log(message):
