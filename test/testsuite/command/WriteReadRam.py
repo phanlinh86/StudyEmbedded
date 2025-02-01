@@ -7,7 +7,8 @@ from time import sleep
 class WriteReadRam(TestInstances):
     def run(self):
         self.log("Test1. Write/Read RAM command ------------------------------------------------------")
-        self.log("Test case2. Write/Read 32-bit RAM at random delay")
+        # Test case1. Write/Read 32-bit RAM at random delay
+        self.log("Test case 1. Write/Read 32-bit RAM at random delay")
         # Get the symbol list
         for led_period in range(100,1000,10):
             timewait = random.randint(0,10) / 100
@@ -22,10 +23,11 @@ class WriteReadRam(TestInstances):
             timewait = random.randint(0, 10) / 100
             self.log("Led period = %d. 4. Pause for %.2f second" % (led_period, timewait))
             sleep(timewait)
-        self.log("Test case2. Write/Read 32-bit, 16bit, 8bit RAM with random value")
+
+        # Test case2. Write/Read 32-bit, 16bit, 8bit RAM with random value
+        self.log("Test case 2. Write/Read 32-bit, 16bit, 8bit RAM with random value")
         for loop in range(1000):
             value32 = random.randint(0, 0xFFFFFFFF)
-            # Check readram32, readram16 and readram8
             self.log("Loop = %d. Check readram32, readram16 and readram8 from random value 0x%8x" % (loop, value32))
             self.mcu.writeram32("u32_ButtonPressCount", value32)
             value32_rb = self.mcu.readram32("u32_ButtonPressCount")
@@ -41,7 +43,7 @@ class WriteReadRam(TestInstances):
                 self.error("Test case2. Failed. readram8 expected 0x%2x, but got 0x%2x" % (value32 & 0xFF, value8_rb))
             self.log("Passed")
 
-            # Check writeram32, writeram16 and writeram8
+            # Step 2. Check writeram32, writeram16 and writeram8
             value32 = random.randint(0, 0xFFFFFFFF)
             value16 = random.randint(0, 0xFFFF)
             value8 = random.randint(0, 0xFF)
@@ -69,6 +71,7 @@ if __name__ == "__main__":
     test_instance.init(port = 'COM7', baudrate = 500000)      # Arduino
     # test_instance.init(port = 'COM11', baudrate = 500000)       # STM32
     test_instance.mcu.readsym(test_instance.main_path + "\\build\\main.sym")
+    test_instance.mcu.readmacro(test_instance.main_path + "\\build\\main.macro")
     try:
         test_instance.run()
     except Exception as e:

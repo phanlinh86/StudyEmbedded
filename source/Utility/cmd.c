@@ -24,6 +24,8 @@
  
 uint8_t uart_rx_buffer[RX_USART_BUFFER];
 uint8_t uart_tx_buffer[TX_USART_BUFFER];
+uint32_t batch_data[MAX_BATCH_DATA];                // 1K for large data processing.
+uint16_t u16_batch_idx = 0;                         // Index for batch data processing
 cmd_frame_st cmd_frame;
 resp_frame_st resp_frame;
 
@@ -46,17 +48,19 @@ static void cmd_DoCommandIsr(void)
 		case CMD_IDLE:
 			// Check first 2 bytes of UART buffer whether matches with required command header to move to next stage
 			if ( cmd_bCheckCommandInUart() == TRUE )
+			{
 				cmd_SetCmdStatus(CMD_PROCESSING);
+			    cmd_UpdateCommandParam();			// Get command parameter from the buffer
+			    ut_ResetRxBuffer();					// Reset receive buffer after proccessing Rx Buffer
+			    cmd_ResetBatchIndex();              // Reset batch index
+            }
 			break;
 		case CMD_PROCESSING:
-			cmd_UpdateCommandParam();			// Get command parameter from the buffer
-			ut_ResetRxBuffer();					// Reset receive buffer after proccessing Rx Buffer
 			cmd_DoCommand();					// Serve the command
-			cmd_UpdateCommandResponse();		// Update the tx buffer using command response
-			cmd_ResetCommandFrame();
-			cmd_SetCmdStatus(CMD_COMPLETE);
 			break;			
 		case CMD_COMPLETE:
+		    cmd_ResetCommandFrame();            // Reset command frame after complete
+			cmd_UpdateCommandResponse();		// Update the tx buffer using command response		
 			ut_SendUart(uart_tx_buffer);		// Send response through USART
 			ut_ResetTxBuffer();					// Reset tx buffer after sent	
 			cmd_SetCmdStatus(CMD_IDLE);			
@@ -145,27 +149,42 @@ static void cmd_DoCommand(void)
 		// Basic functions : 0x00xx
 		case GET_INFO:				// Get board information 	0x0000
 			cmd_GetInfo();
-			break;		
+			cmd_SetCmdStatus(CMD_COMPLETE);
+			break;
 		case WRITE_RAM:				// Write ram				0x0001
 			cmd_WriteRam();
+			cmd_SetCmdStatus(CMD_COMPLETE);
 			break;
 		case READ_RAM:				// Read ram					0x0002
-			cmd_ReadRam();		
+			cmd_ReadRam();
+			cmd_SetCmdStatus(CMD_COMPLETE);
 			break;
 			
 		//  Hardware
 		case WRITE_GPIO:			// Write GPIO				0x0101
 			cmd_WriteGpio();
+			cmd_SetCmdStatus(CMD_COMPLETE);
 			break;
 		case READ_GPIO:				// Read GPIO				0x0102
 			cmd_ReadGpio();
+			cmd_SetCmdStatus(CMD_COMPLETE);
 			break;
 
 		// Reset
 		case SOFT_RESET:
 			cmd_SoftReset();
+			cmd_SetCmdStatus(CMD_COMPLETE);
 			break;
+
+		// Send/Capture data
+		case CAPTURE_DATA:			// Capture data				0x0201
+            cmd_CaptureData();
+            break;
+        case SEND_DATA:				// Send data				0x0202
+            cmd_SendData();
+            break;
 	}
+
 }
 
 
@@ -330,4 +349,85 @@ static void cmd_SoftReset(void)
 	resp_frame.resp1 	= 0x00;
 	resp_frame.resp2 	= 0x00;
 	resp_frame.resp3 	= 0x00;
+}
+
+static void cmd_CaptureData(void)
+{
+	static volatile *pTemp, *pTemp1, *pTemp2, *pTemp3;
+	static uint8_t u8_VarEnable;
+	if ( cmd_GetBatchIndex() == 0 )
+    {
+        u8_VarEnable = 0x00;
+        pTemp = pTemp1 = pTemp2 = pTemp3 = 0;
+        // Initialize the pointer at the first index
+        if ( cmd_frame.param0 != 0 )
+        {
+            u8_VarEnable |= 0x01;
+            pTemp = (uint32_t*)(uintptr_t) cmd_frame.param0;
+        }
+        if ( cmd_frame.param1 != 0 )
+        {
+            u8_VarEnable |= 0x02;
+            pTemp1 = (uint32_t*)(uintptr_t) cmd_frame.param1;
+        }
+        if ( cmd_frame.param2 != 0 )
+        {
+            u8_VarEnable |= 0x04;
+            pTemp2 = (uint32_t*)(uintptr_t) cmd_frame.param2;
+        }
+        if ( cmd_frame.param3 != 0 )
+        {
+            u8_VarEnable |= 0x08;
+            pTemp3 = (uint32_t*)(uintptr_t) cmd_frame.param3;
+        }
+    }
+    // Capture data from ISR and store in the batch data
+    if ( u8_VarEnable & 0x01 )
+        batch_data[u16_batch_idx++] = *pTemp;
+    else
+        batch_data[u16_batch_idx++] = 0;
+
+    if ( u8_VarEnable & 0x02 )
+        batch_data[u16_batch_idx++] = *pTemp1;
+    else
+        batch_data[u16_batch_idx++] = 0;
+
+    if ( u8_VarEnable & 0x04 )
+        batch_data[u16_batch_idx++] = *pTemp2;
+    else
+        batch_data[u16_batch_idx++] = 0;
+
+    if ( u8_VarEnable & 0x08 )
+        batch_data[u16_batch_idx++] = *pTemp3;
+    else
+        batch_data[u16_batch_idx++] = 0;
+
+    if ( u16_batch_idx >= MAX_BATCH_DATA )
+    {
+        // Reset the index
+        cmd_ResetBatchIndex();
+        cmd_SetCmdStatus(CMD_COMPLETE);
+	    resp_frame.status 	= 1;
+	    resp_frame.resp0 	= 0x00;
+	    resp_frame.resp1 	= 0x00;
+	    resp_frame.resp2 	= 0x00;
+	    resp_frame.resp3 	= 0x00;
+    }
+}
+
+static void cmd_SendData(void)
+{
+    // Send data to the sensor
+    u16_batch_idx ++;
+}
+
+
+static uint16_t cmd_GetBatchIndex(void)
+{
+    return u16_batch_idx;
+}
+
+static void cmd_ResetBatchIndex(void)
+{
+    u16_batch_idx = 0;
 }

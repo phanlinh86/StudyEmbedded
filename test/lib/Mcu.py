@@ -9,6 +9,8 @@ class Mcu(object):
     READ_RAM    = 0x0002
     WRITE_GPIO  = 0x0101
     READ_GPIO   = 0x0102
+    CAPTURE_DATA= 0x0201
+    SEND_DATA   = 0x0202
     SOFT_RESET  = 0XFEEF
 
     def __init__(self, port=None, baudrate=None, sym_file="../build/main.sym"):
@@ -137,23 +139,79 @@ class Mcu(object):
     def writeram8(self, var_name, value):
         return self.writeram(var_name, value, 1)
 
-    def readram(self, var_name, bytesize=4):
+    def readram(self, var_name, bytesize=4, length=1):
         var_name = self.getvaraddress(var_name)
-        self.sendcmd([self.READ_RAM, var_name, bytesize, 0x00, 0x00])
+        if length == 1:
+            self.sendcmd([self.READ_RAM, var_name, bytesize, 0x00, 0x00])
+            data = self.read()
+            if data['status'] == 0:
+                return []
+            else:
+                return data['resp'][0]
+        else:
+            result = []
+            for i in range(length):
+                self.sendcmd([self.READ_RAM, var_name + 4*i, bytesize, i, 0x00])
+                data = self.read()
+                if data['status'] == 0:
+                    result.append([])
+                else:
+                    result.append(data['resp'][0])
+            return result
+
+    def readram32(self, varName, length=1):
+        return self.readram(varName, 4, length=length)
+
+    def readram16(self, var_name, length=1):
+        return self.readram(var_name, 2, length=length)
+
+    def readram8(self, var_name, length=1):
+        return self.readram(var_name, 1, length=length)
+
+    def capture(self, var_name=None, var_name1=None, var_name2=None, var_name3=None):
+        if var_name is not None:
+            var_name = self.getvaraddress(var_name)
+        else:
+            var_name = 0x00
+        if var_name1 is not None:
+            var_name1 = self.getvaraddress(var_name1)
+        else:
+            var_name1 = 0x00
+        if var_name2 is not None:
+            var_name2 = self.getvaraddress(var_name2)
+        else:
+            var_name2 = 0x00
+        if var_name3 is not None:
+            var_name3 = self.getvaraddress(var_name3)
+        else:
+            var_name3 = 0x00
+        self.sendcmd([self.CAPTURE_DATA, var_name, var_name1, var_name2, var_name3])
         data = self.read()
         if data['status'] == 0:
             return []
         else:
-            return data['resp'][0]
+            return data['resp']
 
-    def readram32(self, varName):
-        return self.readram(varName, 4)
+    def getdata32(self, var_name=None, var_name1=None, var_name2=None, var_name3=None, length=None):
+        self.capture(var_name, var_name1, var_name2, var_name3)
+        sleep(0.1)      # Wait for the data to be captured. Estimate time to capture data is 100ms
+        if (length is None) and ('MAX_BATCH_DATA' in self.macro_dict):
+            length = self.macro_dict['MAX_BATCH_DATA']
+        return self.readram32('batch_data', length=length)
 
-    def readram16(self, var_name):
-        return self.readram(var_name, 2)
+    def getdata16(self, var_name=None, var_name1=None, var_name2=None, var_name3=None, length=None):
+        self.capture(var_name, var_name1, var_name2, var_name3)
+        sleep(0.1)      # Wait for the data to be captured. Estimate time to capture data is 100ms
+        if (length is None) and ('MAX_BATCH_DATA' in self.macro_dict):
+            length = self.macro_dict['MAX_BATCH_DATA']
+        return self.readram16('batch_data', length=length)
 
-    def readram8(self, var_name):
-        return self.readram(var_name, 1)
+    def getdata8(self, var_name=None, var_name1=None, var_name2=None, var_name3=None, length=None):
+        self.capture(var_name, var_name1, var_name2, var_name3)
+        sleep(0.1)      # Wait for the data to be captured. Estimate time to capture data is 100ms
+        if (length is None) and ('MAX_BATCH_DATA' in self.macro_dict):
+            length = self.macro_dict['MAX_BATCH_DATA']
+        return self.readram8('batch_data', length=length)
 
     def writegpio(self, pin, value, af=0):
         cmd_str =   f"/cmd".encode("utf-8")
@@ -198,16 +256,13 @@ class Mcu(object):
                     self.sym_dict[temp[7]] = int(temp[2],16)
         return self.sym_dict
 
-    def readmacro(self, macro_file=None):
+    def readmacro(self, macro_file="../build/main.macro"):
         """
         Read the macro file and return the dictionary of the macros
         :param macro_file: Macro file path
         :return: Dictionary of the macros
         """
         self.macro_dict = {}
-        # If the macro file is not provided, use the default one
-        if not macro_file:
-            macro_file = self.build_path + "\\main.macro"
 
         # Read the macro file
         with open(macro_file, 'r') as file:

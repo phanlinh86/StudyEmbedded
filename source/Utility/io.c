@@ -45,32 +45,25 @@ void ut_ResetTxBuffer();
 static use_uart ut_u16_GetUsedUsart(void);
 static usart_config ut_GetUsartConfig(void);
 
+    #if ( BOARD_ID == BOARD_ID_STM32F411E )
 typedef enum 
 {
-		#if ( BOARD_ID == BOARD_ID_STM32F411E )			
-	USE_I2C1 = 1,
-	USE_I2C2 = 2,
-	USE_I2C3 = 3,
-		#elif ( BOARD_ID == BOARD_ID_STM32L010RB )
-	USE_I2C1 = 1,
-	USE_I2C2 = 2,
-	USE_I2C3 = 3,		
-		#elif ( BOARD_ID == BOARD_ID_ATMEGA328P )
 	USE_I2C1 = 1,
 	USE_I2C2 = 2,
 	USE_I2C3 = 3,			
-		#endif // BOARD_ID == ?
 } use_i2c;
 
 static use_i2c eI2c = DEFAULT_I2C;
 
 static void ut_InitI2c();
 void ut_SendI2c(const uint8_t *pTxBuffer, uint8_t SlaveAddr);
-
+    #endif // BOARD_ID ==  BOARD_ID_STM32F411E
 
 static void ut_Init()
 {
+        #if ( BOARD_ID == BOARD_ID_STM32F411E )
 	ut_InitI2c();
+	    #endif // BOARD_ID ==  BOARD_ID_STM32F411E
 	ut_InitUart(); 		// Initialize UART
 	ut_InitTimer();	    // Initialize timer for scheduler
 }
@@ -196,12 +189,13 @@ static usart_config ut_GetUsartConfig(void)
 	}
 	return UsartConfig;
 }
-		
+
+    #if ( BOARD_ID == BOARD_ID_STM32F411E )
 static void ut_InitI2c()
 {
-	switch (eUart)
+	switch (eI2c)
 	{
-				#if ( BOARD_ID == BOARD_ID_STM32F411E )
+
 		case USE_I2C1:
 			mcu_InitI2c1();
 			//is_SetUsart1Interrupt();
@@ -220,19 +214,13 @@ static void ut_InitI2c()
 			//mcu_Usart6InitBuffer(uart_rx_buffer);
 			//is_InitUsart6Isr(mcu_Usart6IrqService);
 			break;
-				#elif ( BOARD_ID == BOARD_ID_STM32L010RB )
-		
-				#elif ( BOARD_ID == BOARD_ID_ATMEGA328P )
-
-				#endif // BOARD_ID == ?
-	}	
+	}
 }
 
 void ut_SendI2c(const uint8_t *pTxBuffer, uint8_t SlaveAddr)
 {
 	switch (eI2c)
 	{
-				#if ( BOARD_ID == BOARD_ID_STM32F411E )
 		case USE_I2C1:
 			mcu_I2c1SendData(pTxBuffer, SlaveAddr);
 			break;
@@ -242,10 +230,6 @@ void ut_SendI2c(const uint8_t *pTxBuffer, uint8_t SlaveAddr)
 		case USE_I2C3:
 			mcu_I2c3SendData(pTxBuffer, SlaveAddr);
 			break;
-				#elif ( BOARD_ID == BOARD_ID_STM32L010RB )
-				
-				#elif ( BOARD_ID == BOARD_ID_ATMEGA328P )
-			
-				#endif // BOARD_ID == ?
 	}
 }
+    #endif // BOARD_ID == ?

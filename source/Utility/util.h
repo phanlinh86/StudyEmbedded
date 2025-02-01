@@ -36,6 +36,7 @@
 																		// This need to be adjusted according to MAX_CMD_FRAME_LENGTH in cmd.c
 
 												
+#define MAX_BATCH_DATA 				256 		// 1K bytes RAM
 
 typedef enum
 {
@@ -71,7 +72,8 @@ typedef struct
 extern uint8_t uart_rx_buffer[RX_USART_BUFFER];
 extern uint8_t uart_tx_buffer[TX_USART_BUFFER];
 extern bool bUartRxComplete;
-
+extern uint32_t batch_data[MAX_BATCH_DATA];             // 1K for large data processing.
+extern uint16_t u16_batch_idx;                          // Index for batch data processing
 
 typedef struct
 {
@@ -99,6 +101,11 @@ typedef enum
 // 0x01xx - Write/Read Hardware
 #define WRITE_GPIO		0x0101
 #define READ_GPIO		0x0102
+
+// 0x02xx - Send/Capture data
+// These group of command requires more than 1 ISR to complete execution
+#define CAPTURE_DATA	0x0201
+#define SEND_DATA		0x0202
 
 // 0xFxxx - System command
 #define SOFT_RESET 		0xFEEF
@@ -146,5 +153,8 @@ static void cmd_WriteGpio(void);
 static void cmd_ReadGpio(void);
 static void cmd_SoftReset(void);
 
-
+static void cmd_CaptureData(void);
+static void cmd_SendData(void);
+static uint16_t cmd_GetBatchIndex(void);
+static void cmd_ResetBatchIndex(void);
 
