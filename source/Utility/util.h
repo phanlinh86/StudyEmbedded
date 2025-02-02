@@ -109,8 +109,11 @@ typedef enum
 
 // 0x02xx - Send/Capture data
 // These group of command requires more than 1 ISR to complete execution
-#define CAPTURE_DATA	0x0201
-#define SEND_DATA		0x0202
+#define CAPTURE_DATA8	0x0201
+#define CAPTURE_DATA16	0x0202
+#define CAPTURE_DATA32	0x0204
+
+#define SEND_DATA		0x0210
 
 // 0xFxxx - System command
 #define SOFT_RESET 		0xFEEF
@@ -158,7 +161,7 @@ static void cmd_WriteGpio(void);
 static void cmd_ReadGpio(void);
 static void cmd_SoftReset(void);
 
-static void cmd_CaptureData(void);
+static void cmd_CaptureData(uint8_t u8_ByteSize);
 static void cmd_SendData(void);
 static uint16_t cmd_GetBatchIndex(void);
 static void cmd_ResetBatchIndex(void);

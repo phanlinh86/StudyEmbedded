@@ -177,10 +177,17 @@ static void cmd_DoCommand(void)
 			break;
 
 		// Send/Capture data
-		case CAPTURE_DATA:			// Capture data				0x0201
-            cmd_CaptureData();
+		case CAPTURE_DATA8:				// Capture data				0x0201
+            cmd_CaptureData(1);
             break;
-        case SEND_DATA:				// Send data				0x0202
+		case CAPTURE_DATA16:			// Capture data				0x0202
+            cmd_CaptureData(2);
+            break;
+		case CAPTURE_DATA32:			// Capture data				0x0204
+            cmd_CaptureData(4);
+            break;
+			
+        case SEND_DATA:				// Send data				0x0210
             cmd_SendData();
             break;
 	}
@@ -351,50 +358,44 @@ static void cmd_SoftReset(void)
 	resp_frame.resp3 	= 0x00;
 }
 
-static void cmd_CaptureData(void)
+static void cmd_CaptureData(uint8_t u8_ByteSize)
 {
-	static volatile uint32_t *pTemp, *pTemp1, *pTemp2, *pTemp3;
-	static uint8_t u8_VarEnable;
+	static volatile uint32_t *pBuffer;
+	static volatile uint8_t *pBatch8;		// 8-bits Pointer to program Batch Data
+	uint32_t u32_VarVal;					// Variable value
+	static uint32_t current_batch;
 	if ( cmd_GetBatchIndex() == 0 )
-    {
-        u8_VarEnable = 0x00;
-        pTemp = pTemp1 = pTemp2 = pTemp3 = 0;
-        // Initialize the pointer at the first index
-        if ( cmd_frame.param0 != 0 )
-        {
-            u8_VarEnable |= 0x01;
-            pTemp = (uint32_t*)(uintptr_t) cmd_frame.param0;
-        }
-        if ( cmd_frame.param1 != 0 )
-        {
-            u8_VarEnable |= 0x02;
-            pTemp1 = (uint32_t*)(uintptr_t) cmd_frame.param1;
-        }
-        if ( cmd_frame.param2 != 0 )
-        {
-            u8_VarEnable |= 0x04;
-            pTemp2 = (uint32_t*)(uintptr_t) cmd_frame.param2;
-        }
-        if ( cmd_frame.param3 != 0 )
-        {
-            u8_VarEnable |= 0x08;
-            pTemp3 = (uint32_t*)(uintptr_t) cmd_frame.param3;
-        }
-    }
+	{		
+		pBuffer = (uint32_t*) &cmd_frame + 1;
+		pBatch8 = (uint8_t*)  &batch_data;	
+	}
+	
     // Capture data from ISR and store in the batch data
-    if ( u8_VarEnable & 0x01 )
-        batch_data[u16_batch_idx++] = *pTemp;
-
-    if ( u8_VarEnable & 0x02 )
-        batch_data[u16_batch_idx++] = *pTemp1;
-
-    if ( u8_VarEnable & 0x04 )
-        batch_data[u16_batch_idx++] = *pTemp2;
-
-    if ( u8_VarEnable & 0x08 )
-        batch_data[u16_batch_idx++] = *pTemp3;
-
-    if ( u16_batch_idx >= MAX_BATCH_DATA )
+	for ( int i = 0; i < 4; i++ )
+	{
+		if (*( pBuffer + i ) != 0 )
+		{
+			u32_VarVal = *((uint32_t*)(uintptr_t) *( pBuffer + i ));	// Value of variable i
+			switch ( u8_ByteSize )
+			{
+				case 1:
+					*( pBatch8 + u16_batch_idx++) = (u32_VarVal & 0xFF );
+					break;
+				case 2:
+					*( pBatch8 + u16_batch_idx++) = (u32_VarVal & 0xFF );
+					*( pBatch8 + u16_batch_idx++) = (u32_VarVal & 0xFF00 ) >> 8;
+					break;
+				case 4:
+					*( pBatch8 + u16_batch_idx++) = (u32_VarVal & 0xFF );
+					*( pBatch8 + u16_batch_idx++) = (u32_VarVal & 0xFF00 ) >> 8;
+					*( pBatch8 + u16_batch_idx++) = (u32_VarVal & 0xFF0000 ) >> 12;
+					*( pBatch8 + u16_batch_idx++) = (u32_VarVal & 0xFF000000 ) >> 24;
+					break;
+			}
+		}
+	}
+	 	
+    if ( u16_batch_idx >= MAX_BATCH_DATA * 4 )
     {
         // Reset the index
         cmd_ResetBatchIndex();

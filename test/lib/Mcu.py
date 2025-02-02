@@ -9,7 +9,9 @@ class Mcu(object):
     READ_RAM    = 0x0002
     WRITE_GPIO  = 0x0101
     READ_GPIO   = 0x0102
-    CAPTURE_DATA= 0x0201
+    CAPTURE8    = 0x0201
+    CAPTURE16   = 0x0202
+    CAPTURE32   = 0x0204
     SEND_DATA   = 0x0202
     SOFT_RESET  = 0XFEEF
 
@@ -151,7 +153,7 @@ class Mcu(object):
         else:
             result = []
             for i in range(length):
-                self.sendcmd([self.READ_RAM, var_name + 4*i, bytesize, i, 0x00])
+                self.sendcmd([self.READ_RAM, var_name + bytesize*i, bytesize, i, 0x00])
                 data = self.read()
                 if data['status'] == 0:
                     result.append([])
@@ -168,7 +170,7 @@ class Mcu(object):
     def readram8(self, var_name, length=1):
         return self.readram(var_name, 1, length=length)
 
-    def capture(self, var_name=None, var_name1=None, var_name2=None, var_name3=None):
+    def capture(self, var_name=None, var_name1=None, var_name2=None, var_name3=None, bytesize=4):
         if var_name is not None:
             var_name = self.getvaraddress(var_name)
         else:
@@ -185,7 +187,17 @@ class Mcu(object):
             var_name3 = self.getvaraddress(var_name3)
         else:
             var_name3 = 0x00
-        self.sendcmd([self.CAPTURE_DATA, var_name, var_name1, var_name2, var_name3])
+
+        if bytesize == 4:
+            self.sendcmd([self.CAPTURE32, var_name, var_name1, var_name2, var_name3])
+            sleep(0.1)      # Wait for the data to be captured. Estimate time to capture data is 100ms
+        elif bytesize == 2:
+            self.sendcmd([self.CAPTURE16, var_name, var_name1, var_name2, var_name3])
+            sleep(1)        # Wait for the data to be captured. Estimate time to capture data is 100ms
+        elif bytesize == 1:
+            self.sendcmd([self.CAPTURE8, var_name, var_name1, var_name2, var_name3])
+            sleep(1)        # Wait for the data to be captured. Estimate time to capture data is 100ms
+
         data = self.read()
         if data['status'] == 0:
             return []
@@ -193,10 +205,9 @@ class Mcu(object):
             return data['resp']
 
     def getdata(self, var_name=None, var_name1=None, var_name2=None, var_name3=None, length=None, bytesize=4):
-        self.capture(var_name, var_name1, var_name2, var_name3)
-        sleep(0.1)      # Wait for the data to be captured. Estimate time to capture data is 100ms
+        self.capture(var_name, var_name1, var_name2, var_name3, bytesize)
         if (length is None) and ('MAX_BATCH_DATA' in self.macro_dict):
-            length = self.macro_dict['MAX_BATCH_DATA']
+            length = self.macro_dict['MAX_BATCH_DATA'] * ( 4 // bytesize )
         no_var = sum([1 for x in [var_name, var_name1, var_name2, var_name3] if x is not None])
         data = self.readram('batch_data', bytesize, length=length)
         result = []
