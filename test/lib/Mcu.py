@@ -192,26 +192,26 @@ class Mcu(object):
         else:
             return data['resp']
 
-    def getdata32(self, var_name=None, var_name1=None, var_name2=None, var_name3=None, length=None):
+    def getdata(self, var_name=None, var_name1=None, var_name2=None, var_name3=None, length=None, bytesize=4):
         self.capture(var_name, var_name1, var_name2, var_name3)
         sleep(0.1)      # Wait for the data to be captured. Estimate time to capture data is 100ms
         if (length is None) and ('MAX_BATCH_DATA' in self.macro_dict):
             length = self.macro_dict['MAX_BATCH_DATA']
-        return self.readram32('batch_data', length=length)
+        no_var = sum([1 for x in [var_name, var_name1, var_name2, var_name3] if x is not None])
+        data = self.readram('batch_data', bytesize, length=length)
+        result = []
+        for i in range(no_var):
+            result.append(data[i::no_var])
+        return result
+
+    def getdata32(self, var_name=None, var_name1=None, var_name2=None, var_name3=None, length=None):
+        return self.getdata(var_name, var_name1, var_name2, var_name3, length=length, bytesize=4)
 
     def getdata16(self, var_name=None, var_name1=None, var_name2=None, var_name3=None, length=None):
-        self.capture(var_name, var_name1, var_name2, var_name3)
-        sleep(0.1)      # Wait for the data to be captured. Estimate time to capture data is 100ms
-        if (length is None) and ('MAX_BATCH_DATA' in self.macro_dict):
-            length = self.macro_dict['MAX_BATCH_DATA']
-        return self.readram16('batch_data', length=length)
+        return self.getdata(var_name, var_name1, var_name2, var_name3, length=length, bytesize=2)
 
     def getdata8(self, var_name=None, var_name1=None, var_name2=None, var_name3=None, length=None):
-        self.capture(var_name, var_name1, var_name2, var_name3)
-        sleep(0.1)      # Wait for the data to be captured. Estimate time to capture data is 100ms
-        if (length is None) and ('MAX_BATCH_DATA' in self.macro_dict):
-            length = self.macro_dict['MAX_BATCH_DATA']
-        return self.readram8('batch_data', length=length)
+        return self.getdata(var_name, var_name1, var_name2, var_name3, length=length, bytesize=1)
 
     def writegpio(self, pin, value, af=0):
         cmd_str =   f"/cmd".encode("utf-8")

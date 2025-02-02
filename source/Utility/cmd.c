@@ -353,7 +353,7 @@ static void cmd_SoftReset(void)
 
 static void cmd_CaptureData(void)
 {
-	static volatile *pTemp, *pTemp1, *pTemp2, *pTemp3;
+	static volatile uint32_t *pTemp, *pTemp1, *pTemp2, *pTemp3;
 	static uint8_t u8_VarEnable;
 	if ( cmd_GetBatchIndex() == 0 )
     {
@@ -384,23 +384,15 @@ static void cmd_CaptureData(void)
     // Capture data from ISR and store in the batch data
     if ( u8_VarEnable & 0x01 )
         batch_data[u16_batch_idx++] = *pTemp;
-    else
-        batch_data[u16_batch_idx++] = 0;
 
     if ( u8_VarEnable & 0x02 )
         batch_data[u16_batch_idx++] = *pTemp1;
-    else
-        batch_data[u16_batch_idx++] = 0;
 
     if ( u8_VarEnable & 0x04 )
         batch_data[u16_batch_idx++] = *pTemp2;
-    else
-        batch_data[u16_batch_idx++] = 0;
 
     if ( u8_VarEnable & 0x08 )
         batch_data[u16_batch_idx++] = *pTemp3;
-    else
-        batch_data[u16_batch_idx++] = 0;
 
     if ( u16_batch_idx >= MAX_BATCH_DATA )
     {

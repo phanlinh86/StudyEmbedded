@@ -35,8 +35,13 @@
 #define RX_USART_BUFFER			( 4 + MAX_CMD_FRAME_LENGTH * 4 + 1 ) 	// 4 BYTES COMMAND HEADER. 5 BYTES COMMAND FRAME. 1 BYTE FOR TERMINATION
 																		// This need to be adjusted according to MAX_CMD_FRAME_LENGTH in cmd.c
 
-												
-#define MAX_BATCH_DATA 				256 		// 1K bytes RAM
+	#if ( BOARD_ID ==  BOARD_ID_STM32F411E )												
+#define MAX_BATCH_DATA 				512 		// 512 * 32 bits = 2K bytes RAM 
+	#elif ( BOARD_ID ==  BOARD_ID_STM32L010RB )
+#define MAX_BATCH_DATA 				256 		// 256 * 32 bits = 1K bytes RAM	
+	#elif ( BOARD_ID ==  BOARD_ID_ATMEGA328P )
+#define MAX_BATCH_DATA 				256 		// 256 * 32 bits = 1K bytes RAM
+	#endif // BOARD_ID == ?
 
 typedef enum
 {
