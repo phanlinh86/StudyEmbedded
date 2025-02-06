@@ -55,14 +55,16 @@ typedef enum
 
 static use_i2c eI2c = DEFAULT_I2C;
 
-static void ut_InitI2c();
+static void ut_InitI2c(uint8_t u8_DeviceAddress);
 void ut_SendI2c(const uint8_t *pTxBuffer, uint8_t SlaveAddr);
+uint8_t ut_ReadI2c(uint8_t u8_DeviceAddress, uint8_t u8_SlaveAddr);
+void ut_WriteI2c(uint8_t u8_DeviceAddress, uint8_t u8_SlaveAddr, uint8_t u8_SlaveValue);
     #endif // BOARD_ID ==  BOARD_ID_STM32F411E
 
 static void ut_Init()
 {
         #if ( BOARD_ID == BOARD_ID_STM32F411E )
-	ut_InitI2c();
+	ut_InitI2c(ACCEL_SENSOR_SLAVE_ADDR);    // Initialize Accelerate Sensor
 	    #endif // BOARD_ID ==  BOARD_ID_STM32F411E
 	ut_InitUart(); 		// Initialize UART
 	ut_InitTimer();	    // Initialize timer for scheduler
@@ -191,28 +193,19 @@ static usart_config ut_GetUsartConfig(void)
 }
 
     #if ( BOARD_ID == BOARD_ID_STM32F411E )
-static void ut_InitI2c()
+static void ut_InitI2c( uint8_t u8_DeviceAddress )
 {
 	switch (eI2c)
 	{
 
 		case USE_I2C1:
-			mcu_InitI2c1();
-			//is_SetUsart1Interrupt();
-			//mcu_Usart1InitBuffer(uart_rx_buffer);
-			//is_InitUsart1Isr(mcu_Usart1IrqService);
+			mcu_InitI2c1(u8_DeviceAddress);
 			break;
 		case USE_I2C2:
-			mcu_InitI2c2();
-			//is_SetUsart2Interrupt();
-			//mcu_Usart2InitBuffer(uart_rx_buffer);
-			//is_InitUsart2Isr(mcu_Usart2IrqService);
+			mcu_InitI2c2(u8_DeviceAddress);
 			break;
 		case USE_I2C3:
-			mcu_InitI2c3();
-			//is_SetUsart6Interrupt();
-			//mcu_Usart6InitBuffer(uart_rx_buffer);
-			//is_InitUsart6Isr(mcu_Usart6IrqService);
+			mcu_InitI2c3(u8_DeviceAddress);
 			break;
 	}
 }
@@ -232,4 +225,39 @@ void ut_SendI2c(const uint8_t *pTxBuffer, uint8_t SlaveAddr)
 			break;
 	}
 }
+
+uint8_t ut_ReadI2c(uint8_t u8_DeviceAddress, uint8_t u8_SlaveAddr)
+{
+	uint8_t u8_SlaveValue;
+	switch (eI2c)
+	{
+		case USE_I2C1:
+			u8_SlaveValue = mcu_u8_ReadI2c1(u8_DeviceAddress, u8_SlaveAddr);
+			break;
+		case USE_I2C2:
+			u8_SlaveValue = mcu_u8_ReadI2c2(u8_DeviceAddress, u8_SlaveAddr);
+			break;
+		case USE_I2C3:
+			u8_SlaveValue = mcu_u8_ReadI2c3(u8_DeviceAddress, u8_SlaveAddr);
+			break;
+	}
+	return u8_SlaveValue;
+}
+
+void ut_WriteI2c(uint8_t u8_DeviceAddress, uint8_t u8_SlaveAddr, uint8_t u8_SlaveValue)
+{
+	switch (eI2c)
+	{
+		case USE_I2C1:
+			mcu_WriteI2c1(u8_DeviceAddress, u8_SlaveAddr, u8_SlaveValue);
+			break;
+		case USE_I2C2:
+			mcu_WriteI2c2(u8_DeviceAddress, u8_SlaveAddr, u8_SlaveValue);
+			break;
+		case USE_I2C3:
+			mcu_WriteI2c3(u8_DeviceAddress, u8_SlaveAddr, u8_SlaveValue);
+			break;
+	}
+}
+
     #endif // BOARD_ID == ?

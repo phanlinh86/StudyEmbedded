@@ -9,6 +9,8 @@ class Mcu(object):
     READ_RAM    = 0x0002
     WRITE_GPIO  = 0x0101
     READ_GPIO   = 0x0102
+    WRITE_I2C   = 0x0103
+    READ_I2C    = 0x0104
     CAPTURE8    = 0x0201
     CAPTURE16   = 0x0202
     CAPTURE32   = 0x0204
@@ -248,6 +250,22 @@ class Mcu(object):
             return []
         else:
             return data['resp'][0]
+
+    def writei2c(self, device_address, slave_address, slave_value):
+        self.sendcmd([self.WRITE_I2C, device_address, slave_address, slave_value, 0x00])
+        data = self.read()
+        if data['status'] == 0:
+            return []
+        else:
+            return data['resp'][0]    
+            
+    def readi2c(self, device_address, slave_address):
+        self.sendcmd([self.READ_I2C, device_address, slave_address, 0x00, 0x00])
+        data = self.read()
+        if data['status'] == 0:
+            return []
+        else:
+            return data['resp'][0]        
 
     def reset(self):
         self.sendcmd([self.SOFT_RESET, 0x00, 0x00, 0x00, 0x00])

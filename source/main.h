@@ -3,25 +3,29 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include "Utility/math.h"
-#include "Utility/util.h"
-#include "Int/Int.h"
 
+/* COMPILIATION OPTION */
 // Project name
 #define PROJECT_INVALID            0
 #define PROJECT_BLINK_LED          1
 #define PROJECT_DISPLAY_CLOCK      2
 #define PROJECT_PS2                3
-
-
     #ifndef PROJECT
 #define PROJECT PROJECT_INVALID
     #endif // PROJECT
+
 
 // Board ID
 #define BOARD_ID_STM32F411E         0x01
 #define BOARD_ID_STM32L010RB        0x02
 #define BOARD_ID_ATMEGA328P        	0x03
+
+#include "Utility/math.h"
+#include "Utility/util.h"
+#include "Int/Int.h"
+
+
+/* COMPILIATION OPTION end*/
 
 	#if ( PROJECT == PROJECT_BLINK_LED )
 #include "Project/BlinkLed.h"
@@ -29,6 +33,7 @@
 
     #if ( BOARD_ID ==  BOARD_ID_STM32F411E )
 #include "Mcu/McuHardwareStm32F411E.h"
+#include "Sensor/SensorHardwareLsm303agr.h"
 #include "Mcu/McuDriverStm32F411E.c"
 #include "Int/InterruptServiceStm32F411E.c"
     #elif ( BOARD_ID ==  BOARD_ID_STM32L010RB )

@@ -106,6 +106,8 @@ typedef enum
 // 0x01xx - Write/Read Hardware
 #define WRITE_GPIO		0x0101
 #define READ_GPIO		0x0102
+#define WRITE_I2C		0x0103
+#define READ_I2C		0x0104
 
 // 0x02xx - Send/Capture data
 // These group of command requires more than 1 ISR to complete execution
@@ -159,6 +161,9 @@ static void cmd_ReadRam(void);
 static void cmd_GetInfo(void);
 static void cmd_WriteGpio(void);
 static void cmd_ReadGpio(void);
+static void cmd_ReadI2c(void);
+static void cmd_WriteI2c(void);
+
 static void cmd_SoftReset(void);
 
 static void cmd_CaptureData(uint8_t u8_ByteSize);

@@ -170,6 +170,16 @@ static void cmd_DoCommand(void)
 			cmd_SetCmdStatus(CMD_COMPLETE);
 			break;
 
+		case WRITE_I2C:				// Write I2C				0x0103
+			cmd_WriteI2c();
+			cmd_SetCmdStatus(CMD_COMPLETE);
+			break;
+		case READ_I2C:				// Read I2C					0x0104
+			cmd_ReadI2c();
+			cmd_SetCmdStatus(CMD_COMPLETE);
+			break;		
+
+
 		// Reset
 		case SOFT_RESET:
 			cmd_SoftReset();
@@ -347,6 +357,46 @@ static void cmd_ReadGpio(void)
 	resp_frame.resp3 	= 0x00;
 }
 
+static void cmd_WriteI2c(void)
+{
+	uint8_t u8_DeviceAddress;
+	uint8_t u8_SlaveAddress;
+	uint8_t u8_SlaveValue;
+	
+	u8_DeviceAddress = cmd_frame.param0 & 0xFF;
+	u8_SlaveAddress = cmd_frame.param1 & 0xFF;
+	u8_SlaveValue = cmd_frame.param2 & 0xFF;
+
+
+	ut_WriteI2c(u8_DeviceAddress, u8_SlaveAddress, u8_SlaveValue);
+
+	resp_frame.status 	= 1;
+	resp_frame.resp0 	= u8_SlaveValue;
+	resp_frame.resp1 	= u8_DeviceAddress;
+	resp_frame.resp2 	= u8_SlaveAddress;
+	resp_frame.resp3 	= 0x00;		
+}
+
+static void cmd_ReadI2c(void)
+{
+	uint8_t u8_DeviceAddress;
+	uint8_t u8_SlaveAddress;
+	uint8_t u8_SlaveValue;
+	
+	u8_DeviceAddress = cmd_frame.param0 & 0xFF;
+	u8_SlaveAddress = cmd_frame.param1 & 0xFF;
+
+
+	u8_SlaveValue = ut_ReadI2c(u8_DeviceAddress, u8_SlaveAddress);
+
+	resp_frame.status 	= 1;
+	resp_frame.resp0 	= u8_SlaveValue;
+	resp_frame.resp1 	= u8_DeviceAddress;
+	resp_frame.resp2 	= u8_SlaveAddress;
+	resp_frame.resp3 	= 0x00;	
+}
+
+// 
 static void cmd_SoftReset(void)
 {
 	mcu_SoftReset();
@@ -363,7 +413,6 @@ static void cmd_CaptureData(uint8_t u8_ByteSize)
 	static volatile uint32_t *pBuffer;
 	static volatile uint8_t *pBatch8;		// 8-bits Pointer to program Batch Data
 	uint32_t u32_VarVal;					// Variable value
-	static uint32_t current_batch;
 	if ( cmd_GetBatchIndex() == 0 )
 	{		
 		pBuffer = (uint32_t*) &cmd_frame + 1;
