@@ -108,6 +108,9 @@ typedef enum
 #define READ_GPIO		0x0102
 #define WRITE_I2C		0x0103
 #define READ_I2C		0x0104
+#define READ_TEMP		0x0110
+#define READ_ACCEL		0x0111
+#define READ_MAGNET		0x0112
 
 // 0x02xx - Send/Capture data
 // These group of command requires more than 1 ISR to complete execution
@@ -159,10 +162,17 @@ static void cmd_UpdateCommandResponse(void);
 static void cmd_WriteRam(void);
 static void cmd_ReadRam(void);
 static void cmd_GetInfo(void);
+
 static void cmd_WriteGpio(void);
 static void cmd_ReadGpio(void);
 static void cmd_ReadI2c(void);
 static void cmd_WriteI2c(void);
+	#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
+static void cmd_ReadTemp(void);
+static void cmd_ReadAccel(void);
+static void cmd_ReadMagnet(void);
+	#endif // BOARD_ID ==  BOARD_ID_STM32F411E
+
 
 static void cmd_SoftReset(void);
 

@@ -177,7 +177,21 @@ static void cmd_DoCommand(void)
 		case READ_I2C:				// Read I2C					0x0104
 			cmd_ReadI2c();
 			cmd_SetCmdStatus(CMD_COMPLETE);
+			break;
+				#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
+		case READ_TEMP:				// Read Temperature
+			cmd_ReadTemp();
+			cmd_SetCmdStatus(CMD_COMPLETE);
 			break;		
+		case READ_ACCEL:				// Read Accelerometer
+			cmd_ReadAccel();
+			cmd_SetCmdStatus(CMD_COMPLETE);
+			break;
+		case READ_MAGNET:				// Read Magnetometer
+			cmd_ReadMagnet();
+			cmd_SetCmdStatus(CMD_COMPLETE);
+			break;				
+				#endif // BOARD_ID ==  BOARD_ID_STM32F411E
 
 
 		// Reset
@@ -409,6 +423,41 @@ static void cmd_SoftReset(void)
 	resp_frame.resp3 	= 0x00;
 }
 
+static void cmd_ReadTemp(void)
+{
+	ut_ReadI2c(ACCEL_SENSOR_SLAVE_ADDR, OUT_TEMP_A_REG, 2);
+
+	resp_frame.status 	= 1;
+	resp_frame.resp0 	= batch_data[0] & 0xFFFF;
+	resp_frame.resp1 	= ACCEL_SENSOR_SLAVE_ADDR;
+	resp_frame.resp2 	= OUT_TEMP_A_REG;
+	resp_frame.resp3 	= 0x00;		
+}
+
+static void cmd_ReadAccel(void)
+{
+	ut_ReadI2c(ACCEL_SENSOR_SLAVE_ADDR, OUT_X_A_REG, 6);
+
+	resp_frame.status 	= 1;
+	resp_frame.resp0 	= batch_data[0] & 0xFFFF;				// accel_x
+	resp_frame.resp1 	= ( batch_data[0] & 0xFFFF0000 ) >> 16; // accel_y
+	resp_frame.resp2 	= batch_data[1] & 0xFFFF;				// accel_z
+	resp_frame.resp3 	= 0x00;			
+}
+
+static void cmd_ReadMagnet(void)
+{
+	ut_ReadI2c(MAGNET_SENSOR_SLAVE_ADDR, OUTX_REG_M_REG, 6);
+
+	resp_frame.status 	= 1;
+	resp_frame.resp0 	= batch_data[0] & 0xFFFF;				// magnet_x
+	resp_frame.resp1 	= ( batch_data[0] & 0xFFFF0000 ) >> 16; // magnet_y
+	resp_frame.resp2 	= batch_data[1] & 0xFFFF;				// magnet_z
+	resp_frame.resp3 	= 0x00;			
+}
+
+
+// Capture / Read batch data
 static void cmd_CaptureData(uint8_t u8_ByteSize)
 {
 	static volatile uint32_t *pBuffer;

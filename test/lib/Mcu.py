@@ -7,10 +7,15 @@ class Mcu(object):
     GET_INFO    = 0x0000
     WRITE_RAM   = 0x0001
     READ_RAM    = 0x0002
+    
     WRITE_GPIO  = 0x0101
     READ_GPIO   = 0x0102
     WRITE_I2C   = 0x0103
     READ_I2C    = 0x0104
+    READ_TEMP   = 0x0110
+    READ_ACCEL  = 0x0111
+    READ_MAGNET = 0x0112
+    
     CAPTURE8    = 0x0201
     CAPTURE16   = 0x0202
     CAPTURE32   = 0x0204
@@ -268,7 +273,33 @@ class Mcu(object):
             if slave_len <= 1:
                 return data['resp'][0] 
             else:
-                return self.readram8('batch_data', length=slave_len)                    
+                return self.readram8('batch_data', length=slave_len)
+
+    def readtemp(self):
+        self.sendcmd([self.READ_TEMP, 0x00, 0x00, 0x00, 0x00])
+        data = self.read()
+        if data['status'] == 0:
+            return []
+        else:
+            return data['resp'][0] / ( 2.0 ** 8 ) + 25
+
+    def readaccel(self):
+        self.sendcmd([self.READ_ACCEL, 0x00, 0x00, 0x00, 0x00])
+        data = self.read()        
+        if data['status'] == 0:
+            return []
+        else:
+            temp = [accel if accel <= 32767 else accel - 65536 for accel in data['resp'][:3]]
+            return [accel * 0.98 / ( 2.0 ** 12) for accel in temp]
+
+    def readmagnet(self):
+        self.sendcmd([self.READ_MAGNET, 0x00, 0x00, 0x00, 0x00])
+        data = self.read()
+        if data['status'] == 0:
+            return []
+        else:
+            temp = [magnet if magnet <= 32767 else magnet - 65536 for magnet in data['resp'][:3]]
+            return [magnet * 0.98 / ( 2.0 ** 12) for magnet in temp]
 
     def reset(self):
         self.sendcmd([self.SOFT_RESET, 0x00, 0x00, 0x00, 0x00])

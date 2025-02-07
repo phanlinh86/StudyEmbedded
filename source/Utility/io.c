@@ -269,7 +269,7 @@ void ut_WriteI2c(uint8_t u8_DeviceAddress, uint8_t u8_SlaveAddr, uint8_t u8_Slav
 // Accelerometer / Magnetometer / Temperature Sensor
 static void ut_InitAccel(void)
 {
-	mcu_WriteI2c1(ACCEL_SENSOR_SLAVE_ADDR, LSM303AGR->CTRL_REG1_A, 0x77);	// ODR = 7. Enable all accelerators
-	mcu_WriteI2c1(ACCEL_SENSOR_SLAVE_ADDR, LSM303AGR->CTRL_REG4_A, 0x08);	// BDU = 1. HR=1. FS=0	
+	mcu_WriteI2c1(ACCEL_SENSOR_SLAVE_ADDR, CTRL_REG1_A_REG, 0x77);	// ODR = 7. Enable all accelerators
+	mcu_WriteI2c1(ACCEL_SENSOR_SLAVE_ADDR, CTRL_REG4_A_REG, 0x08);	// BDU = 1. HR=1. FS=0	
 }
     #endif // BOARD_ID == ?

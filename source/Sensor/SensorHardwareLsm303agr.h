@@ -4,6 +4,16 @@
 #define reg8( r ) unsigned char r
 #define reg16( r ) unsigned short r
 // LSM303AGR Register map
+#define STATUS_REG_AUX_A_REG 		0x07
+#define OUT_TEMP_A_REG 				0x0C
+#define WHO_AM_I_A_REG				0x0F
+#define CTRL_REG1_A_REG				0x20
+#define CTRL_REG2_A_REG				0x21
+#define CTRL_REG3_A_REG				0x22
+#define CTRL_REG4_A_REG				0x23
+#define OUT_X_A_REG					0x28
+#define OUTX_REG_M_REG				0x68
+
 typedef volatile struct
 {
     reg8(RVSD0);                    // 0x00
@@ -111,5 +121,5 @@ typedef volatile struct
 } lsm303agr_regs;
 
 
-#define LSM303AGR     ((lsm303agr_regs*)0X00U)
+#define LSM303AGR     ((lsm303agr_regs*)0x00U)
 
