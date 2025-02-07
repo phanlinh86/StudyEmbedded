@@ -20,9 +20,9 @@
 #define I2C_BUSY_IN_TX 				2
 
 // I2C CLock Speed
-#define I2C_SCL_SPEED_SM 	100000
-#define I2C_SCL_SPEED_FM4K 	400000
-#define I2C_SCL_SPEED_FM2K  200000
+#define I2C_SCL_SPEED_100K 	100000
+#define I2C_SCL_SPEED_400K 	400000
+#define I2C_SCL_SPEED_200K  200000
 
 // I2C Fast Mode duty cycle
 #define I2C_FM_DUTY_2        0

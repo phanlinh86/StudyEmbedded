@@ -694,38 +694,9 @@ static inline void mcu_I2cInit( i2c_handle* pI2CHandle )
 	pI2CHandle->pI2Cx->I2C_OAR1.ADD71 = pI2CHandle->I2C_Config.u8_Address;	// 7-bit address
 
 	// CCR calculations	
-	if(pI2CHandle->I2C_Config.u32_ClockSpeed <= I2C_SCL_SPEED_SM)
-	{
-		//Standard mode
-		pI2CHandle->pI2Cx->I2C_CCR.FS = 0;
-		pI2CHandle->pI2Cx->I2C_CCR.DUTY = 0;
-		pI2CHandle->pI2Cx->I2C_CCR.CCR = (mcu_u32_ReadClkApb1() / ( 2 * pI2CHandle->I2C_Config.u32_ClockSpeed ) );
-	}else
-	{
-		//Fast mode
-		pI2CHandle->pI2Cx->I2C_CCR.FS = 1;
-		pI2CHandle->pI2Cx->I2C_CCR.DUTY = pI2CHandle->I2C_Config.u8_DutyCycle;
-		if(pI2CHandle->I2C_Config.u8_DutyCycle == I2C_FM_DUTY_2)
-		{
-			pI2CHandle->pI2Cx->I2C_CCR.CCR = (mcu_u32_ReadClkApb1() / ( 3 * pI2CHandle->I2C_Config.u32_ClockSpeed ) );
-		}else
-		{
-			pI2CHandle->pI2Cx->I2C_CCR.CCR = (mcu_u32_ReadClkApb1() / ( 25 * pI2CHandle->I2C_Config.u32_ClockSpeed ) );
-		}		
-	}
-	pI2CHandle->pI2Cx->I2C_CCR.CCR = 80; 		// 16Mhz / 80 = 200k
-
-	//TRISE Configuration
-	if(pI2CHandle->I2C_Config.u32_ClockSpeed <= I2C_SCL_SPEED_SM)
-	{
-		//Standard mode
-		pI2CHandle->pI2Cx->I2C_TRISE.TRISE = (mcu_u32_ReadClkApb1() /1000000U) + 1 ;
-	}
-	else
-	{
-		//Fast mode
-		pI2CHandle->pI2Cx->I2C_TRISE.TRISE = ( (mcu_u32_ReadClkApb1() * 300) / 1000000000U ) + 1;
-	}
+	pI2CHandle->pI2Cx->I2C_CCR.FS = 0;
+	pI2CHandle->pI2Cx->I2C_CCR.DUTY = 0;
+	pI2CHandle->pI2Cx->I2C_CCR.CCR = (mcu_u32_ReadClkApb1() / ( 2 * pI2CHandle->I2C_Config.u32_ClockSpeed ) );
 	
 	// 
 	pI2CHandle->pI2Cx->I2C_CR1.PE = 1; 			// Enable I2C
@@ -926,7 +897,7 @@ static inline void mcu_I2cMasterReceiveData( i2c_handle* pI2CHandle, uint8_t *pT
 static void mcu_InitI2c1( uint8_t address )
 {
 	i2c1_handle.pI2Cx 						= I2C1;
-	i2c1_handle.I2C_Config.u32_ClockSpeed 	= I2C_SCL_SPEED_SM;
+	i2c1_handle.I2C_Config.u32_ClockSpeed 	= I2C_SCL_SPEED_400K;
 	i2c1_handle.I2C_Config.u8_Address 		= address;
 	i2c1_handle.I2C_Config.u8_AckControl 	= 1;
 	i2c1_handle.I2C_Config.u8_DutyCycle 	= 2;
@@ -964,7 +935,7 @@ static void mcu_I2c1IrqService(void)
 static void mcu_InitI2c2( uint8_t address )
 {
 	i2c2_handle.pI2Cx 						= I2C2;
-	i2c2_handle.I2C_Config.u32_ClockSpeed 	= I2C_SCL_SPEED_SM;
+	i2c2_handle.I2C_Config.u32_ClockSpeed 	= I2C_SCL_SPEED_400K;
 	i2c2_handle.I2C_Config.u8_Address 		= address;
 	i2c2_handle.I2C_Config.u8_AckControl 	= 1;
 	i2c2_handle.I2C_Config.u8_DutyCycle 	= 2;
@@ -1001,7 +972,7 @@ static void mcu_I2c2IrqService(void)
 static void mcu_InitI2c3( uint8_t address )
 {
 	i2c3_handle.pI2Cx 						= I2C3;
-	i2c3_handle.I2C_Config.u32_ClockSpeed 	= I2C_SCL_SPEED_SM;
+	i2c3_handle.I2C_Config.u32_ClockSpeed 	= I2C_SCL_SPEED_400K;
 	i2c3_handle.I2C_Config.u8_Address 		= address;
 	i2c3_handle.I2C_Config.u8_AckControl 	= 1;
 	i2c3_handle.I2C_Config.u8_DutyCycle 	= 2;
