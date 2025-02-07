@@ -57,7 +57,7 @@ static use_i2c eI2c = DEFAULT_I2C;
 
 static void ut_InitI2c(uint8_t u8_DeviceAddress);
 void ut_SendI2c(const uint8_t *pTxBuffer, uint8_t SlaveAddr);
-uint8_t ut_ReadI2c(uint8_t u8_DeviceAddress, uint8_t u8_SlaveAddr);
+uint8_t ut_ReadI2c(uint8_t u8_DeviceAddress, uint8_t u8_SlaveAddr, uint8_t u8_Len);
 void ut_WriteI2c(uint8_t u8_DeviceAddress, uint8_t u8_SlaveAddr, uint8_t u8_SlaveValue);
     #endif // BOARD_ID ==  BOARD_ID_STM32F411E
 
@@ -226,19 +226,19 @@ void ut_SendI2c(const uint8_t *pTxBuffer, uint8_t SlaveAddr)
 	}
 }
 
-uint8_t ut_ReadI2c(uint8_t u8_DeviceAddress, uint8_t u8_SlaveAddr)
+uint8_t ut_ReadI2c(uint8_t u8_DeviceAddress, uint8_t u8_SlaveAddr, uint8_t u8_Len)
 {
 	uint8_t u8_SlaveValue;
 	switch (eI2c)
 	{
 		case USE_I2C1:
-			u8_SlaveValue = mcu_u8_ReadI2c1(u8_DeviceAddress, u8_SlaveAddr);
+			u8_SlaveValue = mcu_u8_ReadI2c1(u8_DeviceAddress, u8_SlaveAddr, u8_Len);
 			break;
 		case USE_I2C2:
-			u8_SlaveValue = mcu_u8_ReadI2c2(u8_DeviceAddress, u8_SlaveAddr);
+			u8_SlaveValue = mcu_u8_ReadI2c2(u8_DeviceAddress, u8_SlaveAddr, u8_Len);
 			break;
 		case USE_I2C3:
-			u8_SlaveValue = mcu_u8_ReadI2c3(u8_DeviceAddress, u8_SlaveAddr);
+			u8_SlaveValue = mcu_u8_ReadI2c3(u8_DeviceAddress, u8_SlaveAddr, u8_Len);
 			break;
 	}
 	return u8_SlaveValue;

@@ -259,13 +259,16 @@ class Mcu(object):
         else:
             return data['resp'][0]    
             
-    def readi2c(self, device_address, slave_address):
-        self.sendcmd([self.READ_I2C, device_address, slave_address, 0x00, 0x00])
+    def readi2c(self, device_address, slave_address, slave_len=0x00):
+        self.sendcmd([self.READ_I2C, device_address, slave_address, slave_len, 0x00])
         data = self.read()
         if data['status'] == 0:
             return []
         else:
-            return data['resp'][0]        
+            if slave_len <= 1:
+                return data['resp'][0] 
+            else:
+                return self.readram8('batch_data', length=slave_len)                    
 
     def reset(self):
         self.sendcmd([self.SOFT_RESET, 0x00, 0x00, 0x00, 0x00])

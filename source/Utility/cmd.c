@@ -381,13 +381,14 @@ static void cmd_ReadI2c(void)
 {
 	uint8_t u8_DeviceAddress;
 	uint8_t u8_SlaveAddress;
-	uint8_t u8_SlaveValue;
+	uint8_t u8_SlaveLen;
+	uint8_t u8_SlaveValue;	
 	
-	u8_DeviceAddress = cmd_frame.param0 & 0xFF;
-	u8_SlaveAddress = cmd_frame.param1 & 0xFF;
+	u8_DeviceAddress 	= cmd_frame.param0 & 0xFF;
+	u8_SlaveAddress 	= cmd_frame.param1 & 0xFF;
+	u8_SlaveLen 		= cmd_frame.param2 & 0xFF;
 
-
-	u8_SlaveValue = ut_ReadI2c(u8_DeviceAddress, u8_SlaveAddress);
+	u8_SlaveValue = ut_ReadI2c(u8_DeviceAddress, u8_SlaveAddress, u8_SlaveLen);
 
 	resp_frame.status 	= 1;
 	resp_frame.resp0 	= u8_SlaveValue;
