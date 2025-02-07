@@ -46,6 +46,7 @@ static use_uart ut_u16_GetUsedUsart(void);
 static usart_config ut_GetUsartConfig(void);
 
     #if ( BOARD_ID == BOARD_ID_STM32F411E )
+// I2C
 typedef enum 
 {
 	USE_I2C1 = 1,
@@ -59,12 +60,17 @@ static void ut_InitI2c(uint8_t u8_DeviceAddress);
 void ut_SendI2c(const uint8_t *pTxBuffer, uint8_t SlaveAddr);
 uint8_t ut_ReadI2c(uint8_t u8_DeviceAddress, uint8_t u8_SlaveAddr, uint8_t u8_Len);
 void ut_WriteI2c(uint8_t u8_DeviceAddress, uint8_t u8_SlaveAddr, uint8_t u8_SlaveValue);
+
+// Accelerometer / Magnetometer / Temperature Sensor
+static void ut_InitAccel(); 			// Initialize Accelerometer
+static uint16_t ut_ReadTemp(void);		// Read temperature
     #endif // BOARD_ID ==  BOARD_ID_STM32F411E
 
 static void ut_Init()
 {
         #if ( BOARD_ID == BOARD_ID_STM32F411E )
-	ut_InitI2c(ACCEL_SENSOR_SLAVE_ADDR);    // Initialize Accelerate Sensor
+	ut_InitI2c(ACCEL_SENSOR_SLAVE_ADDR);    // Initialize I2C
+	ut_InitAccel();							// Initialize Accelerometer
 	    #endif // BOARD_ID ==  BOARD_ID_STM32F411E
 	ut_InitUart(); 		// Initialize UART
 	ut_InitTimer();	    // Initialize timer for scheduler
@@ -260,4 +266,10 @@ void ut_WriteI2c(uint8_t u8_DeviceAddress, uint8_t u8_SlaveAddr, uint8_t u8_Slav
 	}
 }
 
+// Accelerometer / Magnetometer / Temperature Sensor
+static void ut_InitAccel(void)
+{
+	mcu_WriteI2c1(ACCEL_SENSOR_SLAVE_ADDR, LSM303AGR->CTRL_REG1_A, 0x77);	// ODR = 7. Enable all accelerators
+	mcu_WriteI2c1(ACCEL_SENSOR_SLAVE_ADDR, LSM303AGR->CTRL_REG4_A, 0x08);	// BDU = 1. HR=1. FS=0	
+}
     #endif // BOARD_ID == ?

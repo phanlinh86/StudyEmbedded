@@ -109,3 +109,7 @@ typedef volatile struct
     reg8(RVSD6E);   // 0x6E
     reg8(RVSD6F);   // 0x6F
 } lsm303agr_regs;
+
+
+#define LSM303AGR     ((lsm303agr_regs*)0X00U)
+
