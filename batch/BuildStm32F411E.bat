@@ -8,6 +8,8 @@ if "%PROJECT_NAME%" == "" (
     echo Usage: build.bat PROJECT_NAME
     echo PROJECT_NAME: The name of the project
     exit /b
+) else if "%PROJECT_NAME%" == "Common" (
+    set PROJECT=0
 ) else if "%PROJECT_NAME%" == "BlinkLed" (
     set PROJECT=1
 ) else (

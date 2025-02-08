@@ -41,11 +41,14 @@
 # make clean
 
 
-all: blink
+all: build
 
-blink: blink_a blink_b blink_c
+build: build_a build_b build_c
 
 options: clean
+ifeq ($(project),)
+project=Common
+endif
 ifeq ($(rev),)
 rev = 0000
 endif
@@ -59,8 +62,8 @@ ifeq ($(com),)
 com = COM7
 endif
 
-blink_a: options
-	batch\BuildStm32F411E BlinkLed $(rev)
+build_a: options
+	batch\BuildStm32F411E $(project) $(rev)
 	echo Build is successful. Release file according to release option
 	@if $(rel)==0 ((robocopy build build\$@ /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0)
 	@if $(rel)==1 ((robocopy build release\$@\$(rev) /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0)
@@ -70,8 +73,8 @@ blink_a: options
 	@(robocopy test release\$@\$(rev)\test /NFL /NDL /njh /njs /ndl /nc /s) ^& IF %ERRORLEVEL% LEQ 1 exit 0	
 	@7z a .\release\$@_$(rev).zip .\release\$@\$(rev)\* > nul)	
 	
-blink_b: options
-	batch\BuildStm32L0x0 BlinkLed $(rev)
+build_b: options
+	batch\BuildStm32L0x0 $(project) $(rev)
 	echo Build is successful. Release file according to release option
 	@if $(rel)==0 ((robocopy build build\$@ /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0)
 	@if $(rel)==1 ((robocopy build release\$@\$(rev) /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0)
@@ -81,8 +84,8 @@ blink_b: options
 	@(robocopy test release\$@\$(rev)\test /NFL /NDL /njh /njs /ndl /nc /s) ^& IF %ERRORLEVEL% LEQ 1 exit 0	
 	@7z a .\release\$@_$(rev).zip .\release\$@\$(rev)\* > nul)
 	
-blink_c: options
-	batch\BuildAtmega328P BlinkLed $(rev)
+build_c: options
+	batch\BuildAtmega328P $(project) $(rev)
 	echo Build is successful. Release file according to release option
 	@if $(rel)==0 ((robocopy build build\$@ /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0)
 	@if $(rel)==1 ((robocopy build release\$@\$(rev) /NFL /NDL /njh /njs /ndl /nc /ns) ^& IF %ERRORLEVEL% LEQ 1 exit 0)
