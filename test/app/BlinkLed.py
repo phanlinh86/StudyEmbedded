@@ -1,14 +1,15 @@
 from test.TestInstances import TestInstances
 import matplotlib
 from matplotlib import pyplot as plt
+from time import sleep
 
 matplotlib.use('TkAgg')
 
 if __name__ == "__main__":
     # Test the class
     test_instance = TestInstances()
-    # test_instance.init(port = 'COM4', baudrate = 500000)      # STM32
-    test_instance.init(port='COM7', baudrate=500000)  # Arduino
+    test_instance.init(port = 'COM9', baudrate = 500000)      # STM32
+    # test_instance.init(port='COM7', baudrate=500000)  # Arduino
     test_instance.mcu.readsym(test_instance.main_path + "\\build\\main.sym")
     test_instance.mcu.readmacro(test_instance.main_path + "\\build\\main.macro")
 
@@ -47,3 +48,31 @@ if __name__ == "__main__":
     plt.xlabel('ISRs')
     plt.show()
     test_instance.cleanup()
+
+    # Set the accelerometer to 400Hz
+    test_instance.mcu.writei2c(0x19, 0x20, 0x77)    # ODR = 400Hz (0x7)
+    test_instance.mcu.writei2c(0x19, 0x23, 0x08)    # Set the accelerometer to 2g (0x00) and HS=1 (High Resolution 12-bit)
+                                                    # Set BDU=1 to read the high and low byte of the data at the same time
+
+
+    # Read the accelerometer data
+    for i in range(100):
+        data = test_instance.mcu.readi2c(0x19, 0x28, 6)
+        accel_x = ( (data[1] << 8) | data[0] )
+        accel_y = (data[3] << 8) | data[2]
+        accel_z = (data[5] << 8) | data[4]
+        #convert to signed 16-bit value
+        if accel_x > 32767:
+            accel_x -= 65536
+        if accel_y > 32767:
+            accel_y -= 65536
+        if accel_z > 32767:
+            accel_z -= 65536
+        accel_x = accel_x * 0.98 / 2**12
+        accel_y = accel_y * 0.98 / 2**12
+        accel_z = accel_z * 0.98 / 2**12
+        print(f'Accel: {accel_x}, {accel_y}, {accel_z}')
+
+    # Read the temperature
+    data = test_instance.mcu.readi2c(0x19, 0x0C, 2)
+    temperature = ((data[1] << 8) | data[0]) / (2 ** 8) + 25
