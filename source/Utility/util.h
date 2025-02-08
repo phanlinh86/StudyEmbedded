@@ -165,9 +165,10 @@ static void cmd_GetInfo(void);
 
 static void cmd_WriteGpio(void);
 static void cmd_ReadGpio(void);
-static void cmd_ReadI2c(void);
-static void cmd_WriteI2c(void);
+	
 	#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
+static void cmd_ReadI2c(void);
+static void cmd_WriteI2c(void);	
 static void cmd_ReadTemp(void);
 static void cmd_ReadAccel(void);
 static void cmd_ReadMagnet(void);

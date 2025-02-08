@@ -169,7 +169,7 @@ static void cmd_DoCommand(void)
 			cmd_ReadGpio();
 			cmd_SetCmdStatus(CMD_COMPLETE);
 			break;
-
+				#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
 		case WRITE_I2C:				// Write I2C				0x0103
 			cmd_WriteI2c();
 			cmd_SetCmdStatus(CMD_COMPLETE);
@@ -178,7 +178,7 @@ static void cmd_DoCommand(void)
 			cmd_ReadI2c();
 			cmd_SetCmdStatus(CMD_COMPLETE);
 			break;
-				#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
+				
 		case READ_TEMP:				// Read Temperature
 			cmd_ReadTemp();
 			cmd_SetCmdStatus(CMD_COMPLETE);
@@ -370,7 +370,7 @@ static void cmd_ReadGpio(void)
 	resp_frame.resp2 	= 0x00;
 	resp_frame.resp3 	= 0x00;
 }
-
+		#if ( BOARD_ID ==  BOARD_ID_STM32F411E )
 static void cmd_WriteI2c(void)
 {
 	uint8_t u8_DeviceAddress;
@@ -411,18 +411,6 @@ static void cmd_ReadI2c(void)
 	resp_frame.resp3 	= 0x00;	
 }
 
-// 
-static void cmd_SoftReset(void)
-{
-	mcu_SoftReset();
-	
-	resp_frame.status 	= 1;
-	resp_frame.resp0 	= 0x00;
-	resp_frame.resp1 	= 0x00;
-	resp_frame.resp2 	= 0x00;
-	resp_frame.resp3 	= 0x00;
-}
-
 static void cmd_ReadTemp(void)
 {
 	ut_ReadI2c(ACCEL_SENSOR_SLAVE_ADDR, OUT_TEMP_A_REG, 2);
@@ -455,7 +443,19 @@ static void cmd_ReadMagnet(void)
 	resp_frame.resp2 	= batch_data[1] & 0xFFFF;				// magnet_z
 	resp_frame.resp3 	= 0x00;			
 }
+		#endif // ( BOARD_ID ==  BOARD_ID_STM32F411E )
 
+// 
+static void cmd_SoftReset(void)
+{
+	mcu_SoftReset();
+	
+	resp_frame.status 	= 1;
+	resp_frame.resp0 	= 0x00;
+	resp_frame.resp1 	= 0x00;
+	resp_frame.resp2 	= 0x00;
+	resp_frame.resp3 	= 0x00;
+}
 
 // Capture / Read batch data
 static void cmd_CaptureData(uint8_t u8_ByteSize)
