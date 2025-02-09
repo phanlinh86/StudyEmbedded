@@ -4,25 +4,27 @@
 
 int main(void)
 {
-        #if ( BOARD_ID == BOARD_ID_STM32L010RB )
-    // Set the clock to HSI for higher speed 16 Mhz instead of 2.097 Mhz
-    // Only for STM32L010RB
-    // This code will need to be clean up later
-	RCC->RCC_CR |= 1;
-	while ( !( RCC->RCC_CR & 0x4 ) ) {};
-	RCC->RCC_CFGR.SW = RCC_CLK_SRC_HSI;
-	while ( RCC->RCC_CFGR.SWS != RCC_CLK_SRC_HSI ) {};
-	    #endif // BOARD_ID == BOARD_ID_STM32L010RB
-	ut_Init();		// Initialize utility such as UART, Timer, ...
 
-	is_SetIrqService( Loop );		// Set default Loop function to run every timer interrupt. 
-									// Can modify this behavior in Init function
+	ut_Init();		// Initialize independent utility such as UART, I2C, Timer, ...
 
-	Init(); 		// Initialize project such as interrupts, clock, peripherals, etc.
+	if ( Loop )
+		is_SetIrqService( Loop );		// If Loop function is found declared in any application, 	setup IRQ accordingly
+	else
+		is_SetIrqService( DoNothing );
+
+	if ( Init )
+		Init(); 		// If Init function is found declared in any application, initialize project accordingly.
 
 	while(1)
 	{
 		// Do nothing. 
 		// Loop is done by timer interrupt
 	}
+}
+
+
+// This function to assign pointer function in case we don't need to do anything while avoid assigning pointer to NULL which is dangerous
+void DoNothing(void)
+{
+	// Do nothing
 }
