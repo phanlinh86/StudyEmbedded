@@ -33,14 +33,28 @@ class Logic2(object):
         self.main_path = '\\'.join(os.path.realpath(__file__).split('\\')[:-3])  # Main path of the whole project
         self.port = port
         # Connect to the Logic 2 Application
-        self.manager = Manager.connect(port=self.port)      # Connect to the running Logic 2 Application on port `10430`
+        print("Connecting to the Logic 2 Application on port: {self.port}")
+        if self.check_launch():
+            self.manager = Manager.connect(port=self.port)      # Connect to the running Logic 2 Application on port `10430`
+        else:
+            self.manager = None
+
         self.list_devices = []                              # List of devices connected to this PC
         self.id = None # Device ID
         self.type = None  # Device type
         self.name = None  # Device name
         self.config = None  # Device configuration
         # Update the device information
-        self.update()
+        if self.manager:
+            self.update()
+
+    @staticmethod
+    def check_launch():
+        try:
+            Manager.launch()
+        except:
+            return True
+        return False
 
     def update(self):
         self.list_devices = self.manager.get_devices()            # List of devices connected to this PC
@@ -57,7 +71,8 @@ class Logic2(object):
 
 
     def disconnect(self):
-        self.manager.close()
+        if self.manager:
+            self.manager.close()
 
     def capture(self, duration = 1.0):
         # Start the capture

@@ -24,6 +24,7 @@ class BlinkLed(TestInstances):
         self.time_limit = time_limit
         self.led_pin = None
         self.led_name = None
+        self.board_name = None
         # Record data every run
         self.x_array = None
         self.y_array = None
@@ -37,6 +38,7 @@ class BlinkLed(TestInstances):
         self.mcu.readsym(self.main_path + "\\build\\main.sym")
         self.mcu.readmacro(self.main_path + "\\build\\main.macro")
         board_name = self.get_board_name()
+        self.board_name = board_name
         self.log(f"Found board name: {board_name}")
 
         # Step1.2 Get the LED sequence for the board
@@ -64,7 +66,7 @@ class BlinkLed(TestInstances):
         # Label, title, legend, grid
         plt.xlabel('Time (ms)')
         plt.ylabel('LED State')
-        plt.title('LED Blinking')
+        plt.title(f"{self.board_name} - LED Blinking")
         plt.legend(self.led_name)
         plt.grid()
         # Show the plot and put in interactive mode
@@ -138,7 +140,7 @@ class BlinkLed(TestInstances):
 
 if __name__ == "__main__":
     # Test the class
-    blink_led = BlinkLed(   port        =   'COM9',
+    blink_led = BlinkLed(   port        =   'COM7',
                             baudrate    =   500000,
                             period      =   500,
                             time_limit  =   10*1000,
