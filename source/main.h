@@ -6,7 +6,7 @@
 
 /* COMPILIATION OPTION */
 // Project name
-#define PROJECT_INVALID            0
+#define PROJECT_COMMON             0
 #define PROJECT_BLINK_LED          1
 #define PROJECT_DISPLAY_CLOCK      2
 #define PROJECT_PS2                3
@@ -24,6 +24,9 @@
 #include "Utility/util.h"
 #include "Int/Int.h"
 
+void Loop(void) __attribute__((weak)); 	// Weak declaration for application loop
+void Init(void) __attribute__((weak)); 	// Weak declaration for application Init
+void DoNothing(void);					// Create null function for pointer function
 
 /* COMPILIATION OPTION end*/
 
